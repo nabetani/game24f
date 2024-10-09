@@ -134,9 +134,10 @@ class BLabo extends Building {
 export interface World {
   get wh(): U.XY
   progress(): World
+  get duration(): number
   get powers(): Readonly<Powers>
   get deltsPowers(): Powers
-  get _buildings(): Readonly<Building[]>
+  get buildings(): Readonly<Building[]>
   get fieldObjs(): Readonly<FieldObj[]>
 }
 
@@ -148,8 +149,10 @@ const PowersZero = {
 
 class WorldImpl implements World {
   get wh(): U.XY { return U.XY.of(7, 7) }
+  get duration(): number { return this._duration }
   get powers(): Readonly<Powers> { return addPower({}, this._powers) }
 
+  _duration: number = 0
   _powers: Powers = {}
   _buildings: Building[] = []
   constructor(o: SerializedWorld) {

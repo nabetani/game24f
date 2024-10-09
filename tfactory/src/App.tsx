@@ -15,11 +15,10 @@ function App() {
     }
   }, [wo])
 
-  console.dir(JSON.stringify(wo.fieldObjs))
   return (
     <>
       <div>
-        {JSON.stringify(wo.powers)}
+        {JSON.stringify(wo.powers)} / week: {wo.duration}
       </div>
       <Field world={wo} />
     </>
