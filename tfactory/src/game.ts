@@ -12,7 +12,6 @@ export type FieldObjIDType = typeof FieldObjID[keyof (typeof FieldObjID)]
 export interface FieldObj {
   get area(): Readonly<U.Area>
   get oid(): FieldObjIDType
-  get income(): Powers
 }
 
 type Powers = {
@@ -40,9 +39,9 @@ export class Rank {
 }
 
 abstract class Building implements FieldObj {
-  _area: U.Area
-  _rank: Rank
-  _construction: number = 0
+  private _area: U.Area
+  private _rank: Rank
+  private _construction: number = 0
   get construction(): number { return this._construction }
   get area(): Readonly<U.Area> { return this._area }
   get rank(): Readonly<Rank> { return this._rank }
@@ -73,6 +72,15 @@ class House extends Building {
   }
   constructor(pos: U.XY) {
     super(U.Area.fromPS(pos, U.XY.of(1, 1)), new Rank(1, 0), 0)
+  }
+}
+
+class EmptyCell implements FieldObj {
+  private _pos: U.XY;
+  get area(): Readonly<U.Area> { return U.Area.fromPS(this._pos, U.XY.of(1, 1)) }
+  get oid(): FieldObjIDType { return FieldObjID.none }
+  constructor(pos: U.XY) {
+    this._pos = pos
   }
 }
 
@@ -147,17 +155,29 @@ class WorldImpl implements World {
   constructor(o: SerializedWorld) {
     this._buildings = [
       new House(this.wh.sub(U.XY.of(1, 1)).div(2)),
-      // new Factory(U.Area.fromXYWH(0, 0, 3, 3), new Rank(1, 0), 10),
-      // new Factory(U.Area.fromXYWH(4, 4, 3, 3), new Rank(1, 0), 10),
-      // new PLabo(U.Area.fromXYWH(this.wh.x - 1, 0, 1, 1), new Rank(1, 0), 20),
-      // new BLabo(U.Area.fromXYWH(0, this.wh.y - 1, 1, 1), new Rank(1, 0), 30),
+      new Factory(U.Area.fromXYWH(0, 0, 3, 3), new Rank(1, 0), 10),
+      new Factory(U.Area.fromXYWH(4, 4, 3, 3), new Rank(1, 0), 10),
+      new PLabo(U.Area.fromXYWH(this.wh.x - 1, 0, 1, 1), new Rank(1, 0), 20),
+      new BLabo(U.Area.fromXYWH(0, this.wh.y - 1, 1, 1), new Rank(1, 0), 30),
     ]
   }
   get buildings(): Readonly<Building[]> {
     return this._buildings
   }
   get fieldObjs(): Readonly<FieldObj[]> {
-    return this.buildings
+    const bs: FieldObj[] = [...this.buildings]
+    const m = new Set<number>()
+    bs.forEach(b => {
+      b.area.forEachXY(xy => {
+        m.add(xy.toNum())
+      })
+    })
+    U.Area.fromPS(U.XY.zero, this.wh).forEachXY(xy => {
+      if (!m.has(xy.toNum())) {
+        bs.push(new EmptyCell(xy))
+      }
+    })
+    return bs
   }
   get deltsPowers(): Powers {
     return this._buildings.reduce((prev: Powers, b: Building): Powers => {

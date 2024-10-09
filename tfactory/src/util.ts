@@ -11,6 +11,17 @@ export class XY {
   static of(x: number, y: number): XY {
     return new XY(x, y)
   }
+  static get zero(): XY {
+    return new XY(0, 0)
+  }
+  static fromNum(n: number): XY {
+    const B = (1 << 15);
+    return XY.of(n % B, (n - (n % B)) / B)
+  }
+  toNum(): number {
+    const B = (1 << 15);
+    return this.x + this.y * B
+  }
   add(v: XY) {
     return new XY(this.x + v.x, this.y + v.y)
   }
@@ -45,6 +56,13 @@ export class Area {
     const dx = t.x - this.p.x
     const dy = t.y - this.p.y
     return 0 <= dx && dx < this.s.x && 0 <= dy && dy < this.s.y
+  }
+  forEachXY(proc: (xy: XY) => any): void {
+    for (let dy = 0; dy < this.s.y; ++dy) {
+      for (let dx = 0; dx < this.s.x; ++dx) {
+        proc(this.p.add(XY.of(dx, dy)))
+      }
+    }
   }
 }
 
