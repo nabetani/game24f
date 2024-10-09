@@ -8,81 +8,20 @@
   min-width: 490px;
   max-height: 490px;
   min-height: 490px;
-  border: solid red 1px;
   position: relative;
 }
 
 .cell {
   position: absolute;
-  display: flex;
-  border-color: green;
-  border-style: dashed;
 }
 
 .cell>button {
   width: calc(100% - 7px);
   height: calc(100% - 7px);
-  margin: 2px;
 }
 
-.x0 {
-  left: 0px;
-}
-
-.x1 {
-  left: 70px;
-}
-
-.x2 {
-  left: 140px;
-}
-
-.x3 {
-  left: 210px;
-}
-
-.y0 {
-  top: 0px;
-}
-
-.y1 {
-  top: 70px;
-}
-
-.y2 {
-  top: 140px;
-}
-
-.y3 {
-  top: 210px;
-}
-
-.w1 {
-  width: 70px;
-  min-width: 70px;
-}
-
-.w2 {
-  width: 140px;
-  min-width: 140px;
-}
-
-.w3 {
-  width: 210px;
-  min-width: 210px;
-}
-
-.h1 {
-  height: 70px;
-  max-height: 70px;
-}
-
-.h2 {
-  height: 140px;
-  max-height: 140px;
-}
-
-.h3 {
-  height: 210px;
-  max-height: 210px;
+.Factory {
+  color: black;
+  background-color: red;
+  border: solid black 3px;
 }
