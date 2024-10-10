@@ -19,10 +19,10 @@ function App() {
 
   return (
     <>
+      <Field world={wo} updateWorld={updateWorld} />
       <div>
         {JSON.stringify(wo.powers)} / week: {wo.duration}
       </div>
-      <Field world={wo} updateWorld={updateWorld} />
     </>
   )
 }
