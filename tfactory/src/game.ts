@@ -139,7 +139,8 @@ const buildingPower = (b: Building): number => {
   if (0 < b.construction) {
     return 0
   }
-  return Math.floor(2 ** b.q.level * b.q.improve ** 0.5 * (b.area.h * b.area.w - 0.2))
+  const x = 2 ** b.q.level * b.q.improve ** 0.5 * (b.area.h * b.area.w - 0.2)
+  return Math.floor(x * 100)
 }
 
 export const incomeB = (w: World, b: Building): Powers => {

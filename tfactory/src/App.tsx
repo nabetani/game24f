@@ -20,15 +20,15 @@ function App() {
     }
   }, [wo])
 
-  const c = Layout.clientWH()
-
   return (
     <div style={{
       borderStyle: "solid",
     }}>
       <Field world={wo} updateWorld={updateWorld} />
       <div>
-        {JSON.stringify(wo.powers)} / week: {wo.duration}
+        week: {wo.duration}<br />
+        stock: {JSON.stringify(wo.powers)}<br />
+        income: {JSON.stringify(G.incomeW(wo))} / week
       </div>
     </div>
   )
