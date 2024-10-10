@@ -1,27 +1,11 @@
-.cell {
-  height: 100%;
+body,
+#root {
+  margin: 0;
+  padding: 0;
 }
+
 
 #field {
   background-color: #eef;
-  max-width: 490px;
-  min-width: 490px;
-  max-height: 350px;
-  min-height: 350px;
   position: relative;
-}
-
-.cell {
-  position: absolute;
-}
-
-.cell>button {
-  width: calc(100% - 7px);
-  height: calc(100% - 7px);
-}
-
-.Factory {
-  color: black;
-  background-color: red;
-  border: solid black 3px;
 }

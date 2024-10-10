@@ -8,6 +8,17 @@ import TabPanel from '@mui/lab/TabPanel';
 import { Updater } from 'use-immer';
 import { Upcoming } from "@mui/icons-material";
 
+const clientWH = (): { w: number, h: number } => {
+  const cw0 = document.documentElement.clientWidth
+  const ch = Math.min(document.documentElement.clientHeight, cw0 * 900 / 512)
+  const cw = ch * 512 / 900
+  return { w: cw, h: ch }
+}
+
+const fieldWH = (): { w: number, h: number } => {
+  const { w } = clientWH()
+  return { w: w * 0.9, h: w * 0.9 * 0.7 }
+}
 
 function AddBuildingUI(p: {
   world: G.World,
@@ -122,15 +133,34 @@ function CellClickUI(p: {
 function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: G.FieldObj }): JSX.Element {
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null | undefined>(null);
   const fo = p.fieldObj
-  const W = 70
-  const H = 50
+  const c = fieldWH()
+  const wsize = p.world.size
+
+  const xsize = c.w / (wsize.w + 1)
+  const xgap = (c.w - xsize * wsize.w) / (wsize.w + 1)
+  const xstep = xsize + xgap
+  const width = fo.area.w * xstep - xgap
+
+  const ygap = xgap
+  const ysize = (c.h - ygap * (wsize.h + 1)) / wsize.h
+  const ystep = ysize + ygap
+  const height = fo.area.h * ystep - ygap
+
   const s: React.CSSProperties = {
-    left: fo.area.x * W,
-    top: fo.area.y * H,
-    minWidth: fo.area.w * W,
-    maxWidth: fo.area.w * W,
-    minHeight: fo.area.h * H,
-    maxHeight: fo.area.h * H,
+    position: "absolute",
+    left: fo.area.x * xstep + xgap,
+    top: fo.area.y * ystep + xgap,
+    minWidth: width,
+    maxWidth: width,
+    minHeight: height,
+    maxHeight: height,
+    overflow: "hidden",
+    borderWidth: "1px",
+    borderColor: "red",
+    borderStyle: "dashed",
+    margin: 0,
+    padding: 0,
+
   }
   const col = new Map<G.FieldObjKindType, string>([
     [G.FieldObjKind.none, "#eee"],
@@ -149,12 +179,18 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
   const id = open ? `simple-popover-${U.XY.fromXY(fo.area).toNum()}` : undefined;
   return <div className={"cell"} style={s}>
     <Mui.Button
-      aria-describedby={id} fullWidth={false}
+      aria-describedby={id} fullWidth={false} size="small"
       sx={{
         backgroundColor: col,
-        borderWidth: "3px",
+        borderWidth: "1px",
         borderColor: "black",
-        borderStyle: (open ? "solid" : "none"),
+        borderStyle: (open ? "solid" : "dotted"),
+        padding: 0,
+        margin: "0",
+        minWidth: width,
+        width: width,
+        height: height,
+        fontSize: height / 5,
       }}
       variant="contained"
       onClick={handleClick}>{`${fo.kind}`}</Mui.Button>
@@ -170,11 +206,24 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
     ><CellClickUI world={p.world} updateWorld={p.updateWorld} fieldObj={p.fieldObj} closer={() => { setAnchorEl(null) }} /></Mui.Popover></div >
 }
 
+
+
 class Field extends React.Component<{ world: G.World, updateWorld: Updater<G.World> }, {}> {
   render() {
     const wo = this.props.world
+    const c = fieldWH()
     return (
-      <div id="field">
+      <div style={{
+        position: "relative",
+        width: c.w,
+        minWidth: c.w,
+        maxWidth: c.w,
+        height: c.h,
+        maxHeight: c.h,
+        minHeight: c.h,
+        borderStyle: "solid",
+        overflow: "hidden",
+      }}>
         {G.fieldObjs(wo).map(f => <FieldObj key={`${U.XY.fromXY(f.area).toNum()}`} world={wo} updateWorld={this.props.updateWorld} fieldObj={f} />)}
       </div>
     );
