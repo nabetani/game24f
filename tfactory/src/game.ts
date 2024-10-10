@@ -73,6 +73,20 @@ export type Powers = {
   bDev: number,
 }
 
+const powerZero: Powers = {
+  money: 0,
+  pDev: 0,
+  bDev: 0,
+} as const
+
+const powerAdd = (a: Powers, b: Powers): Powers => {
+  return {
+    money: a.money + b.money,
+    pDev: a.pDev + b.pDev,
+    bDev: a.bDev + b.bDev,
+  }
+}
+
 export type World = {
   size: { w: number, h: number },
   buildings: Building[],
@@ -103,7 +117,54 @@ export const restoreWorld = (_: { [key: string]: any }): World => {
   }
 }
 
+const isWorld = (o: any): o is World => {
+  const w = o as World
+  return (
+    Array.isArray(w?.buildings)
+    && typeof (w?.duration) == "number"
+    && !!w?.powers
+    && !!w?.size)
+}
+
+const buildingPower = (b: Building): number => {
+  if (0 < b.construction) {
+    return 0
+  }
+  return 2 ** b.q.level * b.q.improve ** 0.5 * (b.area.h * b.area.w + 0.5)
+}
+
+export const income = (o: World | Building): Powers => {
+  if (isWorld(o)) {
+    return o.buildings.reduce((acc, b): Powers => powerAdd(acc, income(b)), powerZero)
+  }
+  const z = { ...powerZero }
+  switch (o.kind) {
+    case FieldObjKind.bLabo:
+      z.bDev += buildingPower(o)
+      return z
+    case FieldObjKind.pLabo:
+      z.pDev += buildingPower(o)
+      return z
+    case FieldObjKind.factory:
+      z.money += buildingPower(o)
+      return z
+    default:
+      return powerZero
+  }
+}
+
 export const progress = (o: World | Building): void => {
+  if (isWorld(o)) {
+    o.buildings.forEach(b => progress(b))
+    const i = income(o)
+    console.log(i)
+    ++o.duration
+    o.powers.money += i.money ?? 0
+    o.powers.pDev += i.pDev ?? 0
+    o.powers.bDev += i.bDev ?? 0
+  } else {
+    if (0 < o.construction) --o.construction
+  }
 }
 
 export const fieldObjs = (w: World): FieldObj[] => {
