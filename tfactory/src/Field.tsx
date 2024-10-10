@@ -32,6 +32,38 @@ function AddDestroyUI(p: {
   </>
 }
 
+function AddImproveUI(p: {
+  world: G.World,
+  updateWorld: Updater<G.World>,
+  fieldObj: G.FieldObj,
+  closer: () => void
+}): JSX.Element {
+  const cost = G.improveCost(p.world, p.fieldObj)
+  return <>
+    <Mui.Box>
+      <Mui.FormControl size="small">
+        <Mui.Stack>
+          {cost == null
+            ? <></>
+            : <Mui.Typography>
+              コスト: {cost}
+            </Mui.Typography>}
+          <Mui.Button variant="contained"
+            disabled={cost == null}
+            onClick={() => {
+              p.updateWorld((w: G.World) => {
+                G.improve(w, p.fieldObj)
+              })
+              p.closer()
+            }}
+          >強化</Mui.Button>
+        </Mui.Stack>
+      </Mui.FormControl>
+    </Mui.Box>
+  </>
+}
+
+
 
 function AddBuildingUI(p: {
   world: G.World,
@@ -141,7 +173,9 @@ function CellClickUI(p: {
     <TabPanel value="2">
       <AddDestroyUI world={p.world} updateWorld={p.updateWorld} fieldObj={p.fieldObj} closer={p.closer} />
     </TabPanel>
-    <TabPanel value="3">Item Three</TabPanel>
+    <TabPanel value="3">
+      <AddImproveUI world={p.world} updateWorld={p.updateWorld} fieldObj={p.fieldObj} closer={p.closer} />
+    </TabPanel>
   </MuiL.TabContext>
 }
 
@@ -189,6 +223,10 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
   };
   const open = Boolean(anchorEl);
   const id = open ? `simple-popover-${U.XY.fromXY(fo.area).toNum()}` : undefined;
+  const cond = G.condition(p.world, p.fieldObj)
+  const pline = (tag: string, x: number | string | undefined) => (
+    x != null ? <>{tag}: {x}<br /></> : <></>)
+
   return <div className={"cell"} style={s}>
     <Mui.Button
       aria-describedby={id} fullWidth={false} size="small"
@@ -205,7 +243,10 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
         fontSize: height / 5,
       }}
       variant="contained"
-      onClick={handleClick}>{`${fo.kind}`}</Mui.Button>
+      onClick={handleClick}>
+      {pline("P", cond.power)}
+      {pline("Lv", cond.level)}
+    </Mui.Button>
     <Mui.Popover
       id={id}
       open={open}

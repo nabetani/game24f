@@ -67,6 +67,18 @@ export type Building = {
   construction: number,
 }
 
+const isBuilding = (o: any): o is Building => {
+  const b = o as Building
+  return (
+    typeof (b.kind) == "number"
+    && !!b.q
+    && !!b.area
+    && typeof (b.construction) == "number"
+  )
+}
+
+
+
 export type Powers = {
   money: number,
   pDev: number,
@@ -213,6 +225,28 @@ export const destroy = (w: World, fo: FieldObj): void => {
   })
 }
 
+export const improveCost = (wo: World, fo: FieldObj): number | null => {
+  if (!isBuilding(fo)) { return null }
+  const a = fo.area
+  const cost = 2 ** fo.q.level * 100 * a.w * a.h
+  if (wo.powers.money < cost) { return null }
+  return cost
+}
+
+export const improve = (w: World, fo: FieldObj): void => {
+  const p = fo.area
+  const cost = improveCost(w, fo)
+  if (cost == null) { return }
+  for (let b of w.buildings) {
+    const q = b.area
+    if (p.x == q.x && p.y == q.y) {
+      b.q.improve++
+      w.powers.money -= cost
+      return
+    }
+  }
+}
+
 
 export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildState => {
   const baseCost = (new Map<FieldObjKindType, number>(
@@ -253,3 +287,21 @@ export const addBuilding = (w: World, fieldObj: FieldObj, param: BuildParam): vo
     })
   w.powers.money -= bs.cost
 }
+
+export type CondType = {
+  level?: string
+  power?: number
+  construction?: number
+}
+
+export const condition = (w: World, f: FieldObj): CondType => {
+  let r: { [key: string]: number | string } = {}
+  if (isBuilding(f)) {
+    r.level = `${f.q.level} [${f.q.improve}]`
+    const p = incomeB(w, f)
+    r.power = p.bDev + p.pDev + p.money
+    r.construction = f.construction
+  }
+  return r
+}
+
