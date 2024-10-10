@@ -142,6 +142,10 @@ export const incomeB = (w: World, b: Building): Powers => {
     case FieldObjKind.factory:
       z.money += buildingPower(b)
       return z
+    case FieldObjKind.house:
+      const pow = buildingPower(b)
+      z.money += pow
+      return z
     default:
       return powerZero
   }
@@ -218,7 +222,7 @@ export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildSta
   return {
     cost: cost,
     duration: Math.floor((param.level + 1) * (param.size ** 2 + 2)),
-    canBuild: fo.kind == FieldObjKind.none && !hindrance && !overflow && cost < 80000,
+    canBuild: fo.kind == FieldObjKind.none && !hindrance && !overflow && cost < wo.powers.money,
     power: power,
   }
 }
