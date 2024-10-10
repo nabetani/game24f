@@ -2,13 +2,14 @@ import Field from './Field'
 import './App.css'
 import * as G from "./game"
 import React from 'react'
-
+import { useImmer } from 'use-immer';
 function App() {
-  const [wo, setWo] = React.useState(G.restoreWorld({}))
+
+  const [wo, updateWorld] = useImmer(G.restoreWorld({}))
 
   React.useEffect(() => {
     let timeoutId = setInterval(() => {
-      setWo(wo.progress())
+      updateWorld(w => { G.progress(w) })
     }, 1000)
     return () => {
       clearTimeout(timeoutId)

@@ -14,6 +14,12 @@ export class XY {
   static get zero(): XY {
     return new XY(0, 0)
   }
+  static fromXY(o: { x: number, y: number }): XY {
+    return new XY(o.x, o.y)
+  }
+  static fromWH(o: { w: number, h: number }): XY {
+    return new XY(o.w, o.h)
+  }
   static fromNum(n: number): XY {
     const B = (1 << 15);
     return XY.of(n % B, (n - (n % B)) / B)

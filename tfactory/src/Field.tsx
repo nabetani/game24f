@@ -57,20 +57,20 @@ function FieldObj(props: { world: G.World, fieldObj: G.FieldObj }): JSX.Element 
   const fo = props.fieldObj
   const W = 70
   const s: React.CSSProperties = {
-    left: fo.area.topleft.x * W,
-    top: fo.area.topleft.y * W,
-    minWidth: fo.area.wh.x * W,
-    maxWidth: fo.area.wh.x * W,
-    minHeight: fo.area.wh.y * W,
-    maxHeight: fo.area.wh.y * W,
+    left: fo.area.x * W,
+    top: fo.area.y * W,
+    minWidth: fo.area.w * W,
+    maxWidth: fo.area.h * W,
+    minHeight: fo.area.h * W,
+    maxHeight: fo.area.w * W,
   }
-  const col = new Map<G.FieldObjIDType, string>([
-    [G.FieldObjID.none, "black"],
-    [G.FieldObjID.blabo, "darkorange"],
-    [G.FieldObjID.plabo, "red"],
-    [G.FieldObjID.factory, "gray"],
-    [G.FieldObjID.house, "green"],
-  ]).get(fo.oid)
+  const col = new Map<G.FieldObjKindType, string>([
+    [G.FieldObjKind.none, "black"],
+    [G.FieldObjKind.blabo, "darkorange"],
+    [G.FieldObjKind.plabo, "red"],
+    [G.FieldObjKind.factory, "gray"],
+    [G.FieldObjKind.house, "green"],
+  ]).get(fo.kind)
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -78,13 +78,13 @@ function FieldObj(props: { world: G.World, fieldObj: G.FieldObj }): JSX.Element 
     setAnchorEl(null);
   };
   const open = Boolean(anchorEl);
-  const id = open ? `simple-popover-${fo.area.topleft.toNum()}` : undefined;
+  const id = open ? `simple-popover-${U.XY.fromXY(fo.area).toNum()}` : undefined;
   return <div className={"cell"} style={s}>
     <Mui.Button
       aria-describedby={id} fullWidth={false}
       sx={{ backgroundColor: col }}
       variant="contained"
-      onClick={handleClick}>{`${fo.oid}`}</Mui.Button>
+      onClick={handleClick}>{`${fo.kind}`}</Mui.Button>
     <Mui.Popover
       id={id}
       open={open}
@@ -102,7 +102,7 @@ class Field extends React.Component<{ world: G.World }, {}> {
     const wo = this.props.world
     return (
       <div id="field">
-        {wo.fieldObjs.map(f => <FieldObj key={`${f.area.topleft.toNum()}`} world={wo} fieldObj={f} />)}
+        {G.fieldObjs(wo).map(f => <FieldObj key={`${U.XY.fromXY(f.area).toNum()}`} world={wo} fieldObj={f} />)}
       </div>
     );
   }
