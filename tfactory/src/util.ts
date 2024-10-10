@@ -52,8 +52,8 @@ export class Area {
   static fromPS(pos: XY, size: XY): Area {
     return new Area(pos, size);
   }
-  static fromXYWH(x: number, y: number, w: number, h: number): Area {
-    return new Area(XY.of(x, y), XY.of(w, h));
+  static fromXYWH(o: { x: number, y: number, w: number, h: number }): Area {
+    return new Area(XY.of(o.x, o.y), XY.of(o.w, o.h));
   }
   get topleft(): Readonly<XY> { return this.p }
   get wh(): Readonly<XY> { return this.s }

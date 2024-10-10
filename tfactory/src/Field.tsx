@@ -66,8 +66,8 @@ function FieldObj(props: { world: G.World, fieldObj: G.FieldObj }): JSX.Element 
   }
   const col = new Map<G.FieldObjKindType, string>([
     [G.FieldObjKind.none, "black"],
-    [G.FieldObjKind.blabo, "darkorange"],
-    [G.FieldObjKind.plabo, "red"],
+    [G.FieldObjKind.bLabo, "darkorange"],
+    [G.FieldObjKind.pLabo, "red"],
     [G.FieldObjKind.factory, "gray"],
     [G.FieldObjKind.house, "green"],
   ]).get(fo.kind)
