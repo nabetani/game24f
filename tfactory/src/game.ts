@@ -200,6 +200,20 @@ export type BuildState = {
   canBuild: boolean,
 }
 
+export const isDestroyable = (fo: FieldObj): boolean => {
+  const c: number[] = [FieldObjKind.factory, FieldObjKind.bLabo, FieldObjKind.pLabo]
+  return c.includes(fo.kind)
+}
+
+export const destroy = (w: World, fo: FieldObj): void => {
+  const p = fo.area
+  w.buildings = w.buildings.filter((b) => {
+    const q = b.area
+    return !(p.x == q.x && p.y == q.y)
+  })
+}
+
+
 export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildState => {
   const baseCost = (new Map<FieldObjKindType, number>(
     [[FieldObjKind.factory, 100],

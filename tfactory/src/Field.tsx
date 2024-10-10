@@ -9,6 +9,29 @@ import { Updater } from 'use-immer';
 import { Upcoming } from "@mui/icons-material";
 import * as Layout from "./layout"
 
+function AddDestroyUI(p: {
+  world: G.World,
+  updateWorld: Updater<G.World>,
+  fieldObj: G.FieldObj,
+  closer: () => void
+}): JSX.Element {
+  return <>
+    <Mui.Box>
+      <Mui.FormControl size="small">
+        <Mui.Button variant="contained"
+          disabled={!G.isDestroyable(p.fieldObj)}
+          onClick={() => {
+            p.updateWorld((w: G.World) => {
+              G.destroy(w, p.fieldObj)
+            })
+            p.closer()
+          }}
+        >撤去</Mui.Button>
+      </Mui.FormControl>
+    </Mui.Box>
+  </>
+}
+
 
 function AddBuildingUI(p: {
   world: G.World,
@@ -115,7 +138,9 @@ function CellClickUI(p: {
     <TabPanel value="1">
       <AddBuildingUI world={p.world} updateWorld={p.updateWorld} fieldObj={p.fieldObj} closer={p.closer} />
     </TabPanel>
-    <TabPanel value="2">Item Two</TabPanel>
+    <TabPanel value="2">
+      <AddDestroyUI world={p.world} updateWorld={p.updateWorld} fieldObj={p.fieldObj} closer={p.closer} />
+    </TabPanel>
     <TabPanel value="3">Item Three</TabPanel>
   </MuiL.TabContext>
 }
