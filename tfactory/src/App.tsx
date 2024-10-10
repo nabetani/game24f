@@ -3,8 +3,11 @@ import './App.css'
 import * as G from "./game"
 import React from 'react'
 import { useImmer, Updater } from 'use-immer';
-function App() {
+import * as Layout from "./layout"
+import { hexToRgb } from '@mui/material';
+import { height } from '@mui/system';
 
+function App() {
   const [wo, updateWorld] = useImmer(G.restoreWorld({}))
 
   type x = { u: Updater<G.World> }
@@ -17,13 +20,17 @@ function App() {
     }
   }, [wo])
 
+  const c = Layout.clientWH()
+
   return (
-    <>
+    <div style={{
+      borderStyle: "solid",
+    }}>
       <Field world={wo} updateWorld={updateWorld} />
       <div>
         {JSON.stringify(wo.powers)} / week: {wo.duration}
       </div>
-    </>
+    </div>
   )
 }
 

@@ -7,18 +7,8 @@ import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { Updater } from 'use-immer';
 import { Upcoming } from "@mui/icons-material";
+import * as Layout from "./layout"
 
-const clientWH = (): { w: number, h: number } => {
-  const cw0 = document.documentElement.clientWidth
-  const ch = Math.min(document.documentElement.clientHeight, cw0 * 900 / 512)
-  const cw = ch * 512 / 900
-  return { w: cw, h: ch }
-}
-
-const fieldWH = (): { w: number, h: number } => {
-  const { w } = clientWH()
-  return { w: w * 0.9, h: w * 0.9 * 0.7 }
-}
 
 function AddBuildingUI(p: {
   world: G.World,
@@ -133,7 +123,7 @@ function CellClickUI(p: {
 function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: G.FieldObj }): JSX.Element {
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null | undefined>(null);
   const fo = p.fieldObj
-  const c = fieldWH()
+  const c = Layout.fieldWH()
   const wsize = p.world.size
 
   const xsize = c.w / (wsize.w + 1)
@@ -155,9 +145,6 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
     minHeight: height,
     maxHeight: height,
     overflow: "hidden",
-    borderWidth: "1px",
-    borderColor: "red",
-    borderStyle: "dashed",
     margin: 0,
     padding: 0,
 
@@ -182,9 +169,9 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
       aria-describedby={id} fullWidth={false} size="small"
       sx={{
         backgroundColor: col,
-        borderWidth: "1px",
+        borderWidth: Layout.border() * 2,
         borderColor: "black",
-        borderStyle: (open ? "solid" : "dotted"),
+        borderStyle: (open ? "solid" : "none"),
         padding: 0,
         margin: "0",
         minWidth: width,
@@ -206,12 +193,10 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
     ><CellClickUI world={p.world} updateWorld={p.updateWorld} fieldObj={p.fieldObj} closer={() => { setAnchorEl(null) }} /></Mui.Popover></div >
 }
 
-
-
 class Field extends React.Component<{ world: G.World, updateWorld: Updater<G.World> }, {}> {
   render() {
     const wo = this.props.world
-    const c = fieldWH()
+    const c = Layout.fieldWH()
     return (
       <div style={{
         position: "relative",
@@ -223,6 +208,9 @@ class Field extends React.Component<{ world: G.World, updateWorld: Updater<G.Wor
         minHeight: c.h,
         borderStyle: "solid",
         overflow: "hidden",
+        marginLeft: "auto",
+        marginRight: "auto",
+
       }}>
         {G.fieldObjs(wo).map(f => <FieldObj key={`${U.XY.fromXY(f.area).toNum()}`} world={wo} updateWorld={this.props.updateWorld} fieldObj={f} />)}
       </div>
