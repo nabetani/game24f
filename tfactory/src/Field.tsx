@@ -6,8 +6,10 @@ import * as G from "./game"
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 
-function CellClickUI(p: {}): JSX.Element {
+function AddBuildingUI(): JSX.Element {
+}
 
+function CellClickUI(p: {}): JSX.Element {
   const [value, setValue] = React.useState('1');
   const handleChange = (_: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
@@ -26,7 +28,7 @@ function CellClickUI(p: {}): JSX.Element {
         <Mui.RadioGroup
           row
           aria-labelledby="btype-selector"
-          name="row-radio-buttons-group"
+          name="btype-selector-buttons-group"
         >
           <Mui.FormControlLabel value="factory" control={<Mui.Radio />} label="工場" />
           <Mui.FormControlLabel value="plabo" control={<Mui.Radio />} label="生産技術研究所" />
@@ -38,13 +40,27 @@ function CellClickUI(p: {}): JSX.Element {
         <Mui.RadioGroup
           row
           aria-labelledby="bsize-selector"
-          name="row-radio-buttons-group"
+          name="bsize-selector-buttons-group"
         >
           <Mui.FormControlLabel value="1" control={<Mui.Radio />} label="小" />
           <Mui.FormControlLabel value="2" control={<Mui.Radio />} label="中" />
           <Mui.FormControlLabel value="3" control={<Mui.Radio />} label="大" />
-          <Mui.FormControlLabel value="4" control={<Mui.Radio />} label="巨大" />
         </Mui.RadioGroup>
+        <Mui.FormLabel id="q-selector">技術レベル</Mui.FormLabel>
+        <Mui.Slider
+          aria-labelledby="q-selector"
+          defaultValue={1}
+          getAriaValueText={(v) => `${v}`}
+          valueLabelDisplay="auto"
+          step={1}
+          marks
+          min={1}
+          max={10}
+        />
+        <Mui.Stack direction={"row"} gap={3}>
+          <Mui.Typography>コスト: {100} T </Mui.Typography><Mui.Typography> 工期: {100} w</Mui.Typography>
+        </Mui.Stack>
+        <Mui.Button variant="contained">着工</Mui.Button>
       </Mui.FormControl>
     </TabPanel>
     <TabPanel value="2">Item Two</TabPanel>
