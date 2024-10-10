@@ -151,6 +151,20 @@ export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildSta
   return {
     cost: cost,
     duration: Math.floor((param.level + 1) * (param.size ** 2 + 2)),
-    canBuild: fo.kind == FieldObjKind.none && !hindrance && !overflow
+    canBuild: fo.kind == FieldObjKind.none && !hindrance && !overflow && cost < 80000
   }
+}
+
+export const addBuilding = (w: World, fieldObj: FieldObj, param: BuildParam): void => {
+  const a = fieldObj.area
+  const bs = bulidState(w, param, fieldObj)
+  w.buildings.push(
+    // { area: { x: 0, y: 6, w: 1, h: 1 }, construction: 10, kind: FieldObjKind.bLabo, q: { improve: 1, level: 1 } },
+    {
+      area: { x: a.x, y: a.y, w: param.size, h: param.size },
+      construction: bs.duration,
+      kind: param.toBiuld,
+      q: { level: param.level, improve: 0 },
+    })
+  w.powers.money -= bs.cost
 }

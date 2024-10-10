@@ -5,8 +5,11 @@ import * as U from './util'
 import * as G from "./game"
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
+import { Updater } from 'use-immer';
+import { Upcoming } from "@mui/icons-material";
 
-function AddBuildingUI(p: { world: G.World, fieldObj: G.FieldObj }): JSX.Element {
+
+function AddBuildingUI(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: G.FieldObj }): JSX.Element {
   const [param, setParam] = React.useState<G.BuildParam>(G.defaultBuildParam(p.world))
   const bs = G.bulidState(p.world, param, p.fieldObj)
   return <>  <Mui.FormControl>
@@ -70,12 +73,19 @@ function AddBuildingUI(p: { world: G.World, fieldObj: G.FieldObj }): JSX.Element
       <Mui.Stack direction={"row"} gap={3}>
         <Mui.Typography>コスト: {bs.cost} T </Mui.Typography><Mui.Typography> 工期: {bs.duration} w</Mui.Typography>
       </Mui.Stack>
-      <Mui.Button variant="contained" disabled={!bs.canBuild}>着工</Mui.Button>
+      <Mui.Button variant="contained"
+        disabled={!bs.canBuild}
+        onClick={() => {
+          p.updateWorld((w: G.World) => {
+            G.addBuilding(w, p.fieldObj, param)
+          })
+        }}
+      >着工</Mui.Button>
     </Mui.FormControl>
   </>
 }
 
-function CellClickUI(p: { world: G.World, fieldObj: G.FieldObj }): JSX.Element {
+function CellClickUI(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: G.FieldObj }): JSX.Element {
   const [value, setValue] = React.useState('1');
   const handleChange = (_: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
@@ -89,16 +99,16 @@ function CellClickUI(p: { world: G.World, fieldObj: G.FieldObj }): JSX.Element {
       </TabList>
     </Mui.Box>
     <TabPanel value="1">
-      <AddBuildingUI world={p.world} fieldObj={p.fieldObj} />
+      <AddBuildingUI world={p.world} updateWorld={p.updateWorld} fieldObj={p.fieldObj} />
     </TabPanel>
     <TabPanel value="2">Item Two</TabPanel>
     <TabPanel value="3">Item Three</TabPanel>
   </MuiL.TabContext>
 }
 
-function FieldObj(props: { world: G.World, fieldObj: G.FieldObj }): JSX.Element {
+function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: G.FieldObj }): JSX.Element {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
-  const fo = props.fieldObj
+  const fo = p.fieldObj
   const W = 70
   const s: React.CSSProperties = {
     left: fo.area.x * W,
@@ -138,15 +148,15 @@ function FieldObj(props: { world: G.World, fieldObj: G.FieldObj }): JSX.Element 
         vertical: 'bottom',
         horizontal: 'left',
       }}
-    ><CellClickUI world={props.world} fieldObj={props.fieldObj} /></Mui.Popover></div >
+    ><CellClickUI world={p.world} updateWorld={p.updateWorld} fieldObj={p.fieldObj} /></Mui.Popover></div >
 }
 
-class Field extends React.Component<{ world: G.World }, {}> {
+class Field extends React.Component<{ world: G.World, updateWorld: Updater<G.World> }, {}> {
   render() {
     const wo = this.props.world
     return (
       <div id="field">
-        {G.fieldObjs(wo).map(f => <FieldObj key={`${U.XY.fromXY(f.area).toNum()}`} world={wo} fieldObj={f} />)}
+        {G.fieldObjs(wo).map(f => <FieldObj key={`${U.XY.fromXY(f.area).toNum()}`} world={wo} updateWorld={this.props.updateWorld} fieldObj={f} />)}
       </div>
     );
   }
