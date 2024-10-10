@@ -71,7 +71,9 @@ function AddBuildingUI(p: { world: G.World, updateWorld: Updater<G.World>, field
         max={10}
       />
       <Mui.Stack direction={"row"} gap={3}>
-        <Mui.Typography>コスト: {bs.cost} T </Mui.Typography><Mui.Typography> 工期: {bs.duration} w</Mui.Typography>
+        <Mui.Typography>コスト: {bs.cost} T </Mui.Typography>
+        <Mui.Typography> 工期: {bs.duration} w</Mui.Typography>
+        <Mui.Typography> 能力: {bs.power} w</Mui.Typography>
       </Mui.Stack>
       <Mui.Button variant="contained"
         disabled={!bs.canBuild}
