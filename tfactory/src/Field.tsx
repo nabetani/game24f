@@ -6,10 +6,76 @@ import * as G from "./game"
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 
-function AddBuildingUI(): JSX.Element {
+function AddBuildingUI(p: { world: G.World, fieldObj: G.FieldObj }): JSX.Element {
+  const [param, setParam] = React.useState<G.BuildParam>(G.defaultBuildParam(p.world))
+  const bs = G.bulidState(p.world, param, p.fieldObj)
+  return <>  <Mui.FormControl>
+    <Mui.FormLabel id="btype-selector">建物の種類</Mui.FormLabel>
+    <Mui.RadioGroup
+      row
+      aria-labelledby="btype-selector"
+      name="btype-selector-buttons-group"
+    >
+      <Mui.FormControlLabel
+        checked={param.toBiuld == G.FieldObjKind.factory}
+        value="factory" control={<Mui.Radio />} label="工場" onClick={
+          () => setParam({ ...param, toBiuld: G.FieldObjKind.factory })} />
+      <Mui.FormControlLabel
+        checked={param.toBiuld == G.FieldObjKind.pLabo}
+        value="plabo" control={<Mui.Radio />} label="生産技術研究所" onClick={
+          () => setParam({ ...param, toBiuld: G.FieldObjKind.pLabo })} />
+      <Mui.FormControlLabel
+        checked={param.toBiuld == G.FieldObjKind.bLabo}
+        value="blabo" control={<Mui.Radio />} label="基礎研究所" onClick={
+          () => setParam({ ...param, toBiuld: G.FieldObjKind.bLabo })} />
+    </Mui.RadioGroup>
+  </Mui.FormControl>
+    <Mui.FormControl>
+      <Mui.FormLabel id="bsize-selector">建物のサイズ</Mui.FormLabel>
+      <Mui.RadioGroup
+        row
+        aria-labelledby="bsize-selector"
+        name="bsize-selector-buttons-group"
+      >
+        <Mui.FormControlLabel
+          checked={param.size == 1}
+          value="1" control={<Mui.Radio />} label="小" onClick={
+            () => setParam({ ...param, size: 1 })} />
+        <Mui.FormControlLabel
+          checked={param.size == 2}
+          value="2" control={<Mui.Radio />} label="中" onClick={
+            () => setParam({ ...param, size: 2 })} />
+        <Mui.FormControlLabel
+          checked={param.size == 3}
+          value="3" control={<Mui.Radio />} label="大" onClick={
+            () => setParam({ ...param, size: 3 })} />
+      </Mui.RadioGroup>
+      <Mui.FormLabel id="q-selector">技術レベル</Mui.FormLabel>
+      <Mui.Slider
+        aria-labelledby="q-selector"
+        defaultValue={1}
+        getAriaValueText={(v) => `${v}`}
+        valueLabelDisplay="auto"
+        value={param.level}
+        step={1}
+        onChange={(_, val) => {
+          if (typeof val === 'number') {
+            setParam({ ...param, level: val })
+          }
+        }}
+        marks
+        min={1}
+        max={10}
+      />
+      <Mui.Stack direction={"row"} gap={3}>
+        <Mui.Typography>コスト: {bs.cost} T </Mui.Typography><Mui.Typography> 工期: {bs.duration} w</Mui.Typography>
+      </Mui.Stack>
+      <Mui.Button variant="contained" disabled={!bs.canBuild}>着工</Mui.Button>
+    </Mui.FormControl>
+  </>
 }
 
-function CellClickUI(p: {}): JSX.Element {
+function CellClickUI(p: { world: G.World, fieldObj: G.FieldObj }): JSX.Element {
   const [value, setValue] = React.useState('1');
   const handleChange = (_: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
@@ -23,45 +89,7 @@ function CellClickUI(p: {}): JSX.Element {
       </TabList>
     </Mui.Box>
     <TabPanel value="1">
-      <Mui.FormControl>
-        <Mui.FormLabel id="btype-selector">建物の種類</Mui.FormLabel>
-        <Mui.RadioGroup
-          row
-          aria-labelledby="btype-selector"
-          name="btype-selector-buttons-group"
-        >
-          <Mui.FormControlLabel value="factory" control={<Mui.Radio />} label="工場" />
-          <Mui.FormControlLabel value="plabo" control={<Mui.Radio />} label="生産技術研究所" />
-          <Mui.FormControlLabel value="blabo" control={<Mui.Radio />} label="基礎研究所" />
-        </Mui.RadioGroup>
-      </Mui.FormControl>
-      <Mui.FormControl>
-        <Mui.FormLabel id="bsize-selector">建物のサイズ</Mui.FormLabel>
-        <Mui.RadioGroup
-          row
-          aria-labelledby="bsize-selector"
-          name="bsize-selector-buttons-group"
-        >
-          <Mui.FormControlLabel value="1" control={<Mui.Radio />} label="小" />
-          <Mui.FormControlLabel value="2" control={<Mui.Radio />} label="中" />
-          <Mui.FormControlLabel value="3" control={<Mui.Radio />} label="大" />
-        </Mui.RadioGroup>
-        <Mui.FormLabel id="q-selector">技術レベル</Mui.FormLabel>
-        <Mui.Slider
-          aria-labelledby="q-selector"
-          defaultValue={1}
-          getAriaValueText={(v) => `${v}`}
-          valueLabelDisplay="auto"
-          step={1}
-          marks
-          min={1}
-          max={10}
-        />
-        <Mui.Stack direction={"row"} gap={3}>
-          <Mui.Typography>コスト: {100} T </Mui.Typography><Mui.Typography> 工期: {100} w</Mui.Typography>
-        </Mui.Stack>
-        <Mui.Button variant="contained">着工</Mui.Button>
-      </Mui.FormControl>
+      <AddBuildingUI world={p.world} fieldObj={p.fieldObj} />
     </TabPanel>
     <TabPanel value="2">Item Two</TabPanel>
     <TabPanel value="3">Item Three</TabPanel>
@@ -110,7 +138,7 @@ function FieldObj(props: { world: G.World, fieldObj: G.FieldObj }): JSX.Element 
         vertical: 'bottom',
         horizontal: 'left',
       }}
-    ><CellClickUI /></Mui.Popover></div >
+    ><CellClickUI world={props.world} fieldObj={props.fieldObj} /></Mui.Popover></div >
 }
 
 class Field extends React.Component<{ world: G.World }, {}> {

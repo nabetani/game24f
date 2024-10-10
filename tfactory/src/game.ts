@@ -12,6 +12,17 @@ export type Area = {
   w: number,
   h: number,
 }
+
+const hasIntersection = (a: Area, b: Area): boolean => {
+  const i = (a0: number, al: number, b0: number, bl: number): boolean => {
+    const a1 = a0 + al - 1
+    const b1 = b0 + bl - 1
+    return !(b1 < a0 || a1 < b0)
+
+  }
+  return i(a.x, a.w, b.x, b.w) && i(a.y, a.h, b.y, b.h)
+};
+
 export const FieldObjKind = {
   none: 0,
   house: 1,
@@ -20,7 +31,21 @@ export const FieldObjKind = {
   bLabo: 4,
 } as const
 
+
 export type FieldObjKindType = typeof FieldObjKind[keyof (typeof FieldObjKind)]
+
+export const fieldObjName = (f: FieldObjKindType): keyof (typeof FieldObjKind) => {
+  const r = Object.entries(FieldObjKind).find((v) => { return v[1] == f })
+  return r ? (r[0] as keyof (typeof FieldObjKind)) : "none"
+}
+export type SizeType = 1 | 2 | 3;
+export type WhatToBuild = typeof FieldObjKind.factory | typeof FieldObjKind.pLabo | typeof FieldObjKind.bLabo
+
+export type BuildParam = {
+  level: number,
+  size: SizeType,
+  toBiuld: WhatToBuild,
+}
 
 export type FieldObj = {
   kind: FieldObjKindType,
@@ -95,4 +120,37 @@ export const fieldObjs = (w: World): FieldObj[] => {
     }
   })
   return r
+}
+
+export const defaultBuildParam = (_: World): BuildParam => {
+  return {
+    level: 1,
+    size: 1,
+    toBiuld: FieldObjKind.factory,
+  }
+}
+
+export type BuildState = {
+  cost: number,
+  duration: number,
+  canBuild: boolean,
+}
+
+export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildState => {
+  const baseCost = (new Map<FieldObjKindType, number>(
+    [[FieldObjKind.factory, 100],
+    [FieldObjKind.pLabo, 1000],
+    [FieldObjKind.bLabo, 10000]])).get(param.toBiuld) ?? 0
+  const cost = Math.floor(2 ** (param.level + 1) * (param.size + 2)) * baseCost
+  const a = fo.area
+  const bArea = { ...a, w: param.size, h: param.size }
+  const hindrance = !wo.buildings.every(e => !hasIntersection(e.area, bArea))
+  const leftEnd = bArea.x + bArea.w - 1
+  const bottomEnd = bArea.y + bArea.h - 1
+  const overflow = wo.size.w <= leftEnd || wo.size.h <= bottomEnd
+  return {
+    cost: cost,
+    duration: Math.floor((param.level + 1) * (param.size ** 2 + 2)),
+    canBuild: fo.kind == FieldObjKind.none && !hindrance && !overflow
+  }
 }
