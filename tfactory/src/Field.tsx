@@ -231,7 +231,7 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
     const w = width / 2
     const h = height / 2
     const r = h * 0.9
-    let x = cond.construction / cond.constructionTotal
+    let x = (cond.construction) / (cond.constructionTotal + 1)
     console.log({ x: x, c: cond.construction, total: cond.constructionTotal })
     if (x == 0.5) { x = 0.5 + 1e-9 }
     const t = Math.PI * 2 * x
@@ -242,6 +242,7 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
         width={width} height={height}
         xmlns="http://www.w3.org/2000/svg">
         <rect x={0} y={0} width={width} height={height} fill="#ddd" rx={r / 5} ry={r / 5} />
+        <circle cx={w} cy={h} r={r} fill="#fff" />
         <path d={`
           M ${w},${h}
           l 0,${-r}
