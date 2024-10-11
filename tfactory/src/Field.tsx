@@ -227,6 +227,30 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
   const pline = (tag: string, x: number | string | undefined) => (
     x != null ? <>{tag}: {x}<br /></> : <></>)
 
+  if (cond.construction != null && 0 < cond.construction && cond.constructionTotal != null && 0 < cond.construction) {
+    const w = width / 2
+    const h = height / 2
+    const r = h * 0.9
+    let x = cond.construction / cond.constructionTotal
+    console.log({ x: x, c: cond.construction, total: cond.constructionTotal })
+    if (x == 0.5) { x = 0.5 + 1e-9 }
+    const t = Math.PI * 2 * x
+    const dx = r * (-Math.sin(t))
+    const dy = r * (1 - Math.cos(t))
+    return <div className={"cell"} style={s}>
+      <svg version="1.1"
+        width={width} height={height}
+        xmlns="http://www.w3.org/2000/svg">
+        <rect x={0} y={0} width={width} height={height} fill="#ddd" rx={r / 5} ry={r / 5} />
+        <path d={`
+          M ${w},${h}
+          l 0,${-r}
+          a ${r} ${r} 270 ${x < 0.5 ? 1 : 0} 1 ${dx},${dy}
+          Z`} fill={col} />
+      </svg>
+    </div>
+  }
+
   return <div className={"cell"} style={s}>
     <Mui.Button
       aria-describedby={id} fullWidth={false} size="small"

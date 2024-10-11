@@ -65,6 +65,7 @@ export type Building = {
   q: Quality,
   area: Area,
   construction: number,
+  constructionTotal: number,
 }
 
 const isBuilding = (o: any): o is Building => {
@@ -112,6 +113,7 @@ const newHouse = (x: number, y: number, q: Quality): Building => {
     q: q,
     area: { x: x, y: y, w: 1, h: 1 },
     construction: 0,
+    constructionTotal: 1,
   }
 }
 
@@ -264,6 +266,7 @@ export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildSta
   const p = incomeB(wo, {
     area: { x: 0, y: 0, w: param.size, h: param.size },
     construction: 0,
+    constructionTotal: 1,
     kind: param.toBiuld,
     q: { level: param.level, improve: 1 },
   })
@@ -283,6 +286,7 @@ export const addBuilding = (w: World, fieldObj: FieldObj, param: BuildParam): vo
     {
       area: { x: a.x, y: a.y, w: param.size, h: param.size },
       construction: bs.duration,
+      constructionTotal: bs.duration,
       kind: param.toBiuld,
       q: { level: param.level, improve: 1 },
     })
@@ -293,6 +297,7 @@ export type CondType = {
   level?: string
   power?: number
   construction?: number
+  constructionTotal?: number
 }
 
 export const condition = (w: World, f: FieldObj): CondType => {
@@ -302,6 +307,7 @@ export const condition = (w: World, f: FieldObj): CondType => {
     const p = incomeB(w, f)
     r.power = p.bDev + p.pDev + p.money
     r.construction = f.construction
+    r.constructionTotal = f.constructionTotal
   }
   return r
 }
