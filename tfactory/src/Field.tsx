@@ -240,7 +240,7 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
         minWidth: width,
         width: width,
         height: height,
-        fontSize: height / 5,
+        fontSize: height / 3.5,
       }}
       variant="contained"
       onClick={handleClick}>
