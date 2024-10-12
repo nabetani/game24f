@@ -8,6 +8,8 @@ import TabPanel from '@mui/lab/TabPanel';
 import { Updater } from 'use-immer';
 import { Upcoming } from "@mui/icons-material";
 import * as Layout from "./layout"
+import * as Icon from '@mui/icons-material';
+
 
 function AddDestroyUI(p: {
   world: G.World,
@@ -18,7 +20,7 @@ function AddDestroyUI(p: {
   return <>
     <Mui.Box>
       <Mui.FormControl size="small">
-        <Mui.Button variant="contained"
+        <Mui.Button variant="contained" color="warning"
           disabled={!G.isDestroyable(p.fieldObj)}
           onClick={() => {
             p.updateWorld((w: G.World) => {
@@ -26,7 +28,8 @@ function AddDestroyUI(p: {
             })
             p.closer()
           }}
-        >撤去</Mui.Button>
+        ><Icon.DeleteForever />
+          撤去</Mui.Button>
       </Mui.FormControl>
     </Mui.Box>
   </>
@@ -279,6 +282,36 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
     </div>
   }
 
+
+  const icon = <Mui.Box
+    sx={{
+      fontSize: fontSize * 2,
+      color: "rgba(255,255,255,0.3)",
+    }}
+  >{((): JSX.Element => {
+    const iconStyle = {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      fontSize: height / 2,
+    }
+    switch (fo.kind) {
+      case G.FieldObjKind.factory:
+        return <Icon.Factory sx={iconStyle} />
+      case G.FieldObjKind.pLabo:
+        return <Icon.Settings sx={iconStyle} />
+      case G.FieldObjKind.bLabo:
+        return <Icon.Science sx={iconStyle} />
+      case G.FieldObjKind.house:
+        return <Icon.Home sx={iconStyle} />
+      default:
+        return <></>
+    }
+  })()}</Mui.Box>
+
+
+
+
   return <div className={"cell"} style={s}>
     <Mui.Button
       aria-describedby={id} fullWidth={false} size="small"
@@ -297,6 +330,7 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
       }}
       variant="contained"
       onClick={handleClick}>
+      {icon}
       <Mui.Stack>
         {pline(cond.power)}
         {sline(cond.level, cond.improve)}
