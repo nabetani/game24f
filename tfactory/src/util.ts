@@ -72,3 +72,30 @@ export class Area {
   }
 }
 
+export const numText = (n0: number): string => {
+  const n = Math.round(n0)
+  if (n == 0) { return "0" }
+  if (n < 0) {
+    return `-${numText(-n)}`
+  }
+  if (n <= 9999) {
+    return `${Math.round(n)}`
+  }
+  let baseExp = Math.floor(Math.log10(n))
+  let base = 10 ** baseExp // 1 ≦ base < 10
+  let frac = Math.round(n * 10 ** 3 / base)
+  if (10 ** 4 <= frac) {
+    baseExp += 1
+    base = 10 ** baseExp
+    frac = Math.round(n * 10 ** 3 / base)
+  }
+  const s0 = `${frac}`
+  const d = (baseExp + 1) % 4
+  const unames = ["", "万", "億", "兆", "京", "垓", "抒", "壌", "溝", "澗", "正", "載", "極"]
+  const u = unames[(baseExp - baseExp % 4) / 4]
+  if (d == 0) {
+    return s0 + u
+  } else {
+    return s0.substring(0, d) + "." + s0.substring(d, 4) + u
+  }
+}

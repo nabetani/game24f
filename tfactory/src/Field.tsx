@@ -63,8 +63,6 @@ function AddImproveUI(p: {
   </>
 }
 
-
-
 function AddBuildingUI(p: {
   world: G.World,
   updateWorld: Updater<G.World>,
