@@ -121,7 +121,7 @@ export const restoreWorld = (_: { [key: string]: any }): World => {
       newHouse(2, 4, { improve: 0, level: 1 }),
     ],
     duration: 0,
-    powers: { money: 1e9, pDev: 1, bDev: 1 } // TODO: fix
+    powers: { money: 1e4, pDev: 1, bDev: 1 } // TODO: fix
   }
 }
 
@@ -134,7 +134,7 @@ const isWorld = (o: any): o is World => {
     && !!w?.size)
 }
 
-export const levelMax = 15
+export const levelMax = 30
 export const buildableMax = (wo: World, k: WhatToBuild): number => {
   const f = (p: number): number => {
     const v = Math.floor(Math.log10(Math.max(1, p)))
@@ -154,10 +154,10 @@ export const buildableMax = (wo: World, k: WhatToBuild): number => {
 
 const powFromLevel = (level: number, im: number = 0): number => {
   // 当初は lv1→ lv.2 は 2倍
-  // lv.max は 2**53 にする。
+  // lv.max は 2**120 にする。
   const m = (levelMax - 1) ** 2
-  const x = level + (level - 1) ** 2 / m * (53 - levelMax)
-  return 2 ** x * (1.0 + im * 0.1)
+  const x = level + (level - 1) ** 2 / m * (120 - levelMax)
+  return 2 ** x * (1.0 + im ** 0.8 * 0.1)
 }
 
 const buildingPower = (b: Building): number => {
