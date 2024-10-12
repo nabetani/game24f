@@ -72,6 +72,12 @@ export class Area {
   }
 }
 
+export const clamp = (v: number, low: number, high: number): number => {
+  if (v < low) { return low }
+  if (v < high) { return v }
+  return high
+}
+
 export const numText = (n0: number): string => {
   const n = Math.round(n0)
   if (n == 0) { return "0" }

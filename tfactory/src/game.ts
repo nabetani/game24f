@@ -124,7 +124,7 @@ export const restoreWorld = (_: { [key: string]: any }): World => {
       newHouse(3, 3, { improve: 0, level: 1 }),
     ],
     duration: 0,
-    powers: { money: 3000, pDev: 0, bDev: 0 }
+    powers: { money: 3000, pDev: 1, bDev: 1 }
   }
 }
 
@@ -138,6 +138,22 @@ const isWorld = (o: any): o is World => {
 }
 
 export const levelMax = 15
+export const buildableMax = (wo: World, k: WhatToBuild): number => {
+  const f = (p: number): number => {
+    const v = Math.floor(Math.log10(Math.max(1, p)))
+    return U.clamp(v, 2, levelMax)
+  }
+  switch (k) {
+    case FieldObjKind.factory:
+      return f(wo.powers.pDev)
+    case FieldObjKind.pLabo:
+      return f(wo.powers.bDev)
+    case FieldObjKind.bLabo:
+      return f(wo.powers.bDev)
+    default:
+      return 2;
+  }
+}
 
 const powFromLevel = (level: number, im: number = 0): number => {
   // 当初は lv1→ lv.2 は 2倍
@@ -278,7 +294,7 @@ export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildSta
   const mul = (new Map<FieldObjKindType, number>(
     [[FieldObjKind.factory, 30],
     [FieldObjKind.pLabo, 100],
-    [FieldObjKind.bLabo, 300]])).get(param.toBiuld) ?? 0
+    [FieldObjKind.bLabo, 1000]])).get(param.toBiuld) ?? 0
   const a = fo.area
   const bArea = { ...a, w: param.size, h: param.size }
   const hindrance = !wo.buildings.every(e => !hasIntersection(e.area, bArea))
