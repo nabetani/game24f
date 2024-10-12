@@ -225,8 +225,10 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
   const id = open ? `simple-popover-${U.XY.fromXY(fo.area).toNum()}` : undefined;
   const cond = G.condition(p.world, p.fieldObj)
   const pline = (tag: string, x: number | string | undefined) => (
-    x != null ? <>{tag}: {x}<br /></> : <></>)
-
+    x != null ? <>{tag}: {x}</> : <></>)
+  const sline = (tag: string, x: number | undefined, y: number | undefined) => <span>
+    {x != null ? <>{tag}: {x}</> : <></>}{y != null ? <span className="improve">{y}</span> : <></>}
+  </span>
   if (cond.construction != null && 0 < cond.construction && cond.constructionTotal != null && 0 < cond.construction) {
     const w = width / 2
     const h = height / 2
@@ -269,8 +271,10 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
       }}
       variant="contained"
       onClick={handleClick}>
-      {pline("P", cond.power)}
-      {pline("Lv", cond.level)}
+      <Mui.Stack>
+        {pline("P", cond.power)}
+        {sline("Lv", cond.level, cond.improve)}
+      </Mui.Stack>
     </Mui.Button>
     <Mui.Popover
       id={id}

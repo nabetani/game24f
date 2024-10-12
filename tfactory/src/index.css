@@ -9,3 +9,17 @@ body,
   background-color: #eef;
   position: relative;
 }
+
+.improve {
+  font-size: 80%;
+}
+
+.improve::after {
+  font-size: 80%;
+  content: "〉";
+}
+
+.improve::before {
+  font-size: 80%;
+  content: "〈+";
+}

@@ -10,11 +10,10 @@ import { height } from '@mui/system';
 function App() {
   const [wo, updateWorld] = useImmer(G.restoreWorld({}))
 
-  type x = { u: Updater<G.World> }
   React.useEffect(() => {
     let timeoutId = setInterval(() => {
       updateWorld(w => { G.progress(w) })
-    }, 1000)
+    }, 500)
     return () => {
       clearTimeout(timeoutId)
     }

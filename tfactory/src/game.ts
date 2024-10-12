@@ -250,13 +250,22 @@ export const improve = (w: World, fo: FieldObj): void => {
   }
 }
 
+const qdigit = (x: number): number => {
+  if (Math.abs(x) < 9999) {
+    return Math.floor(x)
+  }
+  const k = Math.floor(Math.log10(Math.abs(x)))
+  const b = 10 ** (k - 3)
+  return b * Math.floor(x / b)
+}
+
 
 export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildState => {
   const baseCost = (new Map<FieldObjKindType, number>(
     [[FieldObjKind.factory, 100],
     [FieldObjKind.pLabo, 1000],
     [FieldObjKind.bLabo, 10000]])).get(param.toBiuld) ?? 0
-  const cost = Math.floor(2 ** (param.level + 1) * (param.size + 2)) * baseCost
+  const cost = qdigit(3 ** (param.level + 1) * (param.size ** 2 + 0.25)) * baseCost
   const a = fo.area
   const bArea = { ...a, w: param.size, h: param.size }
   const hindrance = !wo.buildings.every(e => !hasIntersection(e.area, bArea))
@@ -273,7 +282,7 @@ export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildSta
   const power = p.bDev + p.money + p.pDev
   return {
     cost: cost,
-    duration: Math.floor((param.level + 1) * (param.size ** 2 + 2)),
+    duration: Math.floor((param.level + 1) * (param.size + 1)),
     canBuild: fo.kind == FieldObjKind.none && !hindrance && !overflow && cost < wo.powers.money,
     power: power,
   }
@@ -294,16 +303,18 @@ export const addBuilding = (w: World, fieldObj: FieldObj, param: BuildParam): vo
 }
 
 export type CondType = {
-  level?: string
+  level?: number
+  improve?: number
   power?: number
   construction?: number
   constructionTotal?: number
 }
 
 export const condition = (w: World, f: FieldObj): CondType => {
-  let r: { [key: string]: number | string } = {}
+  let r: CondType = {}
   if (isBuilding(f)) {
-    r.level = `${f.q.level} [${f.q.improve}]`
+    r.level = f.q.level
+    r.improve = f.q.improve
     const p = incomeB(w, f)
     r.power = p.bDev + p.pDev + p.money
     r.construction = f.construction
