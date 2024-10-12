@@ -52,7 +52,6 @@ export type FieldObj = {
   area: Area,
 }
 
-
 const newEmpty = (x: number, y: number): FieldObj => {
   return {
     kind: FieldObjKind.none,
@@ -77,8 +76,6 @@ const isBuilding = (o: any): o is Building => {
     && typeof (b.construction) == "number"
   )
 }
-
-
 
 export type Powers = {
   money: number,
@@ -259,10 +256,8 @@ export const destroy = (w: World, fo: FieldObj): void => {
 
 export const improveCost = (wo: World, fo: FieldObj): number | null => {
   if (!isBuilding(fo)) { return null }
-  const size = fo.area.w as SizeType
-  const toBuild = fo.kind as WhatToBuild
-  const bs = bulidState(wo, { level: fo.q.level, size: size, toBiuld: toBuild }, fo)
-  const cost = bs.cost / 10
+  const i = incomeB(wo, { ...fo, q: { level: fo.q.level, improve: 1 } })
+  const cost = (i.bDev + i.money + i.pDev) / 10
   if (wo.powers.money < cost) { return null }
   return cost
 }
@@ -290,11 +285,38 @@ const qdigit = (x: number): number => {
   return b * Math.floor(x / b)
 }
 
+export const canBuildAt = (_: World, fo: FieldObj): boolean => (
+  fo.kind == FieldObjKind.none
+)
+
+export const canImprove = (_: World, fo: FieldObj): boolean => {
+  switch (fo.kind) {
+    case FieldObjKind.factory:
+    case FieldObjKind.pLabo:
+    case FieldObjKind.bLabo:
+    case FieldObjKind.house:
+      return true;
+    default:
+      return false;
+  }
+}
+
+export const canDestroy = (_: World, fo: FieldObj): boolean => {
+  switch (fo.kind) {
+    case FieldObjKind.factory:
+    case FieldObjKind.pLabo:
+    case FieldObjKind.bLabo:
+      return true;
+    default:
+      return false;
+  }
+}
+
 export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildState => {
   const mul = (new Map<FieldObjKindType, number>(
-    [[FieldObjKind.factory, 30],
-    [FieldObjKind.pLabo, 100],
-    [FieldObjKind.bLabo, 1000]])).get(param.toBiuld) ?? 0
+    [[FieldObjKind.factory, 100],
+    [FieldObjKind.pLabo, 300],
+    [FieldObjKind.bLabo, 3000]])).get(param.toBiuld) ?? 0
   const a = fo.area
   const bArea = { ...a, w: param.size, h: param.size }
   const hindrance = !wo.buildings.every(e => !hasIntersection(e.area, bArea))

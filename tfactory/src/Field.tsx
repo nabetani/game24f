@@ -153,27 +153,37 @@ function CellClickUI(p: {
   fieldObj: G.FieldObj,
   closer: () => void
 }): JSX.Element {
-  const [value, setValue] = React.useState('1');
+  const tabs = {
+    b: G.canBuildAt(p.world, p.fieldObj),
+    i: G.canImprove(p.world, p.fieldObj),
+    d: G.canDestroy(p.world, p.fieldObj),
+  }
+  const [value, setValue] = React.useState(((): string => (
+    tabs.b ? "b" : tabs.i ? "i" : "d"
+  ))());
   const handleChange = (_: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
   return <MuiL.TabContext value={value}>
     <Mui.Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
       <TabList onChange={handleChange} aria-label="lab API tabs example" >
-        <Mui.Tab label="建築" value="1" />
-        <Mui.Tab label="撤去" value="2" />
-        <Mui.Tab label="強化" value="3" />
+        {!tabs.b ? [] : <Mui.Tab label="建築" value="b" />}
+        {!tabs.i ? [] : <Mui.Tab label="強化" value="i" />}
+        {!tabs.d ? [] : <Mui.Tab label="撤去" value="d" />}
       </TabList>
     </Mui.Box>
-    <TabPanel value="1">
-      <AddBuildingUI world={p.world} updateWorld={p.updateWorld} fieldObj={p.fieldObj} closer={p.closer} />
-    </TabPanel>
-    <TabPanel value="2">
-      <AddDestroyUI world={p.world} updateWorld={p.updateWorld} fieldObj={p.fieldObj} closer={p.closer} />
-    </TabPanel>
-    <TabPanel value="3">
-      <AddImproveUI world={p.world} updateWorld={p.updateWorld} fieldObj={p.fieldObj} closer={p.closer} />
-    </TabPanel>
+    {!tabs.b ? [] :
+      <TabPanel value="b">
+        <AddBuildingUI world={p.world} updateWorld={p.updateWorld} fieldObj={p.fieldObj} closer={p.closer} />
+      </TabPanel>}
+    {!tabs.i ? [] :
+      <TabPanel value="i">
+        <AddImproveUI world={p.world} updateWorld={p.updateWorld} fieldObj={p.fieldObj} closer={p.closer} />
+      </TabPanel>}
+    {!tabs.d ? [] :
+      <TabPanel value="d">
+        <AddDestroyUI world={p.world} updateWorld={p.updateWorld} fieldObj={p.fieldObj} closer={p.closer} />
+      </TabPanel>}
   </MuiL.TabContext>
 }
 
