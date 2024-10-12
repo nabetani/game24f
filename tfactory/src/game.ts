@@ -137,12 +137,22 @@ const isWorld = (o: any): o is World => {
     && !!w?.size)
 }
 
+export const levelMax = 15
+
+const powFromLevel = (level: number, im: number = 0): number => {
+  // 当初は lv1→ lv.2 は 2倍
+  // lv.max は 2**53 にする。
+  const m = (levelMax - 1) ** 2
+  const x = level + (level - 1) ** 2 / m * (53 - levelMax)
+  return 2 ** x * (1.0 + im * 0.1)
+}
+
 const buildingPower = (b: Building): number => {
   if (0 < b.construction) {
     return 0
   }
   const f = (lev: number, im: number, a: { w: number, h: number }): number => (
-    4 ** lev * (im + 1) ** 0.5 * (a.w * a.h - 0.2))
+    powFromLevel(lev, im) * (a.w * a.h - 0.2))
   const base = f(1, 0, { w: 1, h: 1 })
   const raw = f(b.q.level, b.q.improve, b.area)
   return qdigit(raw / base * 100)
@@ -233,8 +243,10 @@ export const destroy = (w: World, fo: FieldObj): void => {
 
 export const improveCost = (wo: World, fo: FieldObj): number | null => {
   if (!isBuilding(fo)) { return null }
-  const a = fo.area
-  const cost = 2 ** fo.q.level * 100 * a.w * a.h
+  const size = fo.area.w as SizeType
+  const toBuild = fo.kind as WhatToBuild
+  const bs = bulidState(wo, { level: fo.q.level, size: size, toBiuld: toBuild }, fo)
+  const cost = bs.cost / 10
   if (wo.powers.money < cost) { return null }
   return cost
 }
@@ -262,13 +274,11 @@ const qdigit = (x: number): number => {
   return b * Math.floor(x / b)
 }
 
-
 export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildState => {
-  const baseCost = (new Map<FieldObjKindType, number>(
-    [[FieldObjKind.factory, 100],
-    [FieldObjKind.pLabo, 1000],
-    [FieldObjKind.bLabo, 10000]])).get(param.toBiuld) ?? 0
-  const cost = qdigit(4 ** (param.level + 1) * (param.size ** 2 + 0.25)) * baseCost
+  const mul = (new Map<FieldObjKindType, number>(
+    [[FieldObjKind.factory, 30],
+    [FieldObjKind.pLabo, 100],
+    [FieldObjKind.bLabo, 300]])).get(param.toBiuld) ?? 0
   const a = fo.area
   const bArea = { ...a, w: param.size, h: param.size }
   const hindrance = !wo.buildings.every(e => !hasIntersection(e.area, bArea))
@@ -283,6 +293,7 @@ export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildSta
     q: { level: param.level, improve: 0 },
   })
   const power = p.bDev + p.money + p.pDev
+  const cost = power * mul
   return {
     cost: cost,
     duration: Math.floor((param.level + 1) * (param.size + 1)),

@@ -126,7 +126,7 @@ function AddBuildingUI(p: {
         }}
         marks
         min={1}
-        max={10}
+        max={G.levelMax}
       />
       <Mui.Stack direction={"column"}>
         <Mui.Typography>コスト: {U.numText(bs.cost)} T </Mui.Typography>
