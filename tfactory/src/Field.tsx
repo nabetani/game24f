@@ -46,7 +46,7 @@ function AddImproveUI(p: {
           {cost == null
             ? <></>
             : <Mui.Typography>
-              コスト: {cost}
+              コスト: {U.numText(cost)}
             </Mui.Typography>}
           <Mui.Button variant="contained"
             disabled={cost == null}
@@ -128,10 +128,10 @@ function AddBuildingUI(p: {
         min={1}
         max={10}
       />
-      <Mui.Stack direction={"row"} gap={3}>
-        <Mui.Typography>コスト: {bs.cost} T </Mui.Typography>
-        <Mui.Typography> 工期: {bs.duration} w</Mui.Typography>
-        <Mui.Typography> 能力: {bs.power}</Mui.Typography>
+      <Mui.Stack direction={"column"}>
+        <Mui.Typography>コスト: {U.numText(bs.cost)} T </Mui.Typography>
+        <Mui.Typography> 工期: {U.numText(bs.duration)} w</Mui.Typography>
+        <Mui.Typography> 能力: {U.numText(bs.power)}</Mui.Typography>
       </Mui.Stack>
       <Mui.Button variant="contained"
         disabled={!bs.canBuild}
@@ -192,6 +192,8 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
   const ysize = (c.h - ygap * (wsize.h + 1)) / wsize.h
   const ystep = ysize + ygap
   const height = fo.area.h * ystep - ygap
+  const fontSize = height / 4
+  const smallFontSize = fontSize * 0.7
 
   const s: React.CSSProperties = {
     position: "absolute",
@@ -222,10 +224,20 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
   const open = Boolean(anchorEl);
   const id = open ? `simple-popover-${U.XY.fromXY(fo.area).toNum()}` : undefined;
   const cond = G.condition(p.world, p.fieldObj)
-  const pline = (tag: string, x: number | string | undefined) => (
-    x != null ? <>{tag}: {x}</> : <></>)
-  const sline = (tag: string, x: number | undefined, y: number | undefined) => <span>
-    {x != null ? <>{tag}: {x}</> : <></>}{y != null ? <span className="improve">{y}</span> : <></>}
+  const pline = (x: number | undefined) => {
+    if (x == null) { return <></> }
+    const regexp = /^(\d+)(\.\d+)?(\D)?$/g;
+    const m = [...U.numText(x).matchAll(regexp)];
+    const [_, ms, ls, u] = (m || [])[0]
+    return <Mui.Box alignSelf={"center"}>
+      <Mui.Stack direction={"row"} alignItems={"baseline"}>
+        <Mui.Typography fontSize={fontSize}>{ms}</Mui.Typography>
+        {ls ? <Mui.Typography fontSize={smallFontSize}>{ls}</Mui.Typography> : <></>}
+        <Mui.Typography fontSize={fontSize}>{u}</Mui.Typography>
+      </Mui.Stack ></Mui.Box>
+  }
+  const sline = (x: number | undefined, y: number | undefined) => <span>
+    {x != null ? <>Lv. {x}</> : <></>}{y != null ? <span className="improve">{y}</span> : <></>}
   </span>
   if (cond.construction != null && 0 < cond.construction && cond.constructionTotal != null && 0 < cond.construction) {
     const w = width / 2
@@ -265,13 +277,14 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
         minWidth: width,
         width: width,
         height: height,
-        fontSize: height / 3.5,
+        textTransform: "none",
+        fontSize: fontSize,
       }}
       variant="contained"
       onClick={handleClick}>
       <Mui.Stack>
-        {pline("P", cond.power)}
-        {sline("Lv", cond.level, cond.improve)}
+        {pline(cond.power)}
+        {sline(cond.level, cond.improve)}
       </Mui.Stack>
     </Mui.Button>
     <Mui.Popover
