@@ -129,7 +129,12 @@ function AddBuildingUI(p: {
         max={G.buildableMax(p.world, param.toBiuld)}
       />
       <Mui.Stack direction={"column"}>
-        <Mui.Typography>コスト: {U.numText(bs.cost)} T </Mui.Typography>
+        <Mui.Typography>
+          建設費: {U.numText(bs.cost)} T
+          {bs.runningCost <= 0 ? <></> :
+            <> &nbsp;&nbsp;&nbsp; 維持費: {U.numText(bs.runningCost)} T</>}
+
+        </Mui.Typography>
         <Mui.Typography> 工期: {U.numText(bs.duration)} w</Mui.Typography>
         <Mui.Typography> 能力: {U.numText(bs.power)}</Mui.Typography>
       </Mui.Stack>
@@ -236,7 +241,7 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
   const cond = G.condition(p.world, p.fieldObj)
   const pline = (x: number | undefined) => {
     if (x == null) { return <></> }
-    const regexp = /^(\d+)(\.\d+)?(\D)?$/g;
+    const regexp = /^((?:\-)?\d+)(\.\d+)?(\D)?$/g;
     const m = [...U.numText(x).matchAll(regexp)];
     const [_, ms, ls, u] = (m || [])[0]
     return <Mui.Box alignSelf={"center"}>

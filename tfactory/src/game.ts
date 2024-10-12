@@ -116,12 +116,12 @@ const newHouse = (x: number, y: number, q: Quality): Building => {
 
 export const restoreWorld = (_: { [key: string]: any }): World => {
   return {
-    size: { w: 7, h: 7 },
+    size: { w: 5, h: 10 },
     buildings: [
-      newHouse(3, 3, { improve: 0, level: 1 }),
+      newHouse(2, 4, { improve: 0, level: 1 }),
     ],
     duration: 0,
-    powers: { money: 3000, pDev: 1, bDev: 1 }
+    powers: { money: 1e9, pDev: 1, bDev: 1 } // TODO: fix
   }
 }
 
@@ -173,19 +173,21 @@ const buildingPower = (b: Building): number => {
 
 export const incomeB = (w: World, b: Building): Powers => {
   const z = { ...powerZero }
+  const p = buildingPower(b)
   switch (b.kind) {
     case FieldObjKind.bLabo:
-      z.bDev += buildingPower(b)
+      z.bDev += p
+      // z.money -= p * 2
       return z
     case FieldObjKind.pLabo:
-      z.pDev += buildingPower(b)
+      z.pDev += p
+      // z.money -= p / 2
       return z
     case FieldObjKind.factory:
-      z.money += buildingPower(b)
+      z.money += p
       return z
     case FieldObjKind.house:
-      const pow = buildingPower(b)
-      z.money += pow
+      z.money += p
       return z
     default:
       return powerZero
@@ -238,6 +240,7 @@ export type BuildState = {
   cost: number,
   duration: number,
   power: number,
+  runningCost: number,
   canBuild: boolean,
 }
 
@@ -254,10 +257,14 @@ export const destroy = (w: World, fo: FieldObj): void => {
   })
 }
 
+export const maxPower = (p: Powers): number => {
+  return Math.max(p.money, p.pDev, p.bDev)
+}
+
 export const improveCost = (wo: World, fo: FieldObj): number | null => {
   if (!isBuilding(fo)) { return null }
   const i = incomeB(wo, { ...fo, q: { level: fo.q.level, improve: 1 } })
-  const cost = (i.bDev + i.money + i.pDev) / 10
+  const cost = maxPower(i) * 2
   if (wo.powers.money < cost) { return null }
   return cost
 }
@@ -330,13 +337,14 @@ export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildSta
     kind: param.toBiuld,
     q: { level: param.level, improve: 0 },
   })
-  const power = p.bDev + p.money + p.pDev
+  const power = maxPower(p)
   const cost = power * mul
   return {
     cost: cost,
     duration: Math.floor((param.level + 1) * (param.size + 1)),
     canBuild: fo.kind == FieldObjKind.none && !hindrance && !overflow && cost < wo.powers.money,
     power: power,
+    runningCost: Math.max(0, -p.money),
   }
 }
 
@@ -368,7 +376,7 @@ export const condition = (w: World, f: FieldObj): CondType => {
     r.level = f.q.level
     r.improve = f.q.improve
     const p = incomeB(w, f)
-    r.power = p.bDev + p.pDev + p.money
+    r.power = maxPower(p)
     r.construction = f.construction
     r.constructionTotal = f.constructionTotal
   }
