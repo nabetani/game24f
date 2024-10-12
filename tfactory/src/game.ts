@@ -121,7 +121,7 @@ export const restoreWorld = (_: { [key: string]: any }): World => {
   return {
     size: { w: 7, h: 7 },
     buildings: [
-      newHouse(3, 3, { improve: 1, level: 1 }),
+      newHouse(3, 3, { improve: 0, level: 1 }),
     ],
     duration: 0,
     powers: { money: 3000, pDev: 0, bDev: 0 }
@@ -141,8 +141,11 @@ const buildingPower = (b: Building): number => {
   if (0 < b.construction) {
     return 0
   }
-  const x = 2 ** b.q.level * b.q.improve ** 0.5 * (b.area.h * b.area.w - 0.2)
-  return Math.floor(x * 100)
+  const f = (lev: number, im: number, a: { w: number, h: number }): number => (
+    4 ** lev * (im + 1) ** 0.5 * (a.w * a.h - 0.2))
+  const base = f(1, 0, { w: 1, h: 1 })
+  const raw = f(b.q.level, b.q.improve, b.area)
+  return qdigit(raw / base * 100)
 }
 
 export const incomeB = (w: World, b: Building): Powers => {
@@ -265,7 +268,7 @@ export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildSta
     [[FieldObjKind.factory, 100],
     [FieldObjKind.pLabo, 1000],
     [FieldObjKind.bLabo, 10000]])).get(param.toBiuld) ?? 0
-  const cost = qdigit(3 ** (param.level + 1) * (param.size ** 2 + 0.25)) * baseCost
+  const cost = qdigit(4 ** (param.level + 1) * (param.size ** 2 + 0.25)) * baseCost
   const a = fo.area
   const bArea = { ...a, w: param.size, h: param.size }
   const hindrance = !wo.buildings.every(e => !hasIntersection(e.area, bArea))
@@ -277,7 +280,7 @@ export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildSta
     construction: 0,
     constructionTotal: 1,
     kind: param.toBiuld,
-    q: { level: param.level, improve: 1 },
+    q: { level: param.level, improve: 0 },
   })
   const power = p.bDev + p.money + p.pDev
   return {
@@ -297,7 +300,7 @@ export const addBuilding = (w: World, fieldObj: FieldObj, param: BuildParam): vo
       construction: bs.duration,
       constructionTotal: bs.duration,
       kind: param.toBiuld,
-      q: { level: param.level, improve: 1 },
+      q: { level: param.level, improve: 0 },
     })
   w.powers.money -= bs.cost
 }
