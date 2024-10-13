@@ -43,8 +43,8 @@ export type WhatToBuild = typeof FieldObjKind.factory | typeof FieldObjKind.pLab
 
 export type BuildParam = {
   level: number,
-  size: SizeType,
-  toBiuld: WhatToBuild,
+  size: SizeType | undefined,
+  toBiuld: WhatToBuild | undefined,
 }
 
 export type FieldObj = {
@@ -121,7 +121,7 @@ export const restoreWorld = (_: { [key: string]: any }): World => {
       newHouse(2, 4, { improve: 0, level: 1 }),
     ],
     duration: 0,
-    powers: { money: 1e4, pDev: 1, bDev: 1 } // TODO: fix
+    powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
   }
 }
 
@@ -134,11 +134,15 @@ const isWorld = (o: any): o is World => {
     && !!w?.size)
 }
 
+export const buildLevel = (d: number): number => {
+  return Math.floor(Math.log10(Math.max(1, d)))
+}
+
 export const levelMax = 30
 export const buildableMax = (wo: World, k: WhatToBuild): number => {
   const f = (p: number): number => {
-    const v = Math.floor(Math.log10(Math.max(1, p)))
-    return U.clamp(v, 2, levelMax)
+    const v = buildLevel(p)
+    return Math.min(v, levelMax)
   }
   switch (k) {
     case FieldObjKind.factory:
@@ -202,7 +206,6 @@ export const progress = (o: World | Building): void => {
   if (isWorld(o)) {
     o.buildings.forEach(b => progress(b))
     const i = incomeW(o)
-    console.log(i)
     ++o.duration
     o.powers.money += i.money ?? 0
     o.powers.pDev += i.pDev ?? 0
@@ -231,8 +234,6 @@ export const fieldObjs = (w: World): FieldObj[] => {
 export const defaultBuildParam = (_: World): BuildParam => {
   return {
     level: 1,
-    size: 1,
-    toBiuld: FieldObjKind.factory,
   }
 }
 
@@ -320,6 +321,15 @@ export const canDestroy = (_: World, fo: FieldObj): boolean => {
 }
 
 export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildState => {
+  if (param.size == undefined || param.toBiuld == undefined) {
+    return {
+      cost: 0,
+      duration: 0,
+      canBuild: false,
+      power: 0,
+      runningCost: 0,
+    }
+  }
   const mul = (new Map<FieldObjKindType, number>(
     [[FieldObjKind.factory, 100],
     [FieldObjKind.pLabo, 300],

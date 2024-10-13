@@ -88,11 +88,11 @@ function AddBuildingUI(p: {
             () => setParam({ ...param, toBiuld: G.FieldObjKind.factory })} />
         <Mui.FormControlLabel
           checked={param.toBiuld == G.FieldObjKind.pLabo}
-          value="plabo" control={<Mui.Radio />} label="生産技術研究所" onClick={
+          value="plabo" control={<Mui.Radio />} label="生産技研" onClick={
             () => setParam({ ...param, toBiuld: G.FieldObjKind.pLabo })} />
         <Mui.FormControlLabel
           checked={param.toBiuld == G.FieldObjKind.bLabo}
-          value="blabo" control={<Mui.Radio />} label="基礎研究所" onClick={
+          value="blabo" control={<Mui.Radio />} label="基礎研" onClick={
             () => setParam({ ...param, toBiuld: G.FieldObjKind.bLabo })} />
       </Mui.RadioGroup>
       <Mui.FormLabel id="bsize-selector">建物のサイズ</Mui.FormLabel>
@@ -129,7 +129,7 @@ function AddBuildingUI(p: {
         }}
         marks
         min={1}
-        max={G.buildableMax(p.world, param.toBiuld)}
+        max={param.toBiuld == null ? 1 : G.buildableMax(p.world, param.toBiuld)}
       />
       <Mui.Stack direction={"column"}>
         <Mui.Typography>
@@ -262,7 +262,6 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
     const h = height / 2
     const r = h * 0.9
     let x = (cond.construction) / (cond.constructionTotal + 1)
-    console.log({ x: x, c: cond.construction, total: cond.constructionTotal })
     if (x == 0.5) { x = 0.5 + 1e-9 }
     const t = Math.PI * 2 * x
     const dx = r * (-Math.sin(t))
