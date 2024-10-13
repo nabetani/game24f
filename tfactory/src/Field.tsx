@@ -228,10 +228,12 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
   }
   const col = new Map<G.FieldObjKindType, string>([
     [G.FieldObjKind.none, "#eee"],
-    [G.FieldObjKind.bLabo, "darkorange"],
-    [G.FieldObjKind.pLabo, "red"],
-    [G.FieldObjKind.factory, "gray"],
-    [G.FieldObjKind.house, "green"],
+    // "#7B6F00"
+    // "#006981"
+    [G.FieldObjKind.bLabo, "#008E75"],
+    [G.FieldObjKind.pLabo, "#7B6F00"],
+    [G.FieldObjKind.factory, "#910091"],
+    [G.FieldObjKind.house, "#6F2800"],
   ]).get(fo.kind)
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget?.parentElement?.parentElement);
