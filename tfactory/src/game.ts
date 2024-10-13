@@ -43,8 +43,8 @@ export type WhatToBuild = typeof FieldObjKind.factory | typeof FieldObjKind.pLab
 
 export type BuildParam = {
   level: number,
-  size: SizeType | undefined,
-  toBiuld: WhatToBuild | undefined,
+  size?: SizeType,
+  toBiuld?: WhatToBuild,
 }
 
 export type FieldObj = {
@@ -164,21 +164,18 @@ const powFromLevel = (level: number, im: number = 0): number => {
   return 2 ** x * (1.0 + im ** 0.8 * 0.1)
 }
 
-const buildingPower = (b: Building): number => {
-  if (0 < b.construction) {
-    return 0
-  }
-  const f = (lev: number, im: number, a: { w: number, h: number }): number => (
-    powFromLevel(lev, im) * (a.w * a.h - 0.2))
-  const base = f(1, 0, { w: 1, h: 1 })
-  const raw = f(b.q.level, b.q.improve, b.area)
+const buildingPower = (q0: Quality, a0: { w: number, h: number }): number => {
+  const f = (q: Quality, a: { w: number, h: number }): number => (
+    powFromLevel(q.level, q.improve) * (a.w * a.h - 0.2))
+  const base = f({ level: 1, improve: 0 }, { w: 1, h: 1 })
+  const raw = f(q0, a0)
   return qdigit(raw / base * 100)
 }
 
-export const incomeB = (w: World, b: Building): Powers => {
+export const incomeBBase = (q: Quality, a: { w: number, h: number }, kind: FieldObjKindType): Powers => {
+  const p = buildingPower(q, a)
   const z = { ...powerZero }
-  const p = buildingPower(b)
-  switch (b.kind) {
+  switch (kind) {
     case FieldObjKind.bLabo:
       z.bDev += p
       // z.money -= p * 2
@@ -196,6 +193,13 @@ export const incomeB = (w: World, b: Building): Powers => {
     default:
       return powerZero
   }
+}
+
+export const incomeB = (w: World, b: Building): Powers => {
+  if (0 < b.construction) {
+    return { ...powerZero }
+  }
+  return incomeBBase(b.q, b.area, b.kind)
 }
 
 export const incomeW = (w: World): Powers => {
@@ -233,7 +237,7 @@ export const fieldObjs = (w: World): FieldObj[] => {
 
 export const defaultBuildParam = (_: World): BuildParam => {
   return {
-    level: 1,
+    level: 1
   }
 }
 
@@ -264,8 +268,10 @@ export const maxPower = (p: Powers): number => {
 
 export const improveCost = (wo: World, fo: FieldObj): number | null => {
   if (!isBuilding(fo)) { return null }
-  const i = incomeB(wo, { ...fo, q: { level: fo.q.level, improve: 1 } })
-  const cost = maxPower(i) * 2
+  const i = bulidState(wo, {
+    ...fo.q, size: fo.area.w as SizeType, toBiuld: fo.kind as WhatToBuild
+  }, fo)
+  const cost = qdigit(i.cost / 10)
   if (wo.powers.money < cost) { return null }
   return cost
 }
@@ -340,13 +346,7 @@ export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildSta
   const leftEnd = bArea.x + bArea.w - 1
   const bottomEnd = bArea.y + bArea.h - 1
   const overflow = wo.size.w <= leftEnd || wo.size.h <= bottomEnd
-  const p = incomeB(wo, {
-    area: { x: 0, y: 0, w: param.size, h: param.size },
-    construction: 0,
-    constructionTotal: 1,
-    kind: param.toBiuld,
-    q: { level: param.level, improve: 0 },
-  })
+  const p = incomeBBase({ level: param.level, improve: 0 }, { w: param.size, h: param.size }, param.toBiuld)
   const power = maxPower(p)
   const cost = power * mul
   return {
@@ -363,10 +363,10 @@ export const addBuilding = (w: World, fieldObj: FieldObj, param: BuildParam): vo
   const bs = bulidState(w, param, fieldObj)
   w.buildings.push(
     {
-      area: { x: a.x, y: a.y, w: param.size, h: param.size },
+      area: { x: a.x, y: a.y, w: param.size!, h: param.size! },
       construction: bs.duration,
       constructionTotal: bs.duration,
-      kind: param.toBiuld,
+      kind: param.toBiuld!,
       q: { level: param.level, improve: 0 },
     })
   w.powers.money -= bs.cost
