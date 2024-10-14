@@ -114,7 +114,7 @@ const newHouse = (x: number, y: number, q: Quality): Building => {
   }
 }
 
-export const restoreWorld = (_: { [key: string]: any }): World => {
+export const emptyWorld = (): World => {
   return {
     size: { w: 5, h: 10 },
     buildings: [

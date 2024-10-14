@@ -310,9 +310,6 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
     }
   })()}</Mui.Box>
 
-
-
-
   return <div className={"cell"} style={s}>
     <Mui.Button
       aria-describedby={id} fullWidth={false} size="small"

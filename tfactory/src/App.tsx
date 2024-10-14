@@ -6,6 +6,7 @@ import React from 'react'
 import { useImmer, Updater } from 'use-immer';
 import * as Layout from "./layout"
 import * as Mui from "@mui/material";
+import * as WS from "./wstorage";
 
 import { hexToRgb } from '@mui/material';
 import { fontSize, height } from '@mui/system';
@@ -62,11 +63,14 @@ function HeaderStatus(p: {
 }
 
 function App() {
-  const [wo, updateWorld] = useImmer(G.restoreWorld({}))
+  const [wo, updateWorld] = useImmer(WS.world.value)
 
   React.useEffect(() => {
     let timeoutId = setInterval(() => {
-      updateWorld(w => { G.progress(w) })
+      updateWorld(w => {
+        G.progress(w)
+        WS.world.write(w)
+      })
     }, 50) // TODO: 500
     return () => {
       clearTimeout(timeoutId)
