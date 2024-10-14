@@ -8,6 +8,7 @@ import * as MuiL from "@mui/lab";
 import React from 'react'
 
 const mtab = {
+  usage: "mtab-usage",
   general: "mtab-general",
   reset: "mtab-reset",
 } as const
@@ -44,11 +45,56 @@ function ResetUI(p: {
   </>
 }
 
+function UsageUI(p: {
+  op: (cmd: string) => void,
+  closer: () => void,
+}): JSX.Element {
+  return <>
+    <Mui.Typography>
+      タイツを作るゲームです。ゴールはありません。<br />
+      建物は4種類あります。<br />
+      <Mui.Divider />
+      <Icon.Home /> 自宅 兼 工場<br />
+      <Mui.Box sx={{ pl: 4 }}>
+        • タイツを製造する<br />
+        • 建築も撤去もできない
+      </Mui.Box>
+      <Mui.Divider />
+      <Icon.Factory /> 工場<br />
+      <Mui.Box sx={{ pl: 4 }}>
+        • タイツを製造する<br />
+        • 建築可能レベルは「生産技術」で決まる
+      </Mui.Box>
+      <Mui.Divider />
+      <Icon.Settings /> 生産技研<br />
+      <Mui.Box sx={{ pl: 4 }}>
+        • 生産技術を上げる<br />
+        • 建築可能レベルは「基礎技術」で決まる
+      </Mui.Box>
+      <Mui.Divider />
+      <Icon.Science /> 基礎研<br />
+      <Mui.Box sx={{ pl: 4 }}>
+        • 基礎技術を上げる<br />
+        • 建築可能レベルは「基礎技術」で決まる
+      </Mui.Box>
+      <Mui.Divider />
+      できることは<br />
+      <Mui.Box sx={{ pl: 2 }}>
+        • 工場や研究所の建築<br />
+        • 工場や研究所の強化<br />
+        • 工場や研究所の撤去<br />
+      </Mui.Box>
+      です。
+
+    </Mui.Typography>
+  </>
+}
+
 function RootMenuUI(p: {
   op: (cmd: string) => void,
   closer: () => void,
 }): JSX.Element {
-  const [value, setValue] = React.useState<string>(mtab.general);
+  const [value, setValue] = React.useState<string>(mtab.usage);
   const handleChange = (_: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
@@ -57,10 +103,14 @@ function RootMenuUI(p: {
     <MuiL.TabContext value={value}>
       <Mui.Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <MuiL.TabList onChange={handleChange} aria-label="lab API tabs example" >
+          <Mui.Tab label="遊び方" value={mtab.usage} />
           <Mui.Tab label="設定" value={mtab.general} />
           <Mui.Tab label="リセット" value={mtab.reset} />
         </MuiL.TabList>
       </Mui.Box>
+      <MuiL.TabPanel value={mtab.usage}>
+        <UsageUI op={p.op} closer={p.closer} />
+      </MuiL.TabPanel>
       <MuiL.TabPanel value={mtab.general}>
         <GeneralUI op={p.op} closer={p.closer} />
       </MuiL.TabPanel>
