@@ -1,66 +1,11 @@
 import Field from './Field'
 import './App.css'
 import * as G from "./game"
-import * as U from './util'
 import React from 'react'
-import { useImmer, Updater } from 'use-immer';
+import { useImmer } from 'use-immer';
 import * as Layout from "./layout"
-import * as Mui from "@mui/material";
 import * as WS from "./wstorage";
-
-import { hexToRgb } from '@mui/material';
-import { fontSize, height } from '@mui/system';
-
-function HeaderStatus(p: {
-  world: G.World,
-}): JSX.Element {
-  const r0 = { name: "保有", v: p.world.powers }
-  const r1 = { name: "増加", v: G.incomeW(p.world) }
-  const cellStyle = { fontSize: Layout.clientWH().h / 60 }
-  const cellWithLevel = (v: number): JSX.Element =>
-    <Mui.TableCell sx={cellStyle}>
-      <Mui.Stack direction={"row"} alignItems={"baseline"}>
-        {U.numText(v)}
-        <Mui.Typography fontSize={Layout.clientWH().h / 80}>
-          (Lv. {G.buildLevel(v)})
-        </Mui.Typography>
-      </Mui.Stack>
-    </Mui.TableCell>
-  return (
-    <Mui.TableContainer component={Mui.Paper}>
-      <Mui.Table sx={{}} size="small" >
-        <Mui.TableHead>
-          <Mui.TableRow>
-            <Mui.TableCell sx={cellStyle} ></Mui.TableCell>
-            <Mui.TableCell sx={cellStyle} >タイツ</Mui.TableCell>
-            <Mui.TableCell sx={cellStyle} >生産技術</Mui.TableCell>
-            <Mui.TableCell sx={cellStyle} >基礎技術</Mui.TableCell>
-          </Mui.TableRow>
-        </Mui.TableHead>
-        <Mui.TableBody>
-          <Mui.TableRow key={r0.name}>
-            <Mui.TableCell sx={cellStyle} component="th" scope="row">
-              {r0.name}
-            </Mui.TableCell>
-            <Mui.TableCell sx={cellStyle}>{U.numText(r0.v.money)}</Mui.TableCell>
-            {cellWithLevel(r0.v.pDev)}
-            {cellWithLevel(r0.v.bDev)}
-          </Mui.TableRow>
-
-          <Mui.TableRow key={r1.name}>
-            <Mui.TableCell sx={cellStyle} component="th" scope="row">
-              {r1.name}
-            </Mui.TableCell>
-            <Mui.TableCell sx={cellStyle}>{U.numText(r1.v.money)}</Mui.TableCell>
-            <Mui.TableCell sx={cellStyle} >{U.numText(r1.v.pDev)}</Mui.TableCell>
-            <Mui.TableCell sx={cellStyle} >{U.numText(r1.v.bDev)}</Mui.TableCell>
-          </Mui.TableRow>
-
-        </Mui.TableBody>
-      </Mui.Table>
-    </Mui.TableContainer>
-  );
-}
+import { Header } from "./Header"
 
 function App() {
   const [wo, updateWorld] = useImmer(WS.world.value)
@@ -76,13 +21,35 @@ function App() {
       clearTimeout(timeoutId)
     }
   }, [wo])
+  const c = Layout.clientWH()
+  const op = (cmd: string): void => {
+    switch (cmd) {
+      case "reset":
+        updateWorld(w => {
+          const e = G.emptyWorld()
+          w.buildings = e.buildings
+          w.duration = e.duration
+          w.powers = e.powers
+          w.size = e.size
+        })
+    }
+  }
 
   return (
-    <div style={{
-      borderStyle: "solid",
-    }}>
-      <HeaderStatus world={wo} />
-      <Field world={wo} updateWorld={updateWorld} />
+    <div style={{}}>
+      <div style={{
+        margin: "auto",
+        borderStyle: "solid",
+        width: c.w,
+        minWidth: c.w,
+        maxWidth: c.w,
+        height: c.h,
+        minHeight: c.h,
+        maxHeight: c.h,
+      }}>
+        <Header world={wo} op={op} />
+        <Field world={wo} updateWorld={updateWorld} />
+      </div >
     </div >
   )
 }

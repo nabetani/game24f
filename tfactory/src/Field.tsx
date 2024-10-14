@@ -6,7 +6,6 @@ import * as G from "./game"
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { Updater } from 'use-immer';
-import { Upcoming } from "@mui/icons-material";
 import * as Layout from "./layout"
 import * as Icon from '@mui/icons-material';
 
