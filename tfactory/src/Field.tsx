@@ -1,6 +1,6 @@
 import * as Mui from "@mui/material";
 import * as MuiL from "@mui/lab";
-import React from "react";
+import React, { useEffect } from "react";
 import * as U from './util'
 import * as G from "./game"
 import TabList from '@mui/lab/TabList';
@@ -9,6 +9,12 @@ import { Updater } from 'use-immer';
 import * as Layout from "./layout"
 import * as Icon from '@mui/icons-material';
 
+
+type BuildAreaContextV = {
+  buildArea?: G.Area,
+  setBuildArea?: React.Dispatch<React.SetStateAction<G.Area | undefined>>,
+}
+const BuildAreaContext = React.createContext<BuildAreaContextV>({})
 
 function AddDestroyUI(p: {
   world: G.World,
@@ -72,7 +78,14 @@ function AddBuildingUI(p: {
   closer: () => void
 }): JSX.Element {
   const [param, setParam] = React.useState<G.BuildParam>(G.defaultBuildParam(p.world))
+  const { setBuildArea } = React.useContext(BuildAreaContext)
   const bs = G.bulidState(p.world, param, p.fieldObj)
+  useEffect(() => setBuildArea && setBuildArea(
+    bs.canBuild ? { ...p.fieldObj.area, w: param.size ?? 0, h: param.size ?? 0 } : undefined),
+    [setBuildArea, bs.canBuild, param.size])
+  const setSize = (n: G.SizeType): void => {
+    setParam({ ...param, size: n })
+  }
   return <>
     <Mui.Box><Mui.FormControl size="small">
       <Mui.FormLabel id="btype-selector">建物の種類</Mui.FormLabel>
@@ -103,15 +116,15 @@ function AddBuildingUI(p: {
         <Mui.FormControlLabel
           checked={param.size == 1}
           value="1" control={<Mui.Radio />} label="小" onClick={
-            () => setParam({ ...param, size: 1 })} />
+            () => setSize(1)} />
         <Mui.FormControlLabel
           checked={param.size == 2}
           value="2" control={<Mui.Radio />} label="中" onClick={
-            () => setParam({ ...param, size: 2 })} />
+            () => setSize(2)} />
         <Mui.FormControlLabel
           checked={param.size == 3}
           value="3" control={<Mui.Radio />} label="大" onClick={
-            () => setParam({ ...param, size: 3 })} />
+            () => setSize(3)} />
       </Mui.RadioGroup>
       <Mui.FormLabel id="q-selector">技術レベル</Mui.FormLabel>
       <Mui.Slider
@@ -194,36 +207,48 @@ function CellClickUI(p: {
   </MuiL.TabContext>
 }
 
-function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: G.FieldObj }): JSX.Element {
-  const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null | undefined>(null);
-  const fo = p.fieldObj
+function fieldObjArea(area: G.Area, wo: G.World): G.Area {
   const c = Layout.fieldWH()
-  const wsize = p.world.size
+  const wsize = wo.size
 
   const xsize = c.w / (wsize.w + 1)
   const xgap = (c.w - xsize * wsize.w) / (wsize.w + 1)
   const xstep = xsize + xgap
-  const width = fo.area.w * xstep - xgap
+  const width = area.w * xstep - xgap
 
   const ygap = xgap
   const ysize = (c.h - ygap * (wsize.h + 1)) / wsize.h
   const ystep = ysize + ygap
-  const height = fo.area.h * ystep - ygap
-  const fontSize = height / 4
+  const height = area.h * ystep - ygap
+
+  return {
+    x: area.x * xstep + xgap,
+    y: area.y * ystep + xgap,
+    w: width,
+    h: height
+  }
+}
+
+function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: G.FieldObj }): JSX.Element {
+  const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null | undefined>(null);
+  const fo = p.fieldObj
+  const foa = fieldObjArea(fo.area, p.world)
+  const { setBuildArea } = React.useContext(BuildAreaContext)
+
+  const fontSize = foa.h / 4
   const smallFontSize = fontSize * 0.7
 
   const s: React.CSSProperties = {
     position: "absolute",
-    left: fo.area.x * xstep + xgap,
-    top: fo.area.y * ystep + xgap,
-    minWidth: width,
-    maxWidth: width,
-    minHeight: height,
-    maxHeight: height,
+    left: foa.x,
+    top: foa.y,
+    minWidth: foa.w,
+    maxWidth: foa.w,
+    minHeight: foa.h,
+    maxHeight: foa.h,
     overflow: "hidden",
     margin: 0,
     padding: 0,
-
   }
   const col = new Map<G.FieldObjKindType, string>([
     [G.FieldObjKind.none, "#eee"],
@@ -239,6 +264,8 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
   };
   const handleClose = () => {
     setAnchorEl(null);
+    setBuildArea && setBuildArea(undefined);
+
   };
   const open = Boolean(anchorEl);
   const id = open ? `simple-popover-${U.XY.fromXY(fo.area).toNum()}` : undefined;
@@ -259,8 +286,8 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
     {x != null ? <>Lv. {x}</> : <></>}{y != null ? <span className="improve">{y}</span> : <></>}
   </span>
   if (cond.construction != null && 0 < cond.construction && cond.constructionTotal != null && 0 < cond.construction) {
-    const w = width / 2
-    const h = height / 2
+    const w = foa.w / 2
+    const h = foa.h / 2
     const r = h * 0.9
     let x = (cond.construction) / (cond.constructionTotal + 1)
     if (x == 0.5) { x = 0.5 + 1e-9 }
@@ -269,9 +296,9 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
     const dy = r * (1 - Math.cos(t))
     return <div className={"cell"} style={s}>
       <svg version="1.1"
-        width={width} height={height}
+        width={foa.w} height={foa.h}
         xmlns="http://www.w3.org/2000/svg">
-        <rect x={0} y={0} width={width} height={height} fill="#ddd" rx={r / 5} ry={r / 5} />
+        <rect x={0} y={0} width={foa.w} height={foa.h} fill="#ddd" rx={r / 5} ry={r / 5} />
         <circle cx={w} cy={h} r={r} fill="#fff" />
         <path d={`
           M ${w},${h}
@@ -281,8 +308,6 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
       </svg>
     </div>
   }
-
-
   const icon = <Mui.Box
     sx={{
       fontSize: fontSize * 2,
@@ -293,7 +318,7 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
       position: "absolute",
       top: 0,
       left: 0,
-      fontSize: height / 2,
+      fontSize: foa.h / 2,
     }
     switch (fo.kind) {
       case G.FieldObjKind.factory:
@@ -319,9 +344,9 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
         borderStyle: (open ? "solid" : "none"),
         padding: 0,
         margin: "0",
-        minWidth: width,
-        width: width,
-        height: height,
+        minWidth: foa.w,
+        width: foa.w,
+        height: foa.h,
         textTransform: "none",
         fontSize: fontSize,
       }}
@@ -342,14 +367,23 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
         vertical: 'bottom',
         horizontal: 'left',
       }}
-    ><CellClickUI world={p.world} updateWorld={p.updateWorld} fieldObj={p.fieldObj} closer={() => { setAnchorEl(null) }} /></Mui.Popover></div >
+    ><CellClickUI
+        world={p.world}
+        updateWorld={p.updateWorld}
+        fieldObj={p.fieldObj}
+        closer={() => {
+          setAnchorEl(null);
+          setBuildArea && setBuildArea(undefined)
+        }} /></Mui.Popover></div >
 }
 
-class Field extends React.Component<{ world: G.World, updateWorld: Updater<G.World> }, {}> {
-  render() {
-    const wo = this.props.world
-    const c = Layout.fieldWH()
-    return (
+function Field(p: { world: G.World, updateWorld: Updater<G.World> }): JSX.Element {
+  const [buildArea, setBuildArea] = React.useState<G.Area | undefined>(undefined)
+  const wo = p.world
+  const c = Layout.fieldWH()
+  const ba: undefined | G.Area = buildArea && fieldObjArea(buildArea, p.world)
+  return (
+    <BuildAreaContext.Provider value={{ buildArea, setBuildArea }}>
       <div style={{
         position: "relative",
         width: c.w,
@@ -364,10 +398,19 @@ class Field extends React.Component<{ world: G.World, updateWorld: Updater<G.Wor
         marginRight: "auto",
 
       }}>
-        {G.fieldObjs(wo).map(f => <FieldObj key={`${U.XY.fromXY(f.area).toNum()}`} world={wo} updateWorld={this.props.updateWorld} fieldObj={f} />)}
-      </div>
-    );
-  }
+        <Mui.Box sx={{ zIndex: "tooltip", width: c.w, height: c.h }}
+          style={{ position: "relative", left: 0, top: 0, pointerEvents: "none" }}>
+          {ba &&
+            <svg version="1.1"
+              style={{ width: c.w, height: c.h, pointerEvents: "none" }}
+              width={c.w} height={c.h}
+              xmlns="http://www.w3.org/2000/svg">
+              <rect x={ba.x} y={ba.y} width={ba.w} height={ba.h} opacity={0.2} stroke="#000" strokeWidth={10} fill="none" rx={10} ry={10} />
+            </svg>}
+        </Mui.Box>
+        {G.fieldObjs(wo).map(f => <FieldObj key={`${U.XY.fromXY(f.area).toNum()}`} world={wo} updateWorld={p.updateWorld} fieldObj={f} />)}
+      </div></BuildAreaContext.Provider>
+  );
 }
 
 export default Field
