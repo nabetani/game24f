@@ -167,40 +167,51 @@ function HeaderStatus(p: {
       </Mui.Stack>
     </Mui.TableCell>
   return (
-    <Mui.TableContainer component={Mui.Paper}>
-      <Mui.Table sx={{}} size="small" >
-        <Mui.TableHead>
-          <Mui.TableRow>
-            <Mui.TableCell sx={cellStyle} >
-              <MenuButton op={p.op} />
-            </Mui.TableCell>
-            <Mui.TableCell sx={cellStyle} >タイツ</Mui.TableCell>
-            <Mui.TableCell sx={cellStyle} >生産技術</Mui.TableCell>
-            <Mui.TableCell sx={cellStyle} >基礎技術</Mui.TableCell>
-          </Mui.TableRow>
-        </Mui.TableHead>
-        <Mui.TableBody>
-          <Mui.TableRow key={r0.name}>
-            <Mui.TableCell sx={cellStyle} component="th" scope="row">
-              {r0.name}
-            </Mui.TableCell>
-            <Mui.TableCell sx={cellStyle}>{U.numText(r0.v.money)}</Mui.TableCell>
-            {cellWithLevel(r0.v.pDev)}
-            {cellWithLevel(r0.v.bDev)}
-          </Mui.TableRow>
+    <>
+      <Mui.TableContainer component={Mui.Paper}>
+        <Mui.Table sx={{}} size="small" >
+          <Mui.TableHead>
+            <Mui.TableRow>
+              <Mui.TableCell sx={cellStyle} >
+                <MenuButton op={p.op} />
+              </Mui.TableCell>
+              <Mui.TableCell sx={cellStyle} >タイツ</Mui.TableCell>
+              <Mui.TableCell sx={cellStyle} >生産技術</Mui.TableCell>
+              <Mui.TableCell sx={cellStyle} >基礎技術</Mui.TableCell>
+            </Mui.TableRow>
+          </Mui.TableHead>
+          <Mui.TableBody>
+            <Mui.TableRow key={r0.name}>
+              <Mui.TableCell sx={cellStyle} component="th" scope="row">
+                {r0.name}
+              </Mui.TableCell>
+              <Mui.TableCell sx={cellStyle}>{U.numText(r0.v.money)}</Mui.TableCell>
+              {cellWithLevel(r0.v.pDev)}
+              {cellWithLevel(r0.v.bDev)}
+            </Mui.TableRow>
 
-          <Mui.TableRow key={r1.name}>
-            <Mui.TableCell sx={cellStyle} component="th" scope="row">
-              {r1.name}
-            </Mui.TableCell>
-            <Mui.TableCell sx={cellStyle}>{U.numText(r1.v.money)}</Mui.TableCell>
-            <Mui.TableCell sx={cellStyle} >{U.numText(r1.v.pDev)}</Mui.TableCell>
-            <Mui.TableCell sx={cellStyle} >{U.numText(r1.v.bDev)}</Mui.TableCell>
-          </Mui.TableRow>
+            <Mui.TableRow key={r1.name}>
+              <Mui.TableCell sx={cellStyle} component="th" scope="row">
+                {r1.name}
+              </Mui.TableCell>
+              <Mui.TableCell sx={cellStyle}>{U.numText(r1.v.money)}</Mui.TableCell>
+              <Mui.TableCell sx={cellStyle} >{U.numText(r1.v.pDev)}</Mui.TableCell>
+              <Mui.TableCell sx={cellStyle} >{U.numText(r1.v.bDev)}</Mui.TableCell>
+            </Mui.TableRow>
 
-        </Mui.TableBody>
-      </Mui.Table>
-    </Mui.TableContainer>
+          </Mui.TableBody>
+        </Mui.Table>
+      </Mui.TableContainer>
+      <Mui.Grid2 container>
+        <Mui.Grid2 size={1} />
+        <Mui.Grid2 size={3}>
+          <Mui.Typography>期間: {`${p.world.duration}`}</Mui.Typography>
+        </Mui.Grid2>
+        <Mui.Grid2 size={3}>
+          <Mui.Typography>総タイツ: {U.numText(p.world.total)}</Mui.Typography>
+        </Mui.Grid2>
+      </Mui.Grid2>
+    </>
   );
 }
 

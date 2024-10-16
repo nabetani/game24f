@@ -101,6 +101,7 @@ export type World = {
   size: { w: number, h: number },
   buildings: Building[],
   duration: number,
+  total: number,
   powers: Powers,
 }
 
@@ -121,6 +122,7 @@ export const emptyWorld = (): World => {
       newHouse(2, 4, { improve: 0, level: 1 }),
     ],
     duration: 0,
+    total: 0,
     powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
   }
 }
@@ -211,6 +213,7 @@ export const progress = (o: World | Building): void => {
     o.buildings.forEach(b => progress(b))
     const i = incomeW(o)
     ++o.duration
+    o.total += i.money ?? 0
     o.powers.money += i.money ?? 0
     o.powers.pDev += i.pDev ?? 0
     o.powers.bDev += i.bDev ?? 0

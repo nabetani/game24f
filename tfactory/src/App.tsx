@@ -67,6 +67,7 @@ function App() {
           w.buildings = e.buildings
           w.duration = e.duration
           w.powers = e.powers
+          w.total = e.total
           w.size = e.size
         })
     }
