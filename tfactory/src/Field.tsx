@@ -363,7 +363,7 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
       anchorEl={anchorEl}
       onClose={handleClose}
       anchorOrigin={{
-        vertical: 'bottom',
+        vertical: 'top',
         horizontal: 'left',
       }}
     ><CellClickUI
