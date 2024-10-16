@@ -265,7 +265,6 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
   const handleClose = () => {
     setAnchorEl(null);
     setBuildArea && setBuildArea(undefined);
-
   };
   const open = Boolean(anchorEl);
   const id = open ? `simple-popover-${U.XY.fromXY(fo.area).toNum()}` : undefined;
