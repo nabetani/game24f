@@ -293,12 +293,21 @@ export const improve = (w: World, fo: FieldObj): void => {
   }
 }
 
-const qdigit = (x: number): number => {
+export const qdigit = (x: number): number => {
   if (Math.abs(x) < 9999) {
     return Math.floor(x)
   }
   const k = Math.floor(Math.log10(Math.abs(x)))
   const b = 10 ** (k - 3)
+  return b * Math.floor(x / b)
+}
+
+export const didigit = (x: number): number => {
+  if (Math.abs(x) < 99) {
+    return Math.floor(x)
+  }
+  const k = Math.floor(Math.log10(Math.abs(x)))
+  const b = 10 ** (k - 1)
   return b * Math.floor(x / b)
 }
 
@@ -339,10 +348,10 @@ export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildSta
       runningCost: 0,
     }
   }
-  const mul = (new Map<FieldObjKindType, number>(
+  const mul = ((new Map<FieldObjKindType, number>(
     [[FieldObjKind.factory, 100],
     [FieldObjKind.pLabo, 300],
-    [FieldObjKind.bLabo, 3000]])).get(param.toBiuld) ?? 0
+    [FieldObjKind.bLabo, 3000]])).get(param.toBiuld) ?? 0) * (1 + 9 * param.level / levelMax)
   const a = fo.area
   const bArea = { ...a, w: param.size, h: param.size }
   const hindrance = !wo.buildings.every(e => !hasIntersection(e.area, bArea))
@@ -351,7 +360,7 @@ export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildSta
   const overflow = wo.size.w <= leftEnd || wo.size.h <= bottomEnd
   const p = incomeBBase({ level: param.level, improve: 0 }, { w: param.size, h: param.size }, param.toBiuld)
   const power = maxPower(p)
-  const cost = power * mul
+  const cost = didigit(power * mul)
   return {
     cost: cost,
     duration: Math.floor((param.level + 1) * (param.size + 1)),

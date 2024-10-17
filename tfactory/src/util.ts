@@ -79,26 +79,34 @@ export const clamp = (v: number, low: number, high: number): number => {
 }
 
 export const numText = (n0: number): string => {
-  const n = Math.round(n0)
-  if (n == 0) { return "0" }
-  if (n < 0) {
-    return `-${numText(-n)}`
+  if (n0 == 0) { return "0" }
+  if (n0 < 0) {
+    return `-${numText(-n0)}`
   }
-  if (n <= 9999) {
-    return `${Math.round(n)}`
+  if (n0 <= 9999) {
+    return `${Math.floor(n0)}`
   }
+  const n = Math.floor(n0 * (1 + 2 ** -50))
   let baseExp = Math.floor(Math.log10(n))
   let base = 10 ** baseExp // 1 ≦ base < 10
-  let frac = Math.round(n * 10 ** 3 / base)
+  let frac = Math.floor(n * 10 ** 3 / base)
   if (10 ** 4 <= frac) {
     baseExp += 1
     base = 10 ** baseExp
-    frac = Math.round(n * 10 ** 3 / base)
+    frac = Math.floor(n * 10 ** 3 / base)
   }
   const s0 = `${frac}`
   const d = (baseExp + 1) % 4
-  const unames = ["", "万", "億", "兆", "京", "垓", "抒", "壌", "溝", "澗", "正", "載", "極"]
+  const unames = ["", "万", "億", "兆", "京", "垓", "𥝱", "穣", "溝", "澗", "正", "載", "極",
+    "恒河沙",
+    "阿僧祇",
+    "那由他",
+    "不可思議",
+    "無量大数"]
   const u = unames[(baseExp - baseExp % 4) / 4]
+  if (u == undefined) {
+    return "表示不能";
+  }
   if (d == 0) {
     return s0 + u
   } else {

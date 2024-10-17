@@ -149,6 +149,20 @@ function MenuButton(p: {
       <RootMenuUI op={p.op} closer={handleClose} /></Mui.Popover></>
 }
 
+function Digit(p: { v: number }): JSX.Element {
+  const s = U.numText(p.v)
+  const [_, d, u] = s.match(/^([\d\.]+)(\D+)?$/) ?? []
+  if (u == null) {
+    return <Mui.Typography key="d">{d}</Mui.Typography>
+  }
+  const z = u.length == 1 ? "100%" : "70%"
+  return <>
+    <Mui.Typography key="d">{d}<span style={{
+      fontSize: z,
+      letterSpacing: "-0.1em",
+    }}>{u}</span></Mui.Typography>
+  </>
+}
 
 function HeaderStatus(p: {
   world: G.World,
@@ -160,7 +174,7 @@ function HeaderStatus(p: {
   const cellWithLevel = (v: number): JSX.Element =>
     <Mui.TableCell sx={cellStyle}>
       <Mui.Stack direction={"row"} alignItems={"baseline"}>
-        {U.numText(v)}
+        <Digit v={v} />
         <Mui.Typography fontSize={Layout.clientWH().h / 80}>
           (Lv. {G.buildLevel(v)})
         </Mui.Typography>
@@ -185,7 +199,7 @@ function HeaderStatus(p: {
               <Mui.TableCell sx={cellStyle} component="th" scope="row">
                 {r0.name}
               </Mui.TableCell>
-              <Mui.TableCell sx={cellStyle}>{U.numText(r0.v.money)}</Mui.TableCell>
+              <Mui.TableCell sx={cellStyle}><Digit v={r0.v.money} /></Mui.TableCell>
               {cellWithLevel(r0.v.pDev)}
               {cellWithLevel(r0.v.bDev)}
             </Mui.TableRow>
@@ -194,9 +208,9 @@ function HeaderStatus(p: {
               <Mui.TableCell sx={cellStyle} component="th" scope="row">
                 {r1.name}
               </Mui.TableCell>
-              <Mui.TableCell sx={cellStyle}>{U.numText(r1.v.money)}</Mui.TableCell>
-              <Mui.TableCell sx={cellStyle} >{U.numText(r1.v.pDev)}</Mui.TableCell>
-              <Mui.TableCell sx={cellStyle} >{U.numText(r1.v.bDev)}</Mui.TableCell>
+              <Mui.TableCell sx={cellStyle}><Digit v={r1.v.money} /></Mui.TableCell>
+              <Mui.TableCell sx={cellStyle} ><Digit v={r1.v.pDev} /></Mui.TableCell>
+              <Mui.TableCell sx={cellStyle} ><Digit v={r1.v.bDev} /></Mui.TableCell>
             </Mui.TableRow>
 
           </Mui.TableBody>
