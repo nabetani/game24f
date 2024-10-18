@@ -86,6 +86,16 @@ function AddBuildingUI(p: {
   const setSize = (n: G.SizeType): void => {
     setParam({ ...param, size: n })
   }
+  const setWTB = (b: G.WhatToBuild): void => {
+    setParam({ ...param, toBiuld: b })
+  }
+  const levelMax = param.toBiuld == null ? 1 : G.buildableMax(p.world, param.toBiuld)
+  if (levelMax < param.level) {
+    setParam({ ...param, level: levelMax })
+  }
+  const levelAdd = (x: number) => {
+    setParam({ ...param, level: U.clamp((param.level ?? 0) + x, 1, levelMax) })
+  }
   return <>
     <Mui.Box><Mui.FormControl size="small">
       <Mui.FormLabel id="btype-selector">建物の種類</Mui.FormLabel>
@@ -97,15 +107,15 @@ function AddBuildingUI(p: {
         <Mui.FormControlLabel
           checked={param.toBiuld == G.FieldObjKind.factory}
           value="factory" control={<Mui.Radio />} label="工場" onClick={
-            () => setParam({ ...param, toBiuld: G.FieldObjKind.factory })} />
+            () => setWTB(G.FieldObjKind.factory)} />
         <Mui.FormControlLabel
           checked={param.toBiuld == G.FieldObjKind.pLabo}
           value="plabo" control={<Mui.Radio />} label="生産技研" onClick={
-            () => setParam({ ...param, toBiuld: G.FieldObjKind.pLabo })} />
+            () => setWTB(G.FieldObjKind.pLabo)} />
         <Mui.FormControlLabel
           checked={param.toBiuld == G.FieldObjKind.bLabo}
           value="blabo" control={<Mui.Radio />} label="基礎研" onClick={
-            () => setParam({ ...param, toBiuld: G.FieldObjKind.bLabo })} />
+            () => setWTB(G.FieldObjKind.bLabo)} />
       </Mui.RadioGroup>
       <Mui.FormLabel id="bsize-selector">建物のサイズ</Mui.FormLabel>
       <Mui.RadioGroup
@@ -127,7 +137,11 @@ function AddBuildingUI(p: {
             () => setSize(3)} />
       </Mui.RadioGroup>
       {param.toBiuld && <>
-        <Mui.FormLabel id="q-selector">技術レベル {param?.level ?? "??"}</Mui.FormLabel>
+        <Mui.Stack direction="row" gap={3} alignItems="baseline">
+          <Mui.FormLabel id="q-selector">技術レベル {param?.level ?? "??"}</Mui.FormLabel>
+          <Mui.Button size="small" onClick={() => levelAdd(-1)} disabled={(param.level ?? 0) < 2}><Icon.ArrowBackIos fontSize="inherit" /></Mui.Button>
+          <Mui.Button size="small" onClick={() => levelAdd(1)} disabled={levelMax <= (param.level ?? levelMax)}><Icon.ArrowForwardIos fontSize="inherit" /></Mui.Button>
+        </Mui.Stack>
         <Mui.Slider
           aria-labelledby="q-selector"
           defaultValue={1}
@@ -142,7 +156,7 @@ function AddBuildingUI(p: {
           }}
           marks
           min={1}
-          max={param.toBiuld == null ? 1 : G.buildableMax(p.world, param.toBiuld)}
+          max={levelMax}
         /></>
       }
       {param.toBiuld && 0 < (param.size ?? 0) && <>
