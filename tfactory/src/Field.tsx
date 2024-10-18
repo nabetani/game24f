@@ -126,33 +126,37 @@ function AddBuildingUI(p: {
           value="3" control={<Mui.Radio />} label="大" onClick={
             () => setSize(3)} />
       </Mui.RadioGroup>
-      <Mui.FormLabel id="q-selector">技術レベル</Mui.FormLabel>
-      <Mui.Slider
-        aria-labelledby="q-selector"
-        defaultValue={1}
-        getAriaValueText={(v) => `${v}`}
-        valueLabelDisplay="auto"
-        value={param.level}
-        step={1}
-        onChange={(_, val) => {
-          if (typeof val === 'number') {
-            setParam({ ...param, level: val })
-          }
-        }}
-        marks
-        min={1}
-        max={param.toBiuld == null ? 1 : G.buildableMax(p.world, param.toBiuld)}
-      />
-      <Mui.Stack direction={"column"}>
-        <Mui.Typography>
-          建設費: {U.numText(bs.cost)} T
-          {bs.runningCost <= 0 ? <></> :
-            <> &nbsp;&nbsp;&nbsp; 維持費: {U.numText(bs.runningCost)} T</>}
+      {param.toBiuld && <>
+        <Mui.FormLabel id="q-selector">技術レベル {param?.level ?? "??"}</Mui.FormLabel>
+        <Mui.Slider
+          aria-labelledby="q-selector"
+          defaultValue={1}
+          getAriaValueText={(v) => `${v}`}
+          valueLabelDisplay="auto"
+          value={param.level}
+          step={1}
+          onChange={(_, val) => {
+            if (typeof val === 'number') {
+              setParam({ ...param, level: val })
+            }
+          }}
+          marks
+          min={1}
+          max={param.toBiuld == null ? 1 : G.buildableMax(p.world, param.toBiuld)}
+        /></>
+      }
+      {param.toBiuld && 0 < (param.size ?? 0) && <>
+        <Mui.Stack direction={"column"}>
+          <Mui.Typography>
+            建設費: {U.numText(bs.cost)} T
+            {bs.runningCost <= 0 ? <></> :
+              <> &nbsp;&nbsp;&nbsp; 維持費: {U.numText(bs.runningCost)} T</>}
 
-        </Mui.Typography>
-        <Mui.Typography> 工期: {U.numText(bs.duration)} w</Mui.Typography>
-        <Mui.Typography> 能力: {U.numText(bs.power)}</Mui.Typography>
-      </Mui.Stack>
+          </Mui.Typography>
+          <Mui.Typography> 工期: {U.numText(bs.duration)} w</Mui.Typography>
+          <Mui.Typography> 能力: {U.numText(bs.power)}</Mui.Typography>
+        </Mui.Stack></>
+      }
       <Mui.Button variant="contained"
         disabled={!bs.canBuild}
         onClick={() => {
