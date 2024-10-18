@@ -158,24 +158,32 @@ export const buildableMax = (wo: World, k: WhatToBuild): number => {
   }
 }
 
-const powFromLevel = (level: number, im: number = 0): number => {
+const powFromLevel = (level: number, kind: FieldObjKindType, im: number = 0): number => {
   // 当初は lv1→ lv.2 は 2倍
   // lv.max は 2**120 にする。
+  const base = ((): number => {
+    switch (kind) {
+      case FieldObjKind.bLabo: return 2.1;
+      case FieldObjKind.pLabo: return 2;
+      case FieldObjKind.factory: return 1.9;
+    }
+    return 2
+  })()
   const m = (levelMax - 1) ** 2
   const x = level + (level - 1) ** 2 / m * (120 - levelMax)
-  return 2 ** x * (1.0 + im ** 0.8 * 0.1)
+  return base ** x * (1.0 + im ** 0.8 * 0.1)
 }
 
-const buildingPower = (q0: Quality, a0: { w: number, h: number }): number => {
+const buildingPower = (q0: Quality, a0: { w: number, h: number }, kind: FieldObjKindType): number => {
   const f = (q: Quality, a: { w: number, h: number }): number => (
-    powFromLevel(q.level, q.improve) * (a.w * a.h - 0.2))
+    powFromLevel(q.level, kind, q.improve) * (a.w * a.h - 0.2))
   const base = f({ level: 1, improve: 0 }, { w: 1, h: 1 })
   const raw = f(q0, a0)
   return qdigit(raw / base * 100)
 }
 
 export const incomeBBase = (q: Quality, a: { w: number, h: number }, kind: FieldObjKindType): Powers => {
-  const p = buildingPower(q, a)
+  const p = buildingPower(q, a, kind)
   const z = { ...powerZero }
   switch (kind) {
     case FieldObjKind.bLabo:
@@ -349,9 +357,9 @@ export const bulidState = (wo: World, param: BuildParam, fo: FieldObj): BuildSta
     }
   }
   const mul = ((new Map<FieldObjKindType, number>(
-    [[FieldObjKind.factory, 100],
-    [FieldObjKind.pLabo, 300],
-    [FieldObjKind.bLabo, 3000]])).get(param.toBiuld) ?? 0) * (1 + 9 * param.level / levelMax)
+    [[FieldObjKind.factory, 30],
+    [FieldObjKind.pLabo, 100],
+    [FieldObjKind.bLabo, 300]])).get(param.toBiuld) ?? 0) * (0.7 + 9 * param.level / levelMax)
   const a = fo.area
   const bArea = { ...a, w: param.size, h: param.size }
   const hindrance = !wo.buildings.every(e => !hasIntersection(e.area, bArea))
