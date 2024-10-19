@@ -29,6 +29,7 @@ export const FieldObjKind = {
   factory: 2,
   pLabo: 3,
   bLabo: 4,
+  magick: 5,
 } as const
 
 
@@ -39,7 +40,7 @@ export const fieldObjName = (f: FieldObjKindType): keyof (typeof FieldObjKind) =
   return r ? (r[0] as keyof (typeof FieldObjKind)) : "none"
 }
 export type SizeType = 1 | 2 | 3;
-export type WhatToBuild = typeof FieldObjKind.factory | typeof FieldObjKind.pLabo | typeof FieldObjKind.bLabo
+export type WhatToBuild = typeof FieldObjKind.factory | typeof FieldObjKind.pLabo | typeof FieldObjKind.bLabo | typeof FieldObjKind.magick
 
 export type BuildParam = {
   level: number,
@@ -153,6 +154,11 @@ export const buildableMax = (wo: World, k: WhatToBuild): number => {
       return f(wo.powers.bDev)
     case FieldObjKind.bLabo:
       return f(wo.powers.bDev)
+    case FieldObjKind.magick:
+      {
+        const b = f(wo.powers.bDev)
+        return b < 10 ? 0 : 1 + Math.floor((b - 10) / 2)
+      }
     default:
       return 2;
   }
@@ -163,9 +169,10 @@ const powFromLevel = (level: number, kind: FieldObjKindType, im: number = 0): nu
   // lv.max は 2**120 にする。
   const base = ((): number => {
     switch (kind) {
-      case FieldObjKind.bLabo: return 2.1;
-      case FieldObjKind.pLabo: return 2;
       case FieldObjKind.factory: return 1.9;
+      case FieldObjKind.pLabo: return 2;
+      case FieldObjKind.bLabo: return 2.1;
+      case FieldObjKind.magick: return 2.2;
     }
     return 2
   })()
@@ -261,7 +268,7 @@ export type BuildState = {
 }
 
 export const isDestroyable = (fo: FieldObj): boolean => {
-  const c: number[] = [FieldObjKind.factory, FieldObjKind.bLabo, FieldObjKind.pLabo]
+  const c: number[] = [FieldObjKind.factory, FieldObjKind.bLabo, FieldObjKind.pLabo, FieldObjKind.magick]
   return c.includes(fo.kind)
 }
 
@@ -328,6 +335,7 @@ export const canImprove = (_: World, fo: FieldObj): boolean => {
     case FieldObjKind.factory:
     case FieldObjKind.pLabo:
     case FieldObjKind.bLabo:
+    case FieldObjKind.magick:
     case FieldObjKind.house:
       return true;
     default:
@@ -340,6 +348,7 @@ export const canDestroy = (_: World, fo: FieldObj): boolean => {
     case FieldObjKind.factory:
     case FieldObjKind.pLabo:
     case FieldObjKind.bLabo:
+    case FieldObjKind.magick:
       return true;
     default:
       return false;

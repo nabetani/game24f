@@ -116,6 +116,10 @@ function AddBuildingUI(p: {
           checked={param.toBiuld == G.FieldObjKind.bLabo}
           value="blabo" control={<Mui.Radio />} label="基礎研" onClick={
             () => setWTB(G.FieldObjKind.bLabo)} />
+        <Mui.FormControlLabel
+          checked={param.toBiuld == G.FieldObjKind.magick}
+          value="magick" control={<Mui.Radio />} label="魔術研" onClick={
+            () => setWTB(G.FieldObjKind.magick)} />
       </Mui.RadioGroup>
       <Mui.FormLabel id="bsize-selector">建物のサイズ</Mui.FormLabel>
       <Mui.RadioGroup
@@ -171,7 +175,7 @@ function AddBuildingUI(p: {
           <Mui.Typography> 能力: {U.numText(bs.power)}</Mui.Typography>
         </Mui.Stack></>
       }
-      <Mui.Button variant="contained"
+      {0 < param.level && <Mui.Button variant="contained"
         disabled={!bs.canBuild}
         onClick={() => {
           p.updateWorld((w: G.World) => {
@@ -179,7 +183,7 @@ function AddBuildingUI(p: {
           })
           p.closer()
         }}
-      >着工</Mui.Button>
+      >着工</Mui.Button>}
     </Mui.FormControl>
     </Mui.Box >
   </>
@@ -275,6 +279,7 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
     [G.FieldObjKind.bLabo, "#008E75"],
     [G.FieldObjKind.pLabo, "#7B6F00"],
     [G.FieldObjKind.factory, "#910091"],
+    [G.FieldObjKind.magick, "#000"],
     [G.FieldObjKind.house, "#6F2800"],
   ]).get(fo.kind)
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -344,6 +349,8 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
         return <Icon.Settings sx={iconStyle} />
       case G.FieldObjKind.bLabo:
         return <Icon.Science sx={iconStyle} />
+      case G.FieldObjKind.magick:
+        return <Icon.OpenWith sx={iconStyle} />
       case G.FieldObjKind.house:
         return <Icon.Home sx={iconStyle} />
       default:
