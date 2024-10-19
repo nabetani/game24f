@@ -37,18 +37,48 @@ describe("Unbuildables.buildableLevel", () => {
 })
 
 describe("Factory.buildableLevel", () => {
-  ([
-    [{ pDev: 0, bDev: 0, money: 0 }, 0],
-    [{ pDev: 100, bDev: 0, money: 0 }, 2],
-    [{ pDev: 999, bDev: 0, money: 0 }, 2],
-    [{ pDev: 1e3, bDev: 0, money: 0 }, 3],
-    [{ pDev: 0.99e20, bDev: 0, money: 0 }, 19],
-    [{ pDev: 1e20, bDev: 0, money: 0 }, 20],
-    [{ pDev: 1.1e20, bDev: 0, money: 0 }, 20],
-  ] as [G.Powers, number][]).forEach(([i, ex]) => {
-    test(
-      JSON.stringify(i), () =>
-      expect(CK.factory().buildableLevel(i)).toBe(ex)
-    )
+  describe("Factory", () => {
+    ([
+      [{ pDev: 0, bDev: 0, money: 0 }, 0],
+      [{ pDev: 0, bDev: 1e10, money: 1e10 }, 0],
+      [{ pDev: 100, bDev: 0, money: 0 }, 2],
+      [{ pDev: 999, bDev: 0, money: 0 }, 2],
+      [{ pDev: 1e3, bDev: 0, money: 0 }, 3],
+      [{ pDev: 0.99e25, bDev: 0, money: 0 }, 24],
+      [{ pDev: 1e25, bDev: 0, money: 0 }, 25],
+      [{ pDev: 1.1e25, bDev: 0, money: 0 }, 25],
+      [{ pDev: 0.99e26, bDev: 0, money: 0 }, 25],
+      [{ pDev: 1e26, bDev: 0, money: 0 }, 25],
+      [{ pDev: 1e99, bDev: 1e99, money: 1e99 }, 25],
+    ] as [G.Powers, number][]).forEach(([i, ex]) => {
+      test(
+        JSON.stringify(i), () =>
+        expect(CK.factory().buildableLevel(i)).toBe(ex)
+      )
+    })
+  });
+  describe("Labo", () => {
+    ([
+      [{ pDev: 100, bDev: 0, money: 0 }, 0],
+      [{ pDev: 100, bDev: 0, money: 1e10 }, 0],
+      [{ pDev: 100, bDev: 100, money: 0 }, 2],
+      [{ pDev: 100, bDev: 999, money: 0 }, 2],
+      [{ pDev: 100, bDev: 1e3, money: 0 }, 3],
+      [{ pDev: 100, bDev: 0.99e25, money: 0 }, 24],
+      [{ pDev: 100, bDev: 1e25, money: 0 }, 25],
+      [{ pDev: 100, bDev: 1.1e25, money: 0 }, 25],
+      [{ pDev: 100, bDev: 0.99e26, money: 0 }, 25],
+      [{ pDev: 100, bDev: 1e26, money: 0 }, 25],
+      [{ pDev: 100, bDev: 1e99, money: 1e99 }, 25],
+    ] as [G.Powers, number][]).forEach(([i, ex]) => {
+      test(
+        JSON.stringify(i), () =>
+        expect(CK.pLabo().buildableLevel(i)).toBe(ex)
+      );
+      test(
+        JSON.stringify(i), () =>
+        expect(CK.bLabo().buildableLevel(i)).toBe(ex)
+      );
+    })
   })
 })
