@@ -113,3 +113,21 @@ export const numText = (n0: number): string => {
     return s0.substring(0, d) + "." + s0.substring(d, 4) + u
   }
 }
+
+export const qdigit = (x: number): number => {
+  if (Math.abs(x) < 9999) {
+    return Math.floor(x)
+  }
+  const k = Math.floor(Math.log10(Math.abs(x)))
+  const b = 10 ** (k - 3)
+  return b * Math.floor(x / b)
+}
+
+export const didigit = (x: number): number => {
+  if (Math.abs(x) < 99) {
+    return Math.floor(x)
+  }
+  const k = Math.floor(Math.log10(Math.abs(x)))
+  const b = 10 ** (k - 1)
+  return b * Math.floor(x / b)
+}
