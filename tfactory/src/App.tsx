@@ -17,7 +17,7 @@ function App() {
         G.progress(w)
         WS.world.write(w)
       })
-    }, 500) // TODO: 500
+    }, 50) // TODO: 50
     return () => {
       clearTimeout(timeoutId)
     }

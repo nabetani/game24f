@@ -180,7 +180,7 @@ function HeaderStatus(p: {
       <Mui.Stack direction={"row"} alignItems={"baseline"}>
         <Digit v={v} />
         <Mui.Typography fontSize={Layout.clientWH().h / 80}>
-          (Lv. {1/*TODO:G.buildLevel(v)*/})
+          (Lv. {G.buildLevel(v)})
         </Mui.Typography>
       </Mui.Stack>
     </Mui.TableCell>

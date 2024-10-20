@@ -148,7 +148,7 @@ export namespace CellKind {
 
   class Factory extends StdBuilding {
     costPerIncome(level: number): number {
-      return 30 * (1 + (level - 1) / 20)
+      return 30 * (1 + (level - 1) / 5)
     }
     get incomeParam(): IncomeParamType {
       return { levBase: 4, start: 100 }
@@ -163,10 +163,10 @@ export namespace CellKind {
 
   class PLabo extends StdBuilding {
     costPerIncome(level: number): number {
-      return 100 * (1 + (level - 1) / 15)
+      return 100 * (1 + (level - 1) / 4)
     }
     get incomeParam(): IncomeParamType {
-      return { levBase: 3.5, start: 30 }
+      return { levBase: 4, start: 300 }
     }
     buildlevelSrc(p: Powers): number {
       return p.bDev
@@ -178,10 +178,10 @@ export namespace CellKind {
 
   class BLabo extends StdBuilding {
     costPerIncome(level: number): number {
-      return 300 * (1 + (level - 1) / 10)
+      return 300 * (1 + (level - 1) / 3)
     }
     get incomeParam(): IncomeParamType {
-      return { levBase: 3, start: 20 }
+      return { levBase: 4, start: 1000 }
     }
     buildlevelSrc(p: Powers): number {
       return p.bDev
@@ -203,7 +203,7 @@ export namespace CellKind {
     get isDestroyable(): boolean { return false }
     incomeBase(i: IncomeBaseParamType): number {
       const imp = (1.0 + (i.improve ?? 0) ** 0.8 * 0.1)
-      const start = 1000
+      const start = 200
       const levBase = 1
       return start * levBase ** (i.level - 1) * imp
 
@@ -272,8 +272,8 @@ export const emptyWorld = (): World => {
     ],
     duration: 0,
     total: 0,
-    // powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
-    powers: { money: 1e20, pDev: 1e20, bDev: 1e20 } // TODO: fix
+    powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
+    // powers: { money: 1e20, pDev: 1e20, bDev: 1e20 } // TODO: fix
   }
 }
 
@@ -301,6 +301,7 @@ export const incomeB = (w: World, c: Cell): Powers => {
 export const incomeW = (w: World): Powers => {
   return w.buildings.reduce(
     (acc, b): Powers => {
+      if (0 < b.construction) { return acc }
       return powersAdd(acc, incomeB(w, b))
     }, powersZero())
 }
@@ -453,4 +454,8 @@ export const condition = (_w: World, c: Cell): CondType => {
     construction: c.construction,
     constructionTotal: c.constructionTotal,
   }
+}
+
+export const buildLevel = (d: number): number => {
+  return Math.floor(Math.log10(Math.max(1, d)))
 }
