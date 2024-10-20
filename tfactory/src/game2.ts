@@ -130,7 +130,8 @@ export namespace CellKind {
     abstract costPerIncome(level: number): number
     get isDestroyable(): boolean { return true }
     buildCost(level: number, size: SizeType): number {
-      return this.incomeBase({ level: level }) * (size ** 2) * this.costPerIncome(level)
+      const c = this.incomeBase({ level: level }) * (size ** 2) * this.costPerIncome(level)
+      return U.didigit(c)
     }
 
     buildableLevel(p: Powers): number {
@@ -209,7 +210,8 @@ export namespace CellKind {
   }
   class Magic extends Building {
     buildCost(level: number, size: SizeType): number {
-      return (10 ** 12 * 10 ** (8 * level - 1)) * size ** 2
+      const c = (10 ** 12 * 10 ** (8 * level - 1)) * size ** 2
+      return U.didigit(c)
     }
     get kind(): FieldObjKindType {
       return FieldObjKind.magic
@@ -264,7 +266,8 @@ export const emptyWorld = (): World => {
     ],
     duration: 0,
     total: 0,
-    powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
+    // powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
+    powers: { money: 1e20, pDev: 1e20, bDev: 1e20 } // TODO: fix
   }
 }
 
@@ -342,6 +345,7 @@ export type BuildState = {
 }
 
 export const isDestroyable = (_w: World, c: Cell): boolean => {
+  console.dir({ c: c })
   const k = CellKind.o[c.kind]
   return k.isDestroyable
 }
@@ -433,14 +437,7 @@ export type CondType = {
 }
 
 export const condition = (_w: World, c: Cell): CondType => {
-  console.log({ c: c })
-  const k = CellKind.o[c?.kind]
-  console.log({
-    kind: k.kind,
-    canImprove: k.canImprove,
-    maxLevel: k.maxLevel,
-    isDestroyable: k.isDestroyable,
-  })
+  const k = CellKind.o[c.kind]
   return {
     level: c.q.level,
     improve: c.q.improve,

@@ -26,7 +26,6 @@ function AddDestroyUI(p: {
     <Mui.Box>
       <Mui.FormControl size="small">
         <Mui.Button variant="contained" color="warning"
-          disabled={!G.isDestroyable(p.cell)}
           onClick={() => {
             p.updateWorld((w: G.World) => {
               G.destroy(w, p.cell)
