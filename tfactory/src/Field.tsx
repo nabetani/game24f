@@ -2,7 +2,7 @@ import * as Mui from "@mui/material";
 import * as MuiL from "@mui/lab";
 import React, { useEffect } from "react";
 import * as U from './util'
-import * as G from "./game"
+import * as G from "./game2"
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { Updater } from 'use-immer';
@@ -19,17 +19,17 @@ const BuildAreaContext = React.createContext<BuildAreaContextV>({})
 function AddDestroyUI(p: {
   world: G.World,
   updateWorld: Updater<G.World>,
-  fieldObj: G.FieldObj,
+  cell: G.Cell,
   closer: () => void
 }): JSX.Element {
   return <>
     <Mui.Box>
       <Mui.FormControl size="small">
         <Mui.Button variant="contained" color="warning"
-          disabled={!G.isDestroyable(p.fieldObj)}
+          disabled={!G.isDestroyable(p.cell)}
           onClick={() => {
             p.updateWorld((w: G.World) => {
-              G.destroy(w, p.fieldObj)
+              G.destroy(w, p.cell)
             })
             p.closer()
           }}
@@ -43,10 +43,10 @@ function AddDestroyUI(p: {
 function AddImproveUI(p: {
   world: G.World,
   updateWorld: Updater<G.World>,
-  fieldObj: G.FieldObj,
+  cell: G.Cell,
   closer: () => void
 }): JSX.Element {
-  const cost = G.improveCost(p.world, p.fieldObj)
+  const cost = G.improveCost(p.world, p.cell)
   return <>
     <Mui.Box>
       <Mui.FormControl size="small">
@@ -60,7 +60,7 @@ function AddImproveUI(p: {
             disabled={cost == null}
             onClick={() => {
               p.updateWorld((w: G.World) => {
-                G.improve(w, p.fieldObj)
+                G.improve(w, p.cell)
               })
               p.closer()
             }}
@@ -74,14 +74,14 @@ function AddImproveUI(p: {
 function AddBuildingUI(p: {
   world: G.World,
   updateWorld: Updater<G.World>,
-  fieldObj: G.FieldObj,
+  cell: G.Cell,
   closer: () => void
 }): JSX.Element {
-  const [param, setParam] = React.useState<G.BuildParam>(G.defaultBuildParam(p.world))
+  const [param, setParam] = React.useState<G.BuildParam>({ level: 1 })
   const { setBuildArea } = React.useContext(BuildAreaContext)
-  const bs = G.bulidState(p.world, param, p.fieldObj)
+  const bs = G.bulidState(p.world, param, p.cell.area)
   useEffect(() => setBuildArea && setBuildArea(
-    bs.canBuild ? { ...p.fieldObj.area, w: param.size ?? 0, h: param.size ?? 0 } : undefined),
+    bs.canBuild ? { ...p.cell.area, w: param.size ?? 0, h: param.size ?? 0 } : undefined),
     [setBuildArea, bs.canBuild, param.size])
   const setSize = (n: G.SizeType): void => {
     setParam({ ...param, size: n })
@@ -89,7 +89,7 @@ function AddBuildingUI(p: {
   const setWTB = (b: G.WhatToBuild): void => {
     setParam({ ...param, toBiuld: b })
   }
-  const levelMax = param.toBiuld == null ? 1 : G.buildableMax(p.world, param.toBiuld)
+  const levelMax = param.toBiuld == null ? 1 : G.visibleMaxLevel(p.world, param.toBiuld)
   if (levelMax < param.level) {
     setParam({ ...param, level: levelMax })
   }
@@ -117,9 +117,9 @@ function AddBuildingUI(p: {
           value="blabo" control={<Mui.Radio />} label="基礎研" onClick={
             () => setWTB(G.FieldObjKind.bLabo)} />
         <Mui.FormControlLabel
-          checked={param.toBiuld == G.FieldObjKind.magick}
-          value="magick" control={<Mui.Radio />} label="魔術研" onClick={
-            () => setWTB(G.FieldObjKind.magick)} />
+          checked={param.toBiuld == G.FieldObjKind.magic}
+          value="magic" control={<Mui.Radio />} label="魔術研" onClick={
+            () => setWTB(G.FieldObjKind.magic)} />
       </Mui.RadioGroup>
       <Mui.FormLabel id="bsize-selector">建物のサイズ</Mui.FormLabel>
       <Mui.RadioGroup
@@ -167,9 +167,6 @@ function AddBuildingUI(p: {
         <Mui.Stack direction={"column"}>
           <Mui.Typography>
             建設費: {U.numText(bs.cost)} T
-            {bs.runningCost <= 0 ? <></> :
-              <> &nbsp;&nbsp;&nbsp; 維持費: {U.numText(bs.runningCost)} T</>}
-
           </Mui.Typography>
           <Mui.Typography> 工期: {U.numText(bs.duration)} w</Mui.Typography>
           <Mui.Typography> 能力: {U.numText(bs.power)}</Mui.Typography>
@@ -179,7 +176,7 @@ function AddBuildingUI(p: {
         disabled={!bs.canBuild}
         onClick={() => {
           p.updateWorld((w: G.World) => {
-            G.addBuilding(w, p.fieldObj, param)
+            G.addBuilding(w, p.cell.area, param)
           })
           p.closer()
         }}
@@ -192,13 +189,13 @@ function AddBuildingUI(p: {
 function CellClickUI(p: {
   world: G.World,
   updateWorld: Updater<G.World>,
-  fieldObj: G.FieldObj,
+  cell: G.Cell,
   closer: () => void
 }): JSX.Element {
   const tabs = {
-    b: G.canBuildAt(p.world, p.fieldObj),
-    i: G.canImprove(p.world, p.fieldObj),
-    d: G.canDestroy(p.world, p.fieldObj),
+    b: G.canBuildAt(p.world, p.cell),
+    i: G.canImprove(p.world, p.cell),
+    d: G.isDestroyable(p.world, p.cell),
   }
   const [value, setValue] = React.useState(((): string => (
     tabs.b ? "b" : tabs.i ? "i" : "d"
@@ -216,15 +213,15 @@ function CellClickUI(p: {
     </Mui.Box>
     {!tabs.b ? [] :
       <TabPanel value="b">
-        <AddBuildingUI world={p.world} updateWorld={p.updateWorld} fieldObj={p.fieldObj} closer={p.closer} />
+        <AddBuildingUI world={p.world} updateWorld={p.updateWorld} cell={p.cell} closer={p.closer} />
       </TabPanel>}
     {!tabs.i ? [] :
       <TabPanel value="i">
-        <AddImproveUI world={p.world} updateWorld={p.updateWorld} fieldObj={p.fieldObj} closer={p.closer} />
+        <AddImproveUI world={p.world} updateWorld={p.updateWorld} cell={p.cell} closer={p.closer} />
       </TabPanel>}
     {!tabs.d ? [] :
       <TabPanel value="d">
-        <AddDestroyUI world={p.world} updateWorld={p.updateWorld} fieldObj={p.fieldObj} closer={p.closer} />
+        <AddDestroyUI world={p.world} updateWorld={p.updateWorld} cell={p.cell} closer={p.closer} />
       </TabPanel>}
   </MuiL.TabContext>
 }
@@ -251,9 +248,9 @@ function fieldObjArea(area: G.Area, wo: G.World): G.Area {
   }
 }
 
-function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: G.FieldObj }): JSX.Element {
+function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, cell: G.Cell }): JSX.Element {
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null | undefined>(null);
-  const fo = p.fieldObj
+  const fo = p.cell
   const foa = fieldObjArea(fo.area, p.world)
   const { setBuildArea } = React.useContext(BuildAreaContext)
 
@@ -279,7 +276,7 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
     [G.FieldObjKind.bLabo, "#008E75"],
     [G.FieldObjKind.pLabo, "#7B6F00"],
     [G.FieldObjKind.factory, "#910091"],
-    [G.FieldObjKind.magick, "#000"],
+    [G.FieldObjKind.magic, "#000"],
     [G.FieldObjKind.house, "#6F2800"],
   ]).get(fo.kind)
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -291,7 +288,7 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
   };
   const open = Boolean(anchorEl);
   const id = open ? `simple-popover-${U.XY.fromXY(fo.area).toNum()}` : undefined;
-  const cond = G.condition(p.world, p.fieldObj)
+  const cond = G.condition(p.world, p.cell)
   const pline = (x: number | undefined) => {
     if (x == null) { return <></> }
     const regexp = /^((?:\-)?\d+)(\.\d+)?(\D)?$/g;
@@ -349,7 +346,7 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
         return <Icon.Settings sx={iconStyle} />
       case G.FieldObjKind.bLabo:
         return <Icon.Science sx={iconStyle} />
-      case G.FieldObjKind.magick:
+      case G.FieldObjKind.magic:
         return <Icon.OpenWith sx={iconStyle} />
       case G.FieldObjKind.house:
         return <Icon.Home sx={iconStyle} />
@@ -394,7 +391,7 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, fieldObj: 
     ><CellClickUI
         world={p.world}
         updateWorld={p.updateWorld}
-        fieldObj={p.fieldObj}
+        cell={p.cell}
         closer={() => {
           setAnchorEl(null);
           setBuildArea && setBuildArea(undefined)
@@ -432,7 +429,7 @@ function Field(p: { world: G.World, updateWorld: Updater<G.World> }): JSX.Elemen
               <rect x={ba.x} y={ba.y} width={ba.w} height={ba.h} opacity={0.2} stroke="#000" strokeWidth={10} fill="none" rx={10} ry={10} />
             </svg>}
         </Mui.Box>
-        {G.fieldObjs(wo).map(f => <FieldObj key={`${U.XY.fromXY(f.area).toNum()}`} world={wo} updateWorld={p.updateWorld} fieldObj={f} />)}
+        {G.cells(wo).map(f => <FieldObj key={`${U.XY.fromXY(f.area).toNum()}`} world={wo} updateWorld={p.updateWorld} cell={f} />)}
       </div></BuildAreaContext.Provider>
   );
 }

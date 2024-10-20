@@ -1,6 +1,6 @@
 import Field from './Field'
 import './App.css'
-import * as G from "./game"
+import * as G from "./game2"
 import React from 'react'
 import { useImmer } from 'use-immer';
 import * as Layout from "./layout"

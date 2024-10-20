@@ -1,5 +1,5 @@
 import './App.css'
-import * as G from "./game"
+import * as G from "./game2"
 import * as U from './util'
 import * as Layout from "./layout"
 import * as Mui from "@mui/material";
@@ -176,7 +176,7 @@ function HeaderStatus(p: {
       <Mui.Stack direction={"row"} alignItems={"baseline"}>
         <Digit v={v} />
         <Mui.Typography fontSize={Layout.clientWH().h / 80}>
-          (Lv. {G.buildLevel(v)})
+          (Lv. {1/*TODO:G.buildLevel(v)*/})
         </Mui.Typography>
       </Mui.Stack>
     </Mui.TableCell>

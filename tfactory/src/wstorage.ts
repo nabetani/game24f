@@ -1,7 +1,7 @@
-import * as G from "./game"
+import * as G from "./game2"
 
 // Array.new(25){[*?a..?z,*?A..?Z,*0..9].sample}.join+"."
-const APP_WS_ID = "DNlosfxLXYeS1yi2qbB8lZWJy."
+const APP_WS_ID = "2MT97aUqHAiuj6aoxpHvMXhnq."
 
 const storeWS = <T>(key: string, val: T) => {
   const s = localStorage;
