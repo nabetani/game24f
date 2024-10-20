@@ -115,11 +115,7 @@ export namespace CellKind {
     power(q: Quality, areaSize: number): number {
       return this.incomeBase(q) * areaSize ** 1.2
     }
-
-    improveCost(q: Quality, size: SizeType): number {
-      const b = this.buildCost(q.level, size)
-      return b / 10
-    }
+    abstract improveCost(q: Quality, size: SizeType): number
     abstract get isDestroyable(): boolean
   }
 
@@ -133,7 +129,10 @@ export namespace CellKind {
       const c = this.incomeBase({ level: level }) * (size ** 2) * this.costPerIncome(level)
       return U.didigit(c)
     }
-
+    improveCost(q: Quality, size: SizeType): number {
+      const b = this.buildCost(q.level, size)
+      return b / 10
+    }
     buildableLevel(p: Powers): number {
       return U.clamp(
         Math.floor(Math.log10(this.buildlevelSrc(p))),
@@ -197,6 +196,9 @@ export namespace CellKind {
     get kind(): FieldObjKindType {
       return FieldObjKind.house
     }
+    improveCost(_q: Quality, _size: SizeType): number {
+      return this.incomeBase({ level: 1, improve: 0 })
+    }
     get maxLevel(): number { return 1 }
     get isDestroyable(): boolean { return false }
     incomeBase(i: IncomeBaseParamType): number {
@@ -219,6 +221,10 @@ export namespace CellKind {
     get isDestroyable(): boolean { return false }
     get maxLevel(): number { return 5 }
     buildableLevel(_: Powers): number { return 0 }
+    improveCost(q: Quality, size: SizeType): number {
+      const b = this.buildCost(q.level, size)
+      return b / 10
+    }
     incomeBase(_: IncomeBaseParamType): number {
       return 0
     }

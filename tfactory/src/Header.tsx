@@ -49,44 +49,48 @@ function UsageUI(p: {
   op: (cmd: string) => void,
   closer: () => void,
 }): JSX.Element {
-  return <>
-    <Mui.Typography>
-      タイツを作るゲームです。ゴールはありません。<br />
-      建物は4種類あります。<br />
-      <Mui.Divider />
-      <Icon.Home /> 自宅 兼 工場<br />
-      <Mui.Box sx={{ pl: 4 }}>
-        • タイツを製造する<br />
-        • 建築も撤去もできない
-      </Mui.Box>
-      <Mui.Divider />
-      <Icon.Factory /> 工場<br />
-      <Mui.Box sx={{ pl: 4 }}>
-        • タイツを製造する<br />
-        • 建築可能レベルは「生産技術」で決まる
-      </Mui.Box>
-      <Mui.Divider />
-      <Icon.Settings /> 生産技研<br />
-      <Mui.Box sx={{ pl: 4 }}>
-        • 生産技術を上げる<br />
-        • 建築可能レベルは「基礎技術」で決まる
-      </Mui.Box>
-      <Mui.Divider />
-      <Icon.Science /> 基礎研<br />
-      <Mui.Box sx={{ pl: 4 }}>
-        • 基礎技術を上げる<br />
-        • 建築可能レベルは「基礎技術」で決まる
-      </Mui.Box>
-      <Mui.Divider />
-      できることは<br />
-      <Mui.Box sx={{ pl: 2 }}>
-        • 工場や研究所の建築<br />
-        • 工場や研究所の強化<br />
-        • 工場や研究所の撤去<br />
-      </Mui.Box>
-      です。
+  const T = Mui.Typography
 
-    </Mui.Typography>
+  return <>
+    <T>
+      タイツを作るゲームです。ゴールはありません。<br />
+      建物は4種類あります。</T>
+    <Mui.Divider />
+    <Mui.Stack direction="row" display="flex" alignItems="center">
+      <Icon.Home /> <T>自宅 兼 工場</T></Mui.Stack>
+    <Mui.Box sx={{ pl: 4 }}><T>
+      • タイツを製造する<br />
+      • 建築も撤去もできない
+    </T></Mui.Box>
+    <Mui.Divider />
+
+    <Mui.Stack direction="row" display="flex" alignItems="center">
+      <Icon.Factory /><T>工場</T></Mui.Stack>
+    <Mui.Box sx={{ pl: 4 }}><T>
+      • タイツを製造する<br />
+      • 建築可能レベルは「生産技術」で決まる</T>
+    </Mui.Box>
+    <Mui.Divider />
+    <Mui.Stack direction="row" display="flex" alignItems="center">
+      <Icon.Settings /><T>生産技研</T></Mui.Stack>
+    <Mui.Box sx={{ pl: 4 }}><T>
+      • 生産技術を上げる<br />
+      • 建築可能レベルは「基礎技術」で決まる</T>
+    </Mui.Box>
+    <Mui.Divider />
+    <Mui.Stack direction="row" display="flex" alignItems="center">
+      <Icon.Science /><T> 基礎研</T></Mui.Stack>
+    <Mui.Box sx={{ pl: 4 }}><T>
+      • 基礎技術を上げる<br />
+      • 建築可能レベルは「基礎技術」で決まる</T>
+    </Mui.Box>
+    <Mui.Divider />
+    <T>できること</T>
+    <Mui.Box sx={{ pl: 2 }}><T>
+      • 工場や研究所の建築<br />
+      • 工場や研究所の強化<br />
+      • 工場や研究所の撤去<br />
+    </T></Mui.Box>
   </>
 }
 
