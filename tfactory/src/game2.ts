@@ -84,7 +84,7 @@ export namespace CellKind {
     buildCost(level: number, size: SizeType): number
     improveCost(q: Quality, size: SizeType): number | null
     incomeBase(i: IncomeBaseParamType): number
-    power(q: Quality, areaSize: number): number
+    power(q: Quality, areaSize: number): number | undefined
   }
   class None implements I {
     get kind(): FieldObjKindType { return FieldObjKind.none }
@@ -94,7 +94,7 @@ export namespace CellKind {
     buildCost(_1: number, _2: SizeType): number { return 0 }
     incomeBase(_: IncomeBaseParamType): number { return 0 }
     improveCost(_q: Quality, _size: SizeType): null { return null }
-    power(_q: Quality, _areaSize: number): number { return 0 }
+    power(_q: Quality, _areaSize: number): undefined { return undefined }
     get isDestroyable(): boolean { return false }
   }
 
@@ -293,7 +293,7 @@ export const incomeB = (w: World, c: Cell): Powers => {
   } else {
     const k = CellKind.o[c.kind]
     const r = powersZero()
-    r[t] = k.power(c.q, c.area.h * c.area.w)
+    r[t] = k.power(c.q, c.area.h * c.area.w) ?? 0
     return r
   }
 }
@@ -351,7 +351,7 @@ export type BuildState = {
 }
 
 export const isDestroyable = (_w: World, c: Cell): boolean => {
-  console.dir({ c: c })
+  // console.dir({ c: c })
   const k = CellKind.o[c.kind]
   return k.isDestroyable
 }
@@ -413,7 +413,7 @@ export const bulidState = (wo: World, param: BuildParam, a: Area): BuildState =>
     cost: cost,
     duration: Math.floor((param.level + 1) * (param.size + 1)),
     canBuild: noIntersection && !overflow && cost < wo.powers.money,
-    power: power,
+    power: power ?? 0,
   }
 }
 
@@ -444,10 +444,12 @@ export type CondType = {
 
 export const condition = (_w: World, c: Cell): CondType => {
   const k = CellKind.o[c.kind]
+  const power = k.power(c.q, c.area.w * c.area.h)
+
   return {
-    level: c.q.level,
-    improve: c.q.improve,
-    power: k.power(c.q, c.area.w * c.area.h),
+    level: power == undefined ? undefined : c.q.level,
+    improve: power == undefined ? undefined : c.q.improve,
+    power: power,
     construction: c.construction,
     constructionTotal: c.constructionTotal,
   }
