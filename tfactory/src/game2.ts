@@ -394,7 +394,7 @@ export const canBuildAt = (_: World, c: Cell): boolean => (
   c.kind == FieldObjKind.none
 )
 
-export const bulidState = (wo: World, param: BuildParam, a: Area): BuildState => {
+export const bulidState = (wo: World, param: BuildParam, topleft: { x: number, y: number }): BuildState => {
   if (param.size == undefined || param.toBiuld == undefined) {
     return {
       cost: 0,
@@ -403,6 +403,7 @@ export const bulidState = (wo: World, param: BuildParam, a: Area): BuildState =>
       power: 0,
     }
   }
+  const a = { ...topleft, w: param.size, h: param.size }
   const noIntersection = wo.buildings.every(e => !hasIntersection(e.area, a))
   const leftEnd = a.x + a.w - 1
   const bottomEnd = a.y + a.h - 1
