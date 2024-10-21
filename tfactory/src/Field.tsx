@@ -115,10 +115,11 @@ function AddBuildingUI(p: {
           checked={param.toBiuld == G.FieldObjKind.bLabo}
           value="blabo" control={<Mui.Radio />} label="基礎研" onClick={
             () => setWTB(G.FieldObjKind.bLabo)} />
-        <Mui.FormControlLabel
-          checked={param.toBiuld == G.FieldObjKind.magic}
-          value="magic" control={<Mui.Radio />} label="魔術研" onClick={
-            () => setWTB(G.FieldObjKind.magic)} />
+        {bs.canBuildMagic ? <>
+          <Mui.FormControlLabel
+            checked={param.toBiuld == G.FieldObjKind.magic}
+            value="magic" control={<Mui.Radio />} label="魔術研" onClick={
+              () => setWTB(G.FieldObjKind.magic)} /></> : <></>}
       </Mui.RadioGroup>
       <Mui.FormLabel id="bsize-selector">建物のサイズ</Mui.FormLabel>
       <Mui.RadioGroup

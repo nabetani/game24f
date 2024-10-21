@@ -212,7 +212,7 @@ export namespace CellKind {
   }
   class Magic extends Building {
     buildCost(level: number, size: SizeType): number {
-      const c = (10 ** 12 * 10 ** (8 * level - 1)) * size ** 2
+      const c = 10 ** 12 * 100 ** (level - 1) * size
       return U.didigit(c)
     }
     get kind(): FieldObjKindType {
@@ -220,7 +220,10 @@ export namespace CellKind {
     }
     get isDestroyable(): boolean { return false }
     get maxLevel(): number { return 5 }
-    buildableLevel(_: Powers): number { return 0 }
+    buildableLevel(p: Powers): number {
+      const m = buildLevel(Math.min(p.bDev, p.pDev))
+      return U.clamp(Math.floor((m - 8) / 2), 0, this.maxLevel)
+    }
     improveCost(q: Quality, size: SizeType): number {
       const b = this.buildCost(q.level, size)
       return b / 10
@@ -272,8 +275,8 @@ export const emptyWorld = (): World => {
     ],
     duration: 0,
     total: 0,
-    powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
-    // powers: { money: 1e20, pDev: 1e20, bDev: 1e20 } // TODO: fix
+    // powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
+    powers: { money: 1e30, pDev: 9e14, bDev: 9e14 } // TODO: fix
   }
 }
 
@@ -349,6 +352,7 @@ export type BuildState = {
   duration: number,
   power: number,
   canBuild: boolean,
+  canBuildMagic: boolean,
 }
 
 export const isDestroyable = (_w: World, c: Cell): boolean => {
@@ -394,12 +398,18 @@ export const canBuildAt = (_: World, c: Cell): boolean => (
   c.kind == FieldObjKind.none
 )
 
+const canBuildMagic = (wo: World): boolean => {
+  const m = CellKind.magic
+  return 0 < m.buildableLevel(wo.powers)
+}
+
 export const bulidState = (wo: World, param: BuildParam, topleft: { x: number, y: number }): BuildState => {
   if (param.size == undefined || param.toBiuld == undefined) {
     return {
       cost: 0,
       duration: 0,
       canBuild: false,
+      canBuildMagic: canBuildMagic(wo),
       power: 0,
     }
   }
@@ -415,6 +425,7 @@ export const bulidState = (wo: World, param: BuildParam, topleft: { x: number, y
     cost: cost,
     duration: Math.floor((param.level + 1) * (param.size + 1)),
     canBuild: noIntersection && !overflow && cost < wo.powers.money,
+    canBuildMagic: canBuildMagic(wo),
     power: power ?? 0,
   }
 }
