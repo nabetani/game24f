@@ -350,7 +350,7 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, cell: G.Ce
   const cond = G.condition(p.world, p.cell)
   const pline = (x: number | undefined) => {
     if (x == null) { return <></> }
-    const regexp = /^((?:\-)?\d+)(\.\d+)?(\D)?$/g;
+    const regexp = /^((?:\-)?\d+)(\.\d+)?(\D+)?$/g;
     const m = [...U.numText(x).matchAll(regexp)];
     const [_, ms, ls, u] = (m || [])[0]
     return <Mui.Box alignSelf={"center"}>
