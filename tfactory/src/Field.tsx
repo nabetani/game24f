@@ -16,7 +16,7 @@ type BuildAreaContextV = {
 }
 const BuildAreaContext = React.createContext<BuildAreaContextV>({})
 
-function AddDestroyUI(p: {
+function DestroyUI(p: {
   world: G.World,
   updateWorld: Updater<G.World>,
   cell: G.Cell,
@@ -39,7 +39,7 @@ function AddDestroyUI(p: {
   </>
 }
 
-function AddImproveUI(p: {
+function ImproveUI(p: {
   world: G.World,
   updateWorld: Updater<G.World>,
   cell: G.Cell,
@@ -186,6 +186,48 @@ function AddBuildingUI(p: {
   </>
 }
 
+const buildingTypeText = (k: G.FieldObjKindType): string => {
+  switch (k) {
+    case G.FieldObjKind.house: return "自宅兼工場"
+    case G.FieldObjKind.factory: return "工場"
+    case G.FieldObjKind.pLabo: return "生産技研"
+    case G.FieldObjKind.bLabo: return "基礎研"
+    case G.FieldObjKind.magic: return "魔術研"
+    default:
+      return "n/a"
+  }
+}
+function StateUI(p: {
+  world: G.World,
+  cell: G.Cell,
+  closer: () => void
+}): JSX.Element {
+  const c = G.condition(p.world, p.cell)
+  const improve = 0 < (c.improve ?? 0)
+  const i: [string, string][] = [
+    ["種類", buildingTypeText(p.cell.kind)],
+    ["Level" + (improve ? "〈強化〉" : ""), `Lv. ${c.level}` + (improve ? `〈+${c.improve}〉` : "")],
+    ["能力", U.numText(c.power ?? 0)],
+    ["基礎能力", U.numText(c.basicPower ?? 0)],
+    ["強化の効果", `× ${U.ratioText(c.improveRatio ?? 1)}`],
+    ["隣の建物の効果", `× ${U.ratioText(c.neibourEffect ?? 1)}`],
+  ]
+  return <>
+    <Mui.Box>
+      <Mui.TableContainer sx={{ p: 0, m: 0 }}>
+        <Mui.Table size="small">
+          {i.map(([k, v]) =>
+            <Mui.TableRow>
+              <Mui.TableCell sx={{ fontWeight: "bold" }}>{k}</Mui.TableCell>
+              <Mui.TableCell>{v}</Mui.TableCell>
+            </Mui.TableRow>
+          )}
+        </Mui.Table>
+      </Mui.TableContainer>
+    </Mui.Box>
+  </>
+}
+
 function CellClickUI(p: {
   world: G.World,
   updateWorld: Updater<G.World>,
@@ -196,19 +238,24 @@ function CellClickUI(p: {
     b: G.canBuildAt(p.world, p.cell),
     i: G.canImprove(p.world, p.cell),
     d: G.isDestroyable(p.world, p.cell),
+    s: G.isBuilding(p.world, p.cell),
   }
   const [value, setValue] = React.useState(((): string => (
-    tabs.b ? "b" : tabs.i ? "i" : "d"
+    tabs.b ? "b" :
+      tabs.i ? "i" :
+        tabs.d ? "d" :
+          "s"
   ))());
   const handleChange = (_: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
   return <MuiL.TabContext value={value}>
     <Mui.Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-      <TabList onChange={handleChange} aria-label="lab API tabs example" >
+      <TabList onChange={handleChange}>
         {!tabs.b ? [] : <Mui.Tab label="建築" value="b" />}
         {!tabs.i ? [] : <Mui.Tab label="強化" value="i" />}
         {!tabs.d ? [] : <Mui.Tab label="撤去" value="d" />}
+        {!tabs.s ? [] : <Mui.Tab label="情報" value="s" />}
       </TabList>
     </Mui.Box>
     {!tabs.b ? [] :
@@ -217,11 +264,15 @@ function CellClickUI(p: {
       </TabPanel>}
     {!tabs.i ? [] :
       <TabPanel value="i">
-        <AddImproveUI world={p.world} updateWorld={p.updateWorld} cell={p.cell} closer={p.closer} />
+        <ImproveUI world={p.world} updateWorld={p.updateWorld} cell={p.cell} closer={p.closer} />
       </TabPanel>}
     {!tabs.d ? [] :
       <TabPanel value="d">
-        <AddDestroyUI world={p.world} updateWorld={p.updateWorld} cell={p.cell} closer={p.closer} />
+        <DestroyUI world={p.world} updateWorld={p.updateWorld} cell={p.cell} closer={p.closer} />
+      </TabPanel>}
+    {!tabs.s ? [] :
+      <TabPanel value="s" sx={{ p: 0, m: 0 }}>
+        <StateUI world={p.world} cell={p.cell} closer={p.closer} />
       </TabPanel>}
   </MuiL.TabContext>
 }
@@ -302,7 +353,7 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, cell: G.Ce
       </Mui.Stack ></Mui.Box>
   }
   const sline = (x: number | undefined, y: number | undefined) => <span>
-    {x != null ? <>Lv. {x}</> : <></>}{y != null ? <span className="improve">{y}</span> : <></>}
+    {x != null ? <>Lv. {x}</> : <></>}{0 < (y ?? 0) ? <span className="improve">{y}</span> : <></>}
   </span>
   if (cond.construction != null && 0 < cond.construction && cond.constructionTotal != null && 0 < cond.construction) {
     const w = foa.w / 2

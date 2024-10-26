@@ -375,9 +375,13 @@ export const improveCost = (_wo: World, c: Cell): number | null => {
   return k.improveCost(c.q, size)
 }
 
-export const canImprove = (w: World, c: Cell): boolean => {
+export const canImprove = (_wo: World, c: Cell): boolean => {
   const k = CellKind.o[c.kind]
   return k.canImprove
+}
+
+export const isBuilding = (_wo: World, c: Cell): boolean => {
+  return c.kind != FieldObjKind.none
 }
 
 export const improve = (w: World, c: Cell): void => {
@@ -453,18 +457,26 @@ export type CondType = {
   power?: number
   construction?: number
   constructionTotal?: number
+  basicPower?: number
+  improveRatio?: number
+  neibourEffect?: number
 }
 
 export const condition = (_w: World, c: Cell): CondType => {
   const k = CellKind.o[c.kind]
   const power = k.power(c.q, c.area.w * c.area.h)
+  const basicPower = k.power({ level: c.q.level, improve: 0 }, c.area.w * c.area.h)
 
+  const improveRatio = (power != null && basicPower != null && 0 < basicPower) ? power / basicPower : 1
   return {
     level: power == undefined ? undefined : c.q.level,
     improve: power == undefined ? undefined : c.q.improve,
     power: power,
     construction: c.construction,
     constructionTotal: c.constructionTotal,
+    basicPower: basicPower,
+    improveRatio: improveRatio,
+    neibourEffect: 1.23,
   }
 }
 

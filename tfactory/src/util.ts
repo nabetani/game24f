@@ -1,3 +1,4 @@
+import { sprintf } from "sprintf-js";
 
 export class XY {
   private _x: number = 0
@@ -130,4 +131,12 @@ export const didigit = (x: number): number => {
   const k = Math.floor(Math.log10(Math.abs(x)))
   const b = 10 ** (k - 1)
   return b * Math.floor(x / b)
+}
+
+export const ratioText = (x: number): string => {
+  if (x < 10) { return sprintf("%.3f", x) }
+  if (x < 100) { return sprintf("%.2f", x) }
+  if (x < 1000) { return sprintf("%.1f", x) }
+  if (x < 10000) { return sprintf("%.0f", x) }
+  return numText(x)
 }
