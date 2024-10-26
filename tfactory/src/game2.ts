@@ -125,10 +125,14 @@ export namespace CellKind {
     abstract get kind(): FieldObjKindType
     get maxLevel(): number { return 25 }
     abstract buildlevelSrc(p: Powers): number
-    abstract costPerIncome(level: number): number
+    abstract get buildCostBase(): number
     get destroyCostRatio(): number { return 0.1 }
     buildCost(level: number, size: SizeType): number {
-      const c = this.incomeBase({ level: level }) * (size ** 2) * this.costPerIncome(level)
+      // Lv1 1e3 → Lv25:1e50
+      // 2 + 1..25 + 23
+      const relLevel = (level - 1) / (this.maxLevel - 1)
+      const p = 2 + level + relLevel ** 1.5 * 23
+      const c = this.buildCostBase * 10 ** p * size ** 2
       return U.didigit(c)
     }
     improveCost(q: Quality, size: SizeType): number {
@@ -141,11 +145,7 @@ export namespace CellKind {
         0, this.maxLevel)
     }
     abstract get incomeParam(): IncomeParamType
-    incomeBase(i: IncomeBaseParamType): number {
-      const p = this.incomeParam
-      const imp = (1.0 + (i.improve ?? 0) ** 0.8 * 0.1)
-      return p.start * p.levBase ** (i.level - 1) * imp
-    }
+    abstract incomeBase(i: IncomeBaseParamType): number
     abstract isPowerNeibourType(k: FieldObjKindType): boolean
     neibourEffect(w: World, c: Cell): number {
       let e = 1
@@ -168,11 +168,9 @@ export namespace CellKind {
   }
 
   class Factory extends StdBuilding {
-    costPerIncome(level: number): number {
-      return 30 * (1 + (level - 1) / 5)
-    }
+    get buildCostBase(): number { return 1 }
     get incomeParam(): IncomeParamType {
-      return { levBase: 4, start: 100 }
+      return { levBase: 6, start: 100 }
     }
     buildlevelSrc(p: Powers): number {
       return p.pDev
@@ -183,14 +181,19 @@ export namespace CellKind {
     isPowerNeibourType(k: FieldObjKindType): boolean {
       return k === FieldObjKind.pLabo
     }
+    incomeBase(i: IncomeBaseParamType): number {
+      // Lv1:1e2 → Lv25:1e40
+      // 1 + 1...25 + 0...14
+      const rel = (i.level - 1) / (this.maxLevel - 1)
+      const p = 1 + i.level + rel ** 1.5 * 14
+      return 10 ** p * (1 + (i.improve ?? 0) ** 0.8)
+    }
   }
 
   class PLabo extends StdBuilding {
-    costPerIncome(level: number): number {
-      return 100 * (1 + (level - 1) / 4)
-    }
+    get buildCostBase(): number { return 3 }
     get incomeParam(): IncomeParamType {
-      return { levBase: 4, start: 300 }
+      return { levBase: 50, start: 300 }
     }
     buildlevelSrc(p: Powers): number {
       return p.bDev
@@ -201,14 +204,19 @@ export namespace CellKind {
     isPowerNeibourType(k: FieldObjKindType): boolean {
       return k === FieldObjKind.bLabo
     }
+    incomeBase(i: IncomeBaseParamType): number {
+      // Lv1:1e2 → Lv25:1e20
+      // 1 + 1...12.5 + 0...7
+      const rel = (i.level - 1) / (this.maxLevel - 1)
+      const p = 1 + i.level + rel ** 1.5 * 7
+      return 10 ** p * (1 + (i.improve ?? 0) ** 0.8)
+    }
   }
 
   class BLabo extends StdBuilding {
-    costPerIncome(level: number): number {
-      return 300 * (1 + (level - 1) / 3)
-    }
+    get buildCostBase(): number { return 9 }
     get incomeParam(): IncomeParamType {
-      return { levBase: 4, start: 1000 }
+      return { levBase: 100, start: 1000 }
     }
     buildlevelSrc(p: Powers): number {
       return p.bDev
@@ -217,6 +225,13 @@ export namespace CellKind {
       return FieldObjKind.bLabo
     }
     isPowerNeibourType(_k: FieldObjKindType): boolean { return false }
+    incomeBase(i: IncomeBaseParamType): number {
+      // Lv1:1e2 → Lv25:1e20
+      // 1 + 1...12.5 + 0...7
+      const rel = (i.level - 1) / (this.maxLevel - 1)
+      const p = 1 + i.level + rel ** 1.5 * 7
+      return 10 ** p * (1 + (i.improve ?? 0) ** 0.8)
+    }
   }
 
   class House extends Building {
@@ -251,7 +266,7 @@ export namespace CellKind {
   }
   class Magic extends Building {
     buildCost(level: number, size: SizeType): number {
-      const c = 10 ** 12 * 100 ** (level - 1) * size
+      const c = 10 ** 12 * 100 ** ((level - 1) ** 2) * size
       return U.didigit(c)
     }
     get kind(): FieldObjKindType {
