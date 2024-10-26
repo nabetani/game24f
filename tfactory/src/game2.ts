@@ -79,7 +79,7 @@ export namespace CellKind {
     get kind(): FieldObjKindType
     get canImprove(): boolean
     get maxLevel(): number | null
-    get isDestroyable(): boolean
+    get destroyCostRatio(): number | null
     buildableLevel(p: Powers): number
     buildCost(level: number, size: SizeType): number
     improveCost(q: Quality, size: SizeType): number | null
@@ -95,7 +95,7 @@ export namespace CellKind {
     buildCost(_1: number, _2: SizeType): number { return 0 }
     improveCost(_q: Quality, _size: SizeType): null { return null }
     power(_q: Quality, _areaSize: number): undefined { return undefined }
-    get isDestroyable(): boolean { return false }
+    get destroyCostRatio(): null { return null }
     neibourEffect(_w: World, _c: Cell): number { return 1 }
   }
 
@@ -117,7 +117,7 @@ export namespace CellKind {
       return this.incomeBase(q) * areaSize
     }
     abstract improveCost(q: Quality, size: SizeType): number
-    abstract get isDestroyable(): boolean
+    abstract get destroyCostRatio(): number | null
     abstract neibourEffect(w: World, c: Cell): number
   }
 
@@ -126,7 +126,7 @@ export namespace CellKind {
     get maxLevel(): number { return 25 }
     abstract buildlevelSrc(p: Powers): number
     abstract costPerIncome(level: number): number
-    get isDestroyable(): boolean { return true }
+    get destroyCostRatio(): number { return 0.1 }
     buildCost(level: number, size: SizeType): number {
       const c = this.incomeBase({ level: level }) * (size ** 2) * this.costPerIncome(level)
       return U.didigit(c)
@@ -149,14 +149,21 @@ export namespace CellKind {
     abstract isPowerNeibourType(k: FieldObjKindType): boolean
     neibourEffect(w: World, c: Cell): number {
       let e = 1
+      let m: Quality[] = []
       eachNeibours(w, c.area, (b, tLen) => {
         const dl = b.q.level - c.q.level
         if (this.isPowerNeibourType(b.kind) && 0 <= dl) {
-          e += 0.1 * tLen * (dl + 1)
+          e += 0.5 * tLen * (dl + 1)
         }
-        return
+        if (b.kind == FieldObjKind.magic) {
+          m.push(b.q)
+        }
       })
-      return e
+      return e * ((): number => {
+        if (m.length == 0) { return 1 }
+        if (m.length == 1) { return 100 ** m[0].level }
+        return 1e-3
+      })()
     }
   }
 
@@ -221,7 +228,7 @@ export namespace CellKind {
       return this.incomeBase({ level: 1, improve: 0 })
     }
     get maxLevel(): number { return 1 }
-    get isDestroyable(): boolean { return false }
+    get destroyCostRatio(): null { return null }
     incomeBase(i: IncomeBaseParamType): number {
       const imp = (1.0 + (i.improve ?? 0) ** 0.8 * 0.1)
       const start = 200
@@ -230,8 +237,15 @@ export namespace CellKind {
     }
     buildableLevel(_: Powers): number { return 0 }
     neibourEffect(w: World, c: Cell): number {
-      // TODO: implement me
-      return 1
+      let e = 1
+      eachNeibours(w, c.area, (b, tLen) => {
+        const dl = b.q.level - c.q.level
+        if (b.kind == FieldObjKind.pLabo && 0 <= dl) {
+          e += 0.5 * tLen * (dl + 1)
+        }
+        return
+      })
+      return e
     }
 
   }
@@ -243,7 +257,7 @@ export namespace CellKind {
     get kind(): FieldObjKindType {
       return FieldObjKind.magic
     }
-    get isDestroyable(): boolean { return false }
+    get destroyCostRatio(): number { return 1 }
     get maxLevel(): number { return 5 }
     buildableLevel(p: Powers): number {
       const m = buildLevel(Math.min(p.bDev, p.pDev))
@@ -333,8 +347,8 @@ export const emptyWorld = (): World => {
     ],
     duration: 0,
     total: 0,
-    // powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
-    powers: { money: 1e30, pDev: 9e14, bDev: 9e14 } // TODO: fix
+    powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
+    // powers: { money: 1e30, pDev: 9e14, bDev: 9e14 } // TODO: fix
   }
 }
 
@@ -416,11 +430,16 @@ export type BuildState = {
 export const isDestroyable = (_w: World, c: Cell): boolean => {
   // console.dir({ c: c })
   const k = CellKind.o[c.kind]
-  return k.isDestroyable
+  return k.destroyCostRatio != null
 }
 
 export const destroy = (w: World, c: Cell): void => {
   const p = c.area
+  const k = CellKind.o[c.kind]
+  const ratio = k.destroyCostRatio
+  if (ratio == null) { return }
+  const cost = k.buildCost(c.q.level, c.area.w as SizeType) * ratio
+  w.powers.money -= cost
   w.buildings = w.buildings.filter((b) => {
     const q = b.area
     return !(p.x == q.x && p.y == q.y)

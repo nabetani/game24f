@@ -22,18 +22,26 @@ function DestroyUI(p: {
   cell: G.Cell,
   closer: () => void
 }): JSX.Element {
+  const cost = G.improveCost(p.world, p.cell)
   return <>
     <Mui.Box>
       <Mui.FormControl size="small">
-        <Mui.Button variant="contained" color="warning"
-          onClick={() => {
-            p.updateWorld((w: G.World) => {
-              G.destroy(w, p.cell)
-            })
-            p.closer()
-          }}
-        ><Icon.DeleteForever />
-          撤去</Mui.Button>
+        <Mui.Stack>
+          {cost == null ? <></> :
+            <Mui.Typography>
+              コスト: {U.numText(cost)}
+            </Mui.Typography>}
+          <Mui.Button variant="contained" color="warning"
+            disabled={cost == null || p.world.powers.money < cost}
+            onClick={() => {
+              p.updateWorld((w: G.World) => {
+                G.destroy(w, p.cell)
+              })
+              p.closer()
+            }}
+          ><Icon.DeleteForever />
+            撤去</Mui.Button>
+        </Mui.Stack>
       </Mui.FormControl>
     </Mui.Box>
   </>
@@ -56,7 +64,7 @@ function ImproveUI(p: {
               コスト: {U.numText(cost)}
             </Mui.Typography>}
           <Mui.Button variant="contained"
-            disabled={cost == null}
+            disabled={cost == null || p.world.powers.money < cost}
             onClick={() => {
               p.updateWorld((w: G.World) => {
                 G.improve(w, p.cell)
