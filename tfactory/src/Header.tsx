@@ -75,15 +75,15 @@ function UsageUI(p: {
       <Icon.Settings /><T>生産技研</T></Mui.Stack>
     <Mui.Box sx={{ pl: 4 }}><T>
       • 生産技術を上げる<br />
-      • 建築可能レベルは「基礎技術」で決まる
-      • 隣接する工場の能力を上げることがある</T>
+      • 建築可能レベルは「基礎技術」で決まる<br />
+      • 隣接する工場などの能力を上げることがある</T>
     </Mui.Box>
     <Mui.Divider />
     <Mui.Stack direction="row" display="flex" alignItems="center">
       <Icon.Science /><T> 基礎研</T></Mui.Stack>
     <Mui.Box sx={{ pl: 4 }}><T>
       • 基礎技術を上げる<br />
-      • 建築可能レベルは「基礎技術」で決まる
+      • 建築可能レベルは「基礎技術」で決まる<br />
       • 隣接する生産技研の能力を上げることがある</T>
     </Mui.Box>
     <Mui.Divider />
