@@ -114,7 +114,7 @@ export namespace CellKind {
     abstract buildCost(level: number, size: SizeType): number;
     abstract incomeBase(_: IncomeBaseParamType): number
     power(q: Quality, areaSize: number): number {
-      return this.incomeBase(q) * areaSize ** 1.2
+      return this.incomeBase(q) * areaSize
     }
     abstract improveCost(q: Quality, size: SizeType): number
     abstract get isDestroyable(): boolean
