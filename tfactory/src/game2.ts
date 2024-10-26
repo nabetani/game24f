@@ -146,7 +146,18 @@ export namespace CellKind {
       const imp = (1.0 + (i.improve ?? 0) ** 0.8 * 0.1)
       return p.start * p.levBase ** (i.level - 1) * imp
     }
-    abstract neibourEffect(w: World, c: Cell): number
+    abstract isPowerNeibourType(k: FieldObjKindType): boolean
+    neibourEffect(w: World, c: Cell): number {
+      let e = 1
+      eachNeibours(w, c.area, (b, tLen) => {
+        const dl = b.q.level - c.q.level
+        if (this.isPowerNeibourType(b.kind) && 0 <= dl) {
+          e += 0.1 * tLen * (dl + 1)
+        }
+        return
+      })
+      return e
+    }
   }
 
   class Factory extends StdBuilding {
@@ -162,16 +173,8 @@ export namespace CellKind {
     get kind(): FieldObjKindType {
       return FieldObjKind.factory
     }
-    neibourEffect(w: World, c: Cell): number {
-      let e = 1
-      eachNeibours(w, c.area, (b, tLen) => {
-        const dl = b.q.level - c.q.level
-        if (b.kind === FieldObjKind.pLabo && 0 <= dl) {
-          e += 0.1 * tLen * (dl + 1)
-        }
-        return
-      })
-      return e
+    isPowerNeibourType(k: FieldObjKindType): boolean {
+      return k === FieldObjKind.pLabo
     }
   }
 
@@ -188,9 +191,8 @@ export namespace CellKind {
     get kind(): FieldObjKindType {
       return FieldObjKind.pLabo
     }
-    neibourEffect(w: World, c: Cell): number {
-      // TODO: implement me
-      return 1
+    isPowerNeibourType(k: FieldObjKindType): boolean {
+      return k === FieldObjKind.bLabo
     }
   }
 
@@ -207,10 +209,7 @@ export namespace CellKind {
     get kind(): FieldObjKindType {
       return FieldObjKind.bLabo
     }
-    neibourEffect(w: World, c: Cell): number {
-      // TODO: implement me
-      return 1
-    }
+    isPowerNeibourType(_k: FieldObjKindType): boolean { return false }
   }
 
   class House extends Building {
