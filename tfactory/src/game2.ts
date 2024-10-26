@@ -83,7 +83,6 @@ export namespace CellKind {
     buildableLevel(p: Powers): number
     buildCost(level: number, size: SizeType): number
     improveCost(q: Quality, size: SizeType): number | null
-    incomeBase(i: IncomeBaseParamType): number
     power(q: Quality, areaSize: number): number | undefined
   }
   class None implements I {
@@ -92,7 +91,6 @@ export namespace CellKind {
     get canImprove(): boolean { return false }
     buildableLevel(_: Powers): number { return 0 }
     buildCost(_1: number, _2: SizeType): number { return 0 }
-    incomeBase(_: IncomeBaseParamType): number { return 0 }
     improveCost(_q: Quality, _size: SizeType): null { return null }
     power(_q: Quality, _areaSize: number): undefined { return undefined }
     get isDestroyable(): boolean { return false }
@@ -280,7 +278,7 @@ export const emptyWorld = (): World => {
   }
 }
 
-export const incomeB = (w: World, c: Cell): Powers => {
+export const incomeB = (_w: World, c: Cell): Powers => {
   const t = ((): keyof Powers | null => {
     switch (c.kind) {
       case FieldObjKind.bLabo: return "bDev"
