@@ -84,6 +84,8 @@ export namespace CellKind {
     buildCost(level: number, size: SizeType): number
     improveCost(q: Quality, size: SizeType): number | null
     power(q: Quality, areaSize: number): number | undefined
+    neibourEffect(w: World, c: Cell): number
+
   }
   class None implements I {
     get kind(): FieldObjKindType { return FieldObjKind.none }
@@ -94,6 +96,7 @@ export namespace CellKind {
     improveCost(_q: Quality, _size: SizeType): null { return null }
     power(_q: Quality, _areaSize: number): undefined { return undefined }
     get isDestroyable(): boolean { return false }
+    neibourEffect(_w: World, _c: Cell): number { return 1 }
   }
 
   type IncomeParamType = {
@@ -115,6 +118,7 @@ export namespace CellKind {
     }
     abstract improveCost(q: Quality, size: SizeType): number
     abstract get isDestroyable(): boolean
+    abstract neibourEffect(w: World, c: Cell): number
   }
 
   abstract class StdBuilding extends Building {
@@ -142,6 +146,7 @@ export namespace CellKind {
       const imp = (1.0 + (i.improve ?? 0) ** 0.8 * 0.1)
       return p.start * p.levBase ** (i.level - 1) * imp
     }
+    abstract neibourEffect(w: World, c: Cell): number
   }
 
   class Factory extends StdBuilding {
@@ -156,6 +161,17 @@ export namespace CellKind {
     }
     get kind(): FieldObjKindType {
       return FieldObjKind.factory
+    }
+    neibourEffect(w: World, c: Cell): number {
+      let e = 1
+      eachNeibours(w, c.area, (b, tLen) => {
+        const dl = b.q.level - c.q.level
+        if (b.kind === FieldObjKind.pLabo && 0 <= dl) {
+          e += 0.1 * tLen * (dl + 1)
+        }
+        return
+      })
+      return e
     }
   }
 
@@ -172,6 +188,10 @@ export namespace CellKind {
     get kind(): FieldObjKindType {
       return FieldObjKind.pLabo
     }
+    neibourEffect(w: World, c: Cell): number {
+      // TODO: implement me
+      return 1
+    }
   }
 
   class BLabo extends StdBuilding {
@@ -186,6 +206,10 @@ export namespace CellKind {
     }
     get kind(): FieldObjKindType {
       return FieldObjKind.bLabo
+    }
+    neibourEffect(w: World, c: Cell): number {
+      // TODO: implement me
+      return 1
     }
   }
 
@@ -204,9 +228,13 @@ export namespace CellKind {
       const start = 200
       const levBase = 1
       return start * levBase ** (i.level - 1) * imp
-
     }
     buildableLevel(_: Powers): number { return 0 }
+    neibourEffect(w: World, c: Cell): number {
+      // TODO: implement me
+      return 1
+    }
+
   }
   class Magic extends Building {
     buildCost(level: number, size: SizeType): number {
@@ -228,6 +256,10 @@ export namespace CellKind {
     }
     incomeBase(_: IncomeBaseParamType): number {
       return 0
+    }
+    neibourEffect(w: World, c: Cell): number {
+      // TODO: implement me
+      return 1
     }
   }
 
@@ -255,6 +287,35 @@ export type World = {
   powers: Powers,
 }
 
+const touchingLen = (a: Area, b: Area): number => {
+  type n4 = [number, number, number, number]
+  const x: n4 = [a.x, a.w, b.x, b.w]
+  const y: n4 = [a.y, a.h, b.y, b.h]
+  const touching = ([x0, w0, x1, w1]: n4): boolean => {
+    return x0 + w0 == x1 || x1 + w1 == x0
+
+  }
+  const overwrap = ([x0, w0, x1, w1]: n4): number => {
+    const r = Math.min(x0 + w0, x1 + w1)
+    const l = Math.max(x0, x1)
+    return Math.max(r - l, 0)
+  }
+  if (touching(x)) return overwrap(y)
+  if (touching(y)) return overwrap(x)
+  return 0
+}
+
+const eachNeibours = (w: World, a: Area, proc: (b: Cell, t: number) => void) => {
+  w.buildings.forEach(b => {
+    if (b.construction <= 0) {
+      const t = touchingLen(b.area, a)
+      if (0 < t) {
+        proc(b, t)
+      }
+    }
+  })
+}
+
 const newHouse = (x: number, y: number, q: Quality): Cell => {
   return {
     kind: FieldObjKind.house,
@@ -278,7 +339,7 @@ export const emptyWorld = (): World => {
   }
 }
 
-export const incomeB = (_w: World, c: Cell): Powers => {
+export const incomeB = (w: World, c: Cell): Powers => {
   const t = ((): keyof Powers | null => {
     switch (c.kind) {
       case FieldObjKind.bLabo: return "bDev"
@@ -294,7 +355,7 @@ export const incomeB = (_w: World, c: Cell): Powers => {
   } else {
     const k = CellKind.o[c.kind]
     const r = powersZero()
-    r[t] = k.power(c.q, c.area.h * c.area.w) ?? 0
+    r[t] = Math.floor((k.power(c.q, c.area.h * c.area.w) ?? 0) * k.neibourEffect(w, c))
     return r
   }
 }
@@ -460,21 +521,22 @@ export type CondType = {
   neibourEffect?: number
 }
 
-export const condition = (_w: World, c: Cell): CondType => {
+export const condition = (w: World, c: Cell): CondType => {
   const k = CellKind.o[c.kind]
   const power = k.power(c.q, c.area.w * c.area.h)
   const basicPower = k.power({ level: c.q.level, improve: 0 }, c.area.w * c.area.h)
 
   const improveRatio = (power != null && basicPower != null && 0 < basicPower) ? power / basicPower : 1
+  const nef = k.neibourEffect(w, c)
   return {
     level: power == undefined ? undefined : c.q.level,
     improve: power == undefined ? undefined : c.q.improve,
-    power: power,
+    power: power && Math.floor(power * nef),
     construction: c.construction,
     constructionTotal: c.constructionTotal,
     basicPower: basicPower,
     improveRatio: improveRatio,
-    neibourEffect: 1.23,
+    neibourEffect: nef,
   }
 }
 
