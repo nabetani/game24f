@@ -227,7 +227,7 @@ function HeaderStatus(p: {
         <Mui.Grid2 size={3}>
           <Mui.Typography>期間: {`${p.world.duration}`}</Mui.Typography>
         </Mui.Grid2>
-        <Mui.Grid2 size={3}>
+        <Mui.Grid2 size={5}>
           <Mui.Typography>総タイツ: {U.numText(p.world.total)}</Mui.Typography>
         </Mui.Grid2>
       </Mui.Grid2>
