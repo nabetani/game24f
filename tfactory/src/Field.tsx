@@ -224,12 +224,14 @@ function StateUI(p: {
     <Mui.Box>
       <Mui.TableContainer sx={{ p: 0, m: 0 }}>
         <Mui.Table size="small">
-          {i.map(([k, v]) =>
-            <Mui.TableRow>
-              <Mui.TableCell sx={{ fontWeight: "bold" }}>{k}</Mui.TableCell>
-              <Mui.TableCell>{v}</Mui.TableCell>
-            </Mui.TableRow>
-          )}
+          <Mui.TableBody>
+            {i.map(([k, v]) =>
+              <Mui.TableRow key={k}>
+                <Mui.TableCell sx={{ fontWeight: "bold" }}>{k}</Mui.TableCell>
+                <Mui.TableCell>{v}</Mui.TableCell>
+              </Mui.TableRow>
+            )}
+          </Mui.TableBody>
         </Mui.Table>
       </Mui.TableContainer>
     </Mui.Box>
