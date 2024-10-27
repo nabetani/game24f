@@ -263,7 +263,7 @@ export namespace CellKind {
       const m = buildLevel(Math.min(p.bDev, p.pDev))
       // Lv.10 で 1 がビルド可能。そこから5ごとに増える
       const b = 1 + Math.floor((m - 10) / 5)
-      console.log({ b: b, m: m, p: p })
+      // console.log({ b: b, m: m, p: p })
       return U.clamp(b, 0, this.maxLevel)
     }
     improveCost(_q: Quality, _size: SizeType): null {
@@ -354,8 +354,8 @@ export const emptyWorld = (): World => {
     ],
     duration: 0,
     total: 0,
-    // powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
-    powers: { money: 1e60, pDev: 1e60, bDev: 1e60 } // TODO: fix
+    powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
+    // powers: { money: 1e60, pDev: 1e60, bDev: 1e60 } // TODO: fix
   }
 }
 
