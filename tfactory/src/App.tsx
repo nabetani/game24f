@@ -6,7 +6,9 @@ import { useImmer } from 'use-immer';
 import * as Layout from "./layout"
 import * as WS from "./wstorage";
 import { Header } from "./Header"
+import { MessageList } from "./MessageList"
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import * as Mui from "@mui/material";
 
 function App() {
   const [wo, updateWorld] = useImmer(WS.world.value)
@@ -74,8 +76,9 @@ function App() {
   }
 
   return <ThemeProvider theme={theme}>
-    <div style={{}}>
-      <div style={{
+    <Mui.Stack direction="column"
+      style={{
+        display: 'flex', flexDirection: "column",
         margin: "auto",
         borderStyle: "solid",
         width: c.w,
@@ -85,10 +88,12 @@ function App() {
         minHeight: c.h,
         maxHeight: c.h,
       }}>
-        <Header world={wo} op={op} />
-        <Field world={wo} updateWorld={updateWorld} />
-      </div >
-    </div >
+      <Header world={wo} op={op} />
+      <Field world={wo} updateWorld={updateWorld} />
+      <Mui.Box border={3} style={{ flexGrow: 1 }}>
+        <MessageList />
+      </Mui.Box>
+    </Mui.Stack>
   </ThemeProvider>
 }
 
