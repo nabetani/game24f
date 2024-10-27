@@ -305,6 +305,11 @@ const newHouse = (x: number, y: number, q: Quality): Cell => {
 
 export const emptyWorld = (): World => {
   return {
+    prev: {
+      duration: 0,
+      powers: { bDev: 0, pDev: 0, money: 0 },
+      total: 0,
+    },
     size: { w: 5, h: 10 },
     buildings: [
       newHouse(2, 4, { improve: 0, level: 1 }),
@@ -351,12 +356,20 @@ const progressB = (c: Cell): void => {
 }
 
 export const progress = (o: World): void => {
+  if (o.prev == null) {
+    o.prev = { duration: 0, powers: { money: 0, pDev: 0, bDev: 0 }, total: 0 }
+  }
+  o.prev.duration = o.duration
+  o.prev.total = o.total
+  o.prev.powers = { ...o.powers }
+
   o.buildings.forEach(b => progressB(b))
   const i = incomeW(o)
   ++o.duration
   o.total += i.money ?? 0
   o.powers = powersAdd(o.powers, i)
   const msgs = makeMsg(o)
+  console.log({ o: o, msgs: msgs })
   o.messages ??= []
   o.messages.push(...msgs)
 }

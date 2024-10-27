@@ -79,7 +79,7 @@ export const clamp = (v: number, low: number, high: number): number => {
   return high
 }
 
-export const numText = (n0: number): string => {
+export const numText = (n0: number, one: boolean = false): string => {
   if (n0 == 0) { return "0" }
   if (n0 < 0) {
     return `-${numText(-n0)}`
@@ -110,6 +110,8 @@ export const numText = (n0: number): string => {
   }
   if (d == 0) {
     return s0 + u
+  } else if (one) {
+    return s0.substring(0, d) + u
   } else {
     return s0.substring(0, d) + "." + s0.substring(d, 4) + u
   }

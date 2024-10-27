@@ -26,7 +26,7 @@ export function MessageList(
     </Mui.Grid2>
     <Mui.Grid2 size="grow">
       {curMsg &&
-        <Mui.Alert severity="info">{curMsg}</Mui.Alert>}
+        <Mui.Alert sx={{ textAlign: "left" }} severity="info">{curMsg}</Mui.Alert>}
     </Mui.Grid2>
 
   </Mui.Grid2>

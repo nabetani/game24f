@@ -5,6 +5,13 @@ export type World = {
   total: number;
   powers: Powers;
   messages: string[];
+  size: { w: number, h: number },
+
+  prev: {
+    duration: number;
+    total: number;
+    powers: Powers;
+  },
 };
 export type Cell = {
   kind: FieldObjKindType;
