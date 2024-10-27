@@ -249,10 +249,11 @@ function CellClickUI(p: {
     s: G.isBuilding(p.world, p.cell),
   }
   const [value, setValue] = React.useState(((): string => (
-    tabs.b ? "b" :
-      tabs.i ? "i" :
-        tabs.d ? "d" :
-          "s"
+    tabs.s ? "s" :
+      tabs.b ? "b" :
+        tabs.i ? "i" :
+          tabs.d ? "d" :
+            "" // unreachable
   ))());
   const handleChange = (_: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
@@ -260,10 +261,10 @@ function CellClickUI(p: {
   return <MuiL.TabContext value={value}>
     <Mui.Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
       <TabList onChange={handleChange}>
+        {!tabs.s ? [] : <Mui.Tab label="情報" value="s" />}
         {!tabs.b ? [] : <Mui.Tab label="建築" value="b" />}
         {!tabs.i ? [] : <Mui.Tab label="強化" value="i" />}
         {!tabs.d ? [] : <Mui.Tab label="撤去" value="d" />}
-        {!tabs.s ? [] : <Mui.Tab label="情報" value="s" />}
       </TabList>
     </Mui.Box>
     {!tabs.b ? [] :
