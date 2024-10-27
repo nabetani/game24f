@@ -3,23 +3,25 @@ import * as MuiL from "@mui/lab";
 import React, { useEffect } from "react";
 import * as U from './util'
 import * as G from "./game2"
+import * as World from './World';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { Updater } from 'use-immer';
 import * as Layout from "./layout"
 import * as Icon from '@mui/icons-material';
+import * as W from "./World"
 
 
 type BuildAreaContextV = {
-  buildArea?: G.Area,
-  setBuildArea?: React.Dispatch<React.SetStateAction<G.Area | undefined>>,
+  buildArea?: W.Area,
+  setBuildArea?: React.Dispatch<React.SetStateAction<W.Area | undefined>>,
 }
 const BuildAreaContext = React.createContext<BuildAreaContextV>({})
 
 function DestroyUI(p: {
-  world: G.World,
-  updateWorld: Updater<G.World>,
-  cell: G.Cell,
+  world: W.World,
+  updateWorld: Updater<W.World>,
+  cell: W.Cell,
   closer: () => void
 }): JSX.Element {
   const cost = G.destroyCost(p.world, p.cell)
@@ -34,7 +36,7 @@ function DestroyUI(p: {
           <Mui.Button variant="contained" color="warning"
             disabled={cost == null || p.world.powers.money < cost}
             onClick={() => {
-              p.updateWorld((w: G.World) => {
+              p.updateWorld((w: W.World) => {
                 G.destroy(w, p.cell)
               })
               p.closer()
@@ -48,9 +50,9 @@ function DestroyUI(p: {
 }
 
 function ImproveUI(p: {
-  world: G.World,
-  updateWorld: Updater<G.World>,
-  cell: G.Cell,
+  world: W.World,
+  updateWorld: Updater<W.World>,
+  cell: W.Cell,
   closer: () => void
 }): JSX.Element {
   const cost = G.improveCost(p.world, p.cell)
@@ -66,7 +68,7 @@ function ImproveUI(p: {
           <Mui.Button variant="contained"
             disabled={cost == null || p.world.powers.money < cost}
             onClick={() => {
-              p.updateWorld((w: G.World) => {
+              p.updateWorld((w: W.World) => {
                 G.improve(w, p.cell)
               })
               p.closer()
@@ -79,9 +81,9 @@ function ImproveUI(p: {
 }
 
 function AddBuildingUI(p: {
-  world: G.World,
-  updateWorld: Updater<G.World>,
-  cell: G.Cell,
+  world: W.World,
+  updateWorld: Updater<W.World>,
+  cell: W.Cell,
   closer: () => void
 }): JSX.Element {
   const [param, setParam] = React.useState<G.BuildParam>({ level: 1 })
@@ -112,22 +114,22 @@ function AddBuildingUI(p: {
         name="btype-selector-buttons-group"
       >
         <Mui.FormControlLabel
-          checked={param.toBiuld == G.FieldObjKind.factory}
+          checked={param.toBiuld == World.FieldObjKind.factory}
           value="factory" control={<Mui.Radio />} label="工場" onClick={
-            () => setWTB(G.FieldObjKind.factory)} />
+            () => setWTB(World.FieldObjKind.factory)} />
         <Mui.FormControlLabel
-          checked={param.toBiuld == G.FieldObjKind.pLabo}
+          checked={param.toBiuld == World.FieldObjKind.pLabo}
           value="plabo" control={<Mui.Radio />} label="生産技研" onClick={
-            () => setWTB(G.FieldObjKind.pLabo)} />
+            () => setWTB(World.FieldObjKind.pLabo)} />
         <Mui.FormControlLabel
-          checked={param.toBiuld == G.FieldObjKind.bLabo}
+          checked={param.toBiuld == World.FieldObjKind.bLabo}
           value="blabo" control={<Mui.Radio />} label="基礎研" onClick={
-            () => setWTB(G.FieldObjKind.bLabo)} />
+            () => setWTB(World.FieldObjKind.bLabo)} />
         {bs.canBuildMagic ? <>
           <Mui.FormControlLabel
-            checked={param.toBiuld == G.FieldObjKind.magic}
+            checked={param.toBiuld == World.FieldObjKind.magic}
             value="magic" control={<Mui.Radio />} label="魔術研" onClick={
-              () => setWTB(G.FieldObjKind.magic)} /></> : <></>}
+              () => setWTB(World.FieldObjKind.magic)} /></> : <></>}
       </Mui.RadioGroup>
       <Mui.FormLabel id="bsize-selector">建物のサイズ</Mui.FormLabel>
       <Mui.RadioGroup
@@ -183,7 +185,7 @@ function AddBuildingUI(p: {
       {0 < param.level && <Mui.Button variant="contained"
         disabled={!bs.canBuild}
         onClick={() => {
-          p.updateWorld((w: G.World) => {
+          p.updateWorld((w: W.World) => {
             G.addBuilding(w, p.cell.area, param)
           })
           p.closer()
@@ -194,20 +196,20 @@ function AddBuildingUI(p: {
   </>
 }
 
-const buildingTypeText = (k: G.FieldObjKindType): string => {
+const buildingTypeText = (k: W.FieldObjKindType): string => {
   switch (k) {
-    case G.FieldObjKind.house: return "自宅兼工場"
-    case G.FieldObjKind.factory: return "工場"
-    case G.FieldObjKind.pLabo: return "生産技研"
-    case G.FieldObjKind.bLabo: return "基礎研"
-    case G.FieldObjKind.magic: return "魔術研"
+    case World.FieldObjKind.house: return "自宅兼工場"
+    case World.FieldObjKind.factory: return "工場"
+    case World.FieldObjKind.pLabo: return "生産技研"
+    case World.FieldObjKind.bLabo: return "基礎研"
+    case World.FieldObjKind.magic: return "魔術研"
     default:
       return "n/a"
   }
 }
 function StateUI(p: {
-  world: G.World,
-  cell: G.Cell,
+  world: W.World,
+  cell: W.Cell,
   closer: () => void
 }): JSX.Element {
   const c = G.condition(p.world, p.cell)
@@ -239,9 +241,9 @@ function StateUI(p: {
 }
 
 function CellClickUI(p: {
-  world: G.World,
-  updateWorld: Updater<G.World>,
-  cell: G.Cell,
+  world: W.World,
+  updateWorld: Updater<W.World>,
+  cell: W.Cell,
   closer: () => void
 }): JSX.Element {
   const tabs = {
@@ -288,7 +290,7 @@ function CellClickUI(p: {
   </MuiL.TabContext>
 }
 
-function fieldObjArea(area: G.Area, wo: G.World): G.Area {
+function fieldObjArea(area: W.Area, wo: W.World): W.Area {
   const c = Layout.fieldWH()
   const wsize = wo.size
 
@@ -310,7 +312,7 @@ function fieldObjArea(area: G.Area, wo: G.World): G.Area {
   }
 }
 
-function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, cell: G.Cell }): JSX.Element {
+function FieldObj(p: { world: W.World, updateWorld: Updater<W.World>, cell: W.Cell }): JSX.Element {
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null | undefined>(null);
   const fo = p.cell
   const foa = fieldObjArea(fo.area, p.world)
@@ -331,15 +333,15 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, cell: G.Ce
     margin: 0,
     padding: 0,
   }
-  const col = new Map<G.FieldObjKindType, string>([
-    [G.FieldObjKind.none, "#eee"],
+  const col = new Map<W.FieldObjKindType, string>([
+    [World.FieldObjKind.none, "#eee"],
     // "#7B6F00"
     // "#006981"
-    [G.FieldObjKind.bLabo, "#008E75"],
-    [G.FieldObjKind.pLabo, "#7B6F00"],
-    [G.FieldObjKind.factory, "#910091"],
-    [G.FieldObjKind.magic, "#000"],
-    [G.FieldObjKind.house, "#6F2800"],
+    [World.FieldObjKind.bLabo, "#008E75"],
+    [World.FieldObjKind.pLabo, "#7B6F00"],
+    [World.FieldObjKind.factory, "#910091"],
+    [World.FieldObjKind.magic, "#000"],
+    [World.FieldObjKind.house, "#6F2800"],
   ]).get(fo.kind)
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget?.parentElement?.parentElement);
@@ -402,15 +404,15 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, cell: G.Ce
       fontSize: foa.h / 2,
     }
     switch (fo.kind) {
-      case G.FieldObjKind.factory:
+      case World.FieldObjKind.factory:
         return <Icon.Factory sx={iconStyle} />
-      case G.FieldObjKind.pLabo:
+      case World.FieldObjKind.pLabo:
         return <Icon.Settings sx={iconStyle} />
-      case G.FieldObjKind.bLabo:
+      case World.FieldObjKind.bLabo:
         return <Icon.Science sx={iconStyle} />
-      case G.FieldObjKind.magic:
+      case World.FieldObjKind.magic:
         return <Icon.OpenWith sx={iconStyle} />
-      case G.FieldObjKind.house:
+      case World.FieldObjKind.house:
         return <Icon.Home sx={iconStyle} />
       default:
         return <></>
@@ -460,11 +462,11 @@ function FieldObj(p: { world: G.World, updateWorld: Updater<G.World>, cell: G.Ce
         }} /></Mui.Popover></div >
 }
 
-function Field(p: { world: G.World, updateWorld: Updater<G.World> }): JSX.Element {
-  const [buildArea, setBuildArea] = React.useState<G.Area | undefined>(undefined)
+function Field(p: { world: W.World, updateWorld: Updater<W.World> }): JSX.Element {
+  const [buildArea, setBuildArea] = React.useState<W.Area | undefined>(undefined)
   const wo = p.world
   const c = Layout.fieldWH()
-  const ba: undefined | G.Area = buildArea && fieldObjArea(buildArea, p.world)
+  const ba: undefined | W.Area = buildArea && fieldObjArea(buildArea, p.world)
   return (
     <BuildAreaContext.Provider value={{ buildArea, setBuildArea }}>
       <div style={{

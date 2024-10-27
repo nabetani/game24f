@@ -1,4 +1,5 @@
 import * as G from './game2'
+import * as World from './World'
 import "jest"
 
 namespace CK {
@@ -11,7 +12,7 @@ namespace CK {
 }
 
 describe("G.CellKind.create", () => {
-  const F = G.FieldObjKind
+  const F = World.FieldObjKind
   test("none", () => expect(CK.none.kind).toBe(F.none))
   test("house", () => expect(CK.house.kind).toBe(F.house))
   test("factory", () => expect(CK.factory.kind).toBe(F.factory))

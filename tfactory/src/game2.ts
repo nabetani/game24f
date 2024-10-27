@@ -1,17 +1,7 @@
 
+import { makeMsg } from './makeMsg';
 import * as U from './util'
-
-export type Quality = {
-  level: number,
-  improve: number,
-}
-
-export type Area = {
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-}
+import { Area, Cell, FieldObjKind, FieldObjKindType, Powers, Quality, World } from './World';
 
 const hasIntersection = (a: Area, b: Area): boolean => {
   const i = (a0: number, al: number, b0: number, bl: number): boolean => {
@@ -23,34 +13,9 @@ const hasIntersection = (a: Area, b: Area): boolean => {
   return i(a.x, a.w, b.x, b.w) && i(a.y, a.h, b.y, b.h)
 };
 
-export const FieldObjKind = {
-  none: "none",
-  house: "house",
-  factory: "factory",
-  pLabo: "pLabo",
-  bLabo: "bLabo",
-  magic: "magic",
-} as const
-
-export type FieldObjKindType = typeof FieldObjKind[keyof (typeof FieldObjKind)]
-
 export type SizeType = 1 | 2 | 3;
 
-export type Cell = {
-  kind: FieldObjKindType,
-  q: Quality,
-  area: Area,
-  construction: number,
-  constructionTotal: number,
-}
-
 export type WhatToBuild = typeof FieldObjKind.factory | typeof FieldObjKind.pLabo | typeof FieldObjKind.bLabo | typeof FieldObjKind.magic
-
-export type Powers = {
-  money: number,
-  pDev: number,
-  bDev: number,
-}
 
 const powersZero = () => ({
   money: 0,
@@ -299,14 +264,6 @@ export namespace CellKind {
   } as { [key in FieldObjKindType]: I }
 }
 
-export type World = {
-  size: { w: number, h: number },
-  buildings: Cell[],
-  duration: number,
-  total: number,
-  powers: Powers,
-}
-
 const touchingLen = (a: Area, b: Area): number => {
   type n4 = [number, number, number, number]
   const x: n4 = [a.x, a.w, b.x, b.w]
@@ -354,6 +311,7 @@ export const emptyWorld = (): World => {
     ],
     duration: 0,
     total: 0,
+    messages: ["操業開始"],
     powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
     // powers: { money: 1e60, pDev: 1e60, bDev: 1e60 } // TODO: fix
   }
@@ -398,6 +356,9 @@ export const progress = (o: World): void => {
   ++o.duration
   o.total += i.money ?? 0
   o.powers = powersAdd(o.powers, i)
+  const msgs = makeMsg(o)
+  o.messages ??= []
+  o.messages.push(...msgs)
 }
 
 const newEmpty = (x: number, y: number): Cell => {

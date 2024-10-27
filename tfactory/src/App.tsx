@@ -1,6 +1,5 @@
 import Field from './Field'
 import './App.css'
-import * as G from "./game2"
 import React from 'react'
 import { useImmer } from 'use-immer';
 import * as Layout from "./layout"
@@ -9,6 +8,7 @@ import { Header } from "./Header"
 import { MessageList } from "./MessageList"
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import * as Mui from "@mui/material";
+import * as G from "./game2"
 
 function App() {
   const [wo, updateWorld] = useImmer(WS.world.value)
@@ -91,7 +91,7 @@ function App() {
       <Header world={wo} op={op} />
       <Field world={wo} updateWorld={updateWorld} />
       <Mui.Box border={3} style={{ flexGrow: 1 }}>
-        <MessageList />
+        <MessageList world={wo} updateWorld={updateWorld} />
       </Mui.Box>
     </Mui.Stack>
   </ThemeProvider>

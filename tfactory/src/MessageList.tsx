@@ -1,15 +1,16 @@
 import * as Mui from "@mui/material";
 import * as Icon from '@mui/icons-material';
-import { useState } from "react";
+import { Updater } from 'use-immer';
+import * as W from "./World"
 
-export function MessageList(): JSX.Element {
-  const [msgs, setMsgs] = useState<string[]>(["hoge", "fuga"])
-  const [curMsg, setCurMsg] = useState<string | null>(null)
-
+export function MessageList(
+  p: { world: W.World, updateWorld: Updater<W.World> }
+): JSX.Element {
+  const msgs = p.world.messages ?? []
   const consumeMessage = () => {
-    setCurMsg(msgs[0])
-    setMsgs(msgs.slice(1))
+    p.updateWorld((w) => { w.messages = w.messages.slice(1) })
   }
+  const curMsg = msgs[0] ?? null
 
   return <Mui.Grid2 container spacing={1} sx={{ p: 1 }}>
     <Mui.Grid2 size="auto">
