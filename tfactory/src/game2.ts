@@ -144,7 +144,6 @@ export namespace CellKind {
         Math.floor(Math.log10(this.buildlevelSrc(p))),
         0, this.maxLevel)
     }
-    abstract get incomeParam(): IncomeParamType
     abstract incomeBase(i: IncomeBaseParamType): number
     abstract isPowerNeibourType(k: FieldObjKindType): boolean
     neibourEffect(w: World, c: Cell): number {
@@ -169,7 +168,7 @@ export namespace CellKind {
 
   class Factory extends StdBuilding {
     get buildCostBase(): number { return 1 }
-    get incomeParam(): IncomeParamType {
+    get(): IncomeParamType {
       return { levBase: 6, start: 100 }
     }
     buildlevelSrc(p: Powers): number {
@@ -191,10 +190,7 @@ export namespace CellKind {
   }
 
   class PLabo extends StdBuilding {
-    get buildCostBase(): number { return 3 }
-    get incomeParam(): IncomeParamType {
-      return { levBase: 50, start: 300 }
-    }
+    get buildCostBase(): number { return 9 }
     buildlevelSrc(p: Powers): number {
       return p.bDev
     }
@@ -214,10 +210,7 @@ export namespace CellKind {
   }
 
   class BLabo extends StdBuilding {
-    get buildCostBase(): number { return 9 }
-    get incomeParam(): IncomeParamType {
-      return { levBase: 100, start: 1000 }
-    }
+    get buildCostBase(): number { return 60 }
     buildlevelSrc(p: Powers): number {
       return p.bDev
     }
@@ -266,7 +259,8 @@ export namespace CellKind {
   }
   class Magic extends Building {
     buildCost(level: number, size: SizeType): number {
-      const c = 10 ** 12 * 100 ** ((level - 1) ** 2) * size
+      const base = 1e20 // 1垓
+      const c = base * 100 ** ((level - 1) ** 2) * size
       return U.didigit(c)
     }
     get kind(): FieldObjKindType {
