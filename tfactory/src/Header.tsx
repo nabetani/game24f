@@ -161,7 +161,7 @@ function Digit(p: { v: number }): JSX.Element {
   if (u == null) {
     return <Mui.Typography key="d">{d}</Mui.Typography>
   }
-  const z = u.length == 1 ? "100%" : "70%"
+  const z = [...u].length == 1 ? "100%" : "70%"
   return <>
     <Mui.Typography key="d">{d}<span style={{
       fontSize: z,

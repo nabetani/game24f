@@ -22,7 +22,7 @@ function DestroyUI(p: {
   cell: G.Cell,
   closer: () => void
 }): JSX.Element {
-  const cost = G.improveCost(p.world, p.cell)
+  const cost = G.destroyCost(p.world, p.cell)
   return <>
     <Mui.Box>
       <Mui.FormControl size="small">

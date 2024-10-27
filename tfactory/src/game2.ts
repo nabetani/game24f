@@ -99,11 +99,6 @@ export namespace CellKind {
     neibourEffect(_w: World, _c: Cell): number { return 1 }
   }
 
-  type IncomeParamType = {
-    levBase: number,
-    start: number,
-  }
-
   type IncomeBaseParamType = { level: number, improve?: number }
 
   abstract class Building implements I {
@@ -113,26 +108,23 @@ export namespace CellKind {
     abstract buildableLevel(_: Powers): number
     abstract buildCost(level: number, size: SizeType): number;
     abstract incomeBase(_: IncomeBaseParamType): number
-    power(q: Quality, areaSize: number): number {
-      return this.incomeBase(q) * areaSize
-    }
-    abstract improveCost(q: Quality, size: SizeType): number
+    abstract improveCost(q: Quality, size: SizeType): number | null
     abstract get destroyCostRatio(): number | null
     abstract neibourEffect(w: World, c: Cell): number
+    abstract power(q: Quality, areaSize: number): number
   }
 
   abstract class StdBuilding extends Building {
     abstract get kind(): FieldObjKindType
-    get maxLevel(): number { return 25 }
+    get maxLevel(): number { return 50 }
     abstract buildlevelSrc(p: Powers): number
     abstract get buildCostBase(): number
     get destroyCostRatio(): number { return 0.1 }
+    power(q: Quality, areaSize: number): number {
+      return this.incomeBase(q) * areaSize
+    }
     buildCost(level: number, size: SizeType): number {
-      // Lv1 1e3 → Lv25:1e50
-      // 2 + 1..25 + 23
-      const relLevel = (level - 1) / (this.maxLevel - 1)
-      const p = 2 + level + relLevel ** 1.5 * 23
-      const c = this.buildCostBase * 10 ** p * size ** 2
+      const c = this.buildCostBase * 10 ** (level + 2) * size ** 2
       return U.didigit(c)
     }
     improveCost(q: Quality, size: SizeType): number {
@@ -144,23 +136,28 @@ export namespace CellKind {
         Math.floor(Math.log10(this.buildlevelSrc(p))),
         0, this.maxLevel)
     }
+    improve(i: IncomeBaseParamType): number {
+      return 1 + (i.improve ?? 0) ** 0.8 / 10
+    }
     abstract incomeBase(i: IncomeBaseParamType): number
     abstract isPowerNeibourType(k: FieldObjKindType): boolean
     neibourEffect(w: World, c: Cell): number {
       let e = 1
-      let m: Quality[] = []
+      let m: Cell[] = []
       eachNeibours(w, c.area, (b, tLen) => {
         const dl = b.q.level - c.q.level
         if (this.isPowerNeibourType(b.kind) && 0 <= dl) {
           e += 0.5 * tLen * (dl + 1)
         }
         if (b.kind == FieldObjKind.magic) {
-          m.push(b.q)
+          m.push(b)
         }
       })
       return e * ((): number => {
         if (m.length == 0) { return 1 }
-        if (m.length == 1) { return 100 ** m[0].level }
+        if (m.length == 1) {
+          return magic.incomeBase({ level: m[0].q.level }) * magic.neibourEffect(w, m[0])
+        }
         return 1e-3
       })()
     }
@@ -168,9 +165,6 @@ export namespace CellKind {
 
   class Factory extends StdBuilding {
     get buildCostBase(): number { return 1 }
-    get(): IncomeParamType {
-      return { levBase: 6, start: 100 }
-    }
     buildlevelSrc(p: Powers): number {
       return p.pDev
     }
@@ -181,11 +175,8 @@ export namespace CellKind {
       return k === FieldObjKind.pLabo
     }
     incomeBase(i: IncomeBaseParamType): number {
-      // Lv1:1e2 → Lv25:1e40
-      // 1 + 1...25 + 0...14
-      const rel = (i.level - 1) / (this.maxLevel - 1)
-      const p = 1 + i.level + rel ** 1.5 * 14
-      return 10 ** p * (1 + (i.improve ?? 0) ** 0.8)
+      // build cost: this.buildCostBase * 10 ** (level + 2)
+      return U.qdigit(100 * 7 ** (i.level - 1) * this.improve(i))
     }
   }
 
@@ -201,11 +192,7 @@ export namespace CellKind {
       return k === FieldObjKind.bLabo
     }
     incomeBase(i: IncomeBaseParamType): number {
-      // Lv1:1e2 → Lv25:1e20
-      // 1 + 1...12.5 + 0...7
-      const rel = (i.level - 1) / (this.maxLevel - 1)
-      const p = 1 + i.level + rel ** 1.5 * 7
-      return 10 ** p * (1 + (i.improve ?? 0) ** 0.8)
+      return U.qdigit(20 * 7 ** (i.level - 1) * this.improve(i))
     }
   }
 
@@ -219,11 +206,7 @@ export namespace CellKind {
     }
     isPowerNeibourType(_k: FieldObjKindType): boolean { return false }
     incomeBase(i: IncomeBaseParamType): number {
-      // Lv1:1e2 → Lv25:1e20
-      // 1 + 1...12.5 + 0...7
-      const rel = (i.level - 1) / (this.maxLevel - 1)
-      const p = 1 + i.level + rel ** 1.5 * 7
-      return 10 ** p * (1 + (i.improve ?? 0) ** 0.8)
+      return U.qdigit(4 * 7 ** (i.level - 1) * this.improve(i))
     }
   }
 
@@ -232,8 +215,11 @@ export namespace CellKind {
     get kind(): FieldObjKindType {
       return FieldObjKind.house
     }
-    improveCost(_q: Quality, _size: SizeType): number {
-      return this.incomeBase({ level: 1, improve: 0 })
+    improveCost(q: Quality, _size: SizeType): number {
+      return U.didigit(100 * 2 ** (q.improve ?? 0))
+    }
+    power(q: Quality, _areaSize: number): number {
+      return this.incomeBase(q)
     }
     get maxLevel(): number { return 1 }
     get destroyCostRatio(): null { return null }
@@ -258,30 +244,42 @@ export namespace CellKind {
 
   }
   class Magic extends Building {
+    power(q: Quality, _areaSize: number): number {
+      return this.incomeBase(q)
+    }
     buildCost(level: number, size: SizeType): number {
-      const base = 1e20 // 1垓
-      const c = base * 100 ** ((level - 1) ** 2) * size
+      const base = 100e12 // 100兆
+      // lv. 1→10 で、コストが 1e14 → 1e60 (1e46倍）
+      const relLevel = (level - 1) / this.maxLevel
+      const c = size * base * 10 ** (level - 1 + relLevel ** 2 * 37)
       return U.didigit(c)
     }
     get kind(): FieldObjKindType {
       return FieldObjKind.magic
     }
-    get destroyCostRatio(): number { return 1 }
-    get maxLevel(): number { return 5 }
+    get destroyCostRatio(): number { return 10 }
+    get maxLevel(): number { return 10 }
     buildableLevel(p: Powers): number {
       const m = buildLevel(Math.min(p.bDev, p.pDev))
-      return U.clamp(Math.floor((m - 8) / 2), 0, this.maxLevel)
+      // Lv.10 で 1 がビルド可能。そこから5ごとに増える
+      const b = 1 + Math.floor((m - 10) / 5)
+      console.log({ b: b, m: m, p: p })
+      return U.clamp(b, 0, this.maxLevel)
     }
-    improveCost(q: Quality, size: SizeType): number {
-      const b = this.buildCost(q.level, size)
-      return b / 10
+    improveCost(_q: Quality, _size: SizeType): null {
+      return null
     }
-    incomeBase(_: IncomeBaseParamType): number {
-      return 0
+    incomeBase(i: IncomeBaseParamType): number {
+      return 20 * 5 ** (i.level - 1)
     }
     neibourEffect(w: World, c: Cell): number {
-      // TODO: implement me
-      return 1
+      let e = 0
+      eachNeibours(w, c.area, (b, tLen) => {
+        if (b.kind == FieldObjKind.house) {
+          e += tLen * b.q.improve
+        }
+      })
+      return U.didigit((1 + e / 5) ** 0.8 * 10) / 10
     }
   }
 
@@ -356,8 +354,8 @@ export const emptyWorld = (): World => {
     ],
     duration: 0,
     total: 0,
-    powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
-    // powers: { money: 1e30, pDev: 9e14, bDev: 9e14 } // TODO: fix
+    // powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
+    powers: { money: 1e60, pDev: 1e60, bDev: 1e60 } // TODO: fix
   }
 }
 
@@ -453,6 +451,14 @@ export const destroy = (w: World, c: Cell): void => {
     const q = b.area
     return !(p.x == q.x && p.y == q.y)
   })
+}
+
+export const destroyCost = (_wo: World, c: Cell): number | null => {
+  const k = CellKind.o[c.kind]
+  const r = k.destroyCostRatio
+  if (r == null) { return null }
+  const cost = k.buildCost(c.q.level, c.area.h as SizeType)
+  return cost * r
 }
 
 export const improveCost = (_wo: World, c: Cell): number | null => {
