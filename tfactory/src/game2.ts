@@ -213,10 +213,10 @@ export namespace CellKind {
       return this.incomeBase(q)
     }
     buildCost(level: number, size: SizeType): number {
-      const base = 100e12 // 100兆
-      // lv. 1→10 で、コストが 1e14 → 1e60 (1e46倍）
-      const relLevel = (level - 1) / this.maxLevel
-      const c = size * base * 10 ** (level - 1 + relLevel ** 2 * 37)
+      const base = 1000e12 // 1000兆
+      // lv. 1→10 で、コストが 1e14 → 1e64 (1e50倍）
+      const relLevel = (level - 1) / (this.maxLevel - 1)
+      const c = size * base * 10 ** (relLevel * 50)
       return U.didigit(c)
     }
     get kind(): FieldObjKindType {
