@@ -141,7 +141,7 @@ export namespace CellKind {
     }
     incomeBase(i: IncomeBaseParamType): number {
       // build cost: this.buildCostBase * 10 ** (level + 2)
-      return U.qdigit(100 * 7 ** (i.level - 1) * this.improve(i))
+      return U.qdigit(100 * 6 ** (i.level - 1) * this.improve(i))
     }
   }
 
@@ -157,7 +157,7 @@ export namespace CellKind {
       return k === FieldObjKind.bLabo
     }
     incomeBase(i: IncomeBaseParamType): number {
-      return U.qdigit(20 * 7 ** (i.level - 1) * this.improve(i))
+      return U.qdigit(20 * 6 ** (i.level - 1) * this.improve(i))
     }
   }
 
@@ -171,7 +171,7 @@ export namespace CellKind {
     }
     isPowerNeibourType(_k: FieldObjKindType): boolean { return false }
     incomeBase(i: IncomeBaseParamType): number {
-      return U.qdigit(4 * 7 ** (i.level - 1) * this.improve(i))
+      return U.qdigit(4 * 6 ** (i.level - 1) * this.improve(i))
     }
   }
 
@@ -222,7 +222,7 @@ export namespace CellKind {
     get kind(): FieldObjKindType {
       return FieldObjKind.magic
     }
-    get destroyCostRatio(): number { return 10 }
+    get destroyCostRatio(): number { return 100 }
     get maxLevel(): number { return 10 }
     buildableLevel(p: Powers): number {
       const m = buildLevel(Math.min(p.bDev, p.pDev))
