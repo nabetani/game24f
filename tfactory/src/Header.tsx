@@ -6,6 +6,7 @@ import * as Mui from "@mui/material";
 import * as Icon from '@mui/icons-material';
 import * as MuiL from "@mui/lab";
 import React from 'react'
+import * as W from "./World"
 
 const mtab = {
   usage: "mtab-usage",
@@ -47,45 +48,73 @@ function ResetUI(p: {
 
 function UsageUI(p: {
   op: (cmd: string) => void,
+  world: W.World,
   closer: () => void,
 }): JSX.Element {
   const T = Mui.Typography
-
   return <>
     <T>
       タイツを作るゲームです。ゴールはありません。<br />
-      建物は4種類あります。</T>
+      建物は5種類あり、特徴は以下の通りです。</T>
     <Mui.Divider />
-    <Mui.Stack direction="row" display="flex" alignItems="center">
+    <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
       <Icon.Home /> <T>自宅 兼 工場</T></Mui.Stack>
     <Mui.Box sx={{ pl: 4 }}><T>
       • タイツを製造する<br />
       • 建築も撤去もできない
+      {G.canBuildMagic(p.world) ? <>
+        <br />• 隣接する魔術研の能力を上げる
+      </> : <></>}
     </T></Mui.Box>
     <Mui.Divider />
 
-    <Mui.Stack direction="row" display="flex" alignItems="center">
+    <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
       <Icon.Factory /><T>工場</T></Mui.Stack>
     <Mui.Box sx={{ pl: 4 }}><T>
       • タイツを製造する<br />
-      • 建築可能レベルは「生産技術」で決まる</T>
+      • 建築可能レベルは「生産技術」で決まる
+      {G.canBuildMagic(p.world) ? <>
+        <br />• 隣接する魔術研が一個だと能力が上がり、複数だと能力が下がる
+      </> : <></>}
+    </T>
     </Mui.Box>
     <Mui.Divider />
-    <Mui.Stack direction="row" display="flex" alignItems="center">
+    <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
       <Icon.Settings /><T>生産技研</T></Mui.Stack>
     <Mui.Box sx={{ pl: 4 }}><T>
       • 生産技術を上げる<br />
       • 建築可能レベルは「基礎技術」で決まる<br />
-      • 隣接する工場などの能力を上げることがある</T>
+      • 隣接する工場などの能力を上げることがある
+      {G.canBuildMagic(p.world) ? <>
+        <br />• 隣接する魔術研が一個だと能力が上がり、複数だと能力が下がる
+      </> : <></>}</T>
     </Mui.Box>
     <Mui.Divider />
-    <Mui.Stack direction="row" display="flex" alignItems="center">
+    <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
       <Icon.Science /><T> 基礎研</T></Mui.Stack>
     <Mui.Box sx={{ pl: 4 }}><T>
       • 基礎技術を上げる<br />
       • 建築可能レベルは「基礎技術」で決まる<br />
-      • 隣接する生産技研の能力を上げることがある</T>
+      • 隣接する生産技研の能力を上げることがある
+      {G.canBuildMagic(p.world) ? <>
+        <br />• 隣接する魔術研が一個だと能力が上がり、複数だと能力が下がる
+      </> : <></>}</T>
     </Mui.Box>
+    <Mui.Divider />
+    {G.canBuildMagic(p.world) ? <>
+      <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
+        <Icon.AutoFixHigh /><T>魔術研</T></Mui.Stack>
+      <Mui.Box sx={{ pl: 4 }}><T>
+        • 何も生産せず、隣接する施設に影響を与える
+        <br />• 強化できない
+        <br />• 撤去費用が膨大
+      </T>
+      </Mui.Box>
+    </> : <>
+      <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
+        <Icon.Help /><T> ???</T></Mui.Stack>
+    </>}
+
     <Mui.Divider />
     <T>できること</T>
     <Mui.Box sx={{ pl: 2 }}><T>
@@ -98,6 +127,7 @@ function UsageUI(p: {
 
 function RootMenuUI(p: {
   op: (cmd: string) => void,
+  world: W.World,
   closer: () => void,
 }): JSX.Element {
   const [value, setValue] = React.useState<string>(mtab.usage);
@@ -115,7 +145,7 @@ function RootMenuUI(p: {
         </MuiL.TabList>
       </Mui.Box>
       <MuiL.TabPanel value={mtab.usage}>
-        <UsageUI op={p.op} closer={p.closer} />
+        <UsageUI world={p.world} op={p.op} closer={p.closer} />
       </MuiL.TabPanel>
       <MuiL.TabPanel value={mtab.general}>
         <GeneralUI op={p.op} closer={p.closer} />
@@ -129,6 +159,7 @@ function RootMenuUI(p: {
 
 function MenuButton(p: {
   op: (cmd: string) => void,
+  world: W.World
 }): JSX.Element {
   const [anchor, setAnchor] = React.useState<HTMLElement | null | undefined>(null);
   const open = Boolean(anchor);
@@ -152,7 +183,7 @@ function MenuButton(p: {
         vertical: 'bottom',
         horizontal: 'left',
       }}>
-      <RootMenuUI op={p.op} closer={handleClose} /></Mui.Popover></>
+      <RootMenuUI op={p.op} world={p.world} closer={handleClose} /></Mui.Popover></>
 }
 
 function Digit(p: { v: number }): JSX.Element {
@@ -171,7 +202,7 @@ function Digit(p: { v: number }): JSX.Element {
 }
 
 function HeaderStatus(p: {
-  world: G.World,
+  world: W.World,
   op: (cmd: string) => void,
 }): JSX.Element {
   const r0 = { name: "保有", v: p.world.powers }
@@ -193,7 +224,7 @@ function HeaderStatus(p: {
           <Mui.TableHead>
             <Mui.TableRow>
               <Mui.TableCell sx={cellStyle} >
-                <MenuButton op={p.op} />
+                <MenuButton op={p.op} world={p.world} />
               </Mui.TableCell>
               <Mui.TableCell sx={cellStyle} >タイツ</Mui.TableCell>
               <Mui.TableCell sx={cellStyle} >生産技術</Mui.TableCell>
@@ -236,7 +267,7 @@ function HeaderStatus(p: {
 }
 
 export function Header(p: {
-  world: G.World,
+  world: W.World,
   op: (cmd: string) => void,
 }): JSX.Element {
   return <>

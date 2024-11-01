@@ -471,7 +471,7 @@ export const canBuildAt = (_: World, c: Cell): boolean => (
   c.kind == FieldObjKind.none
 )
 
-const canBuildMagic = (wo: World): boolean => {
+export const canBuildMagic = (wo: World): boolean => {
   const m = CellKind.magic
   return 0 < m.buildableLevel(wo.powers)
 }
