@@ -294,8 +294,8 @@ function fieldObjArea(area: W.Area, wo: W.World): W.Area {
   const c = Layout.fieldWH()
   const wsize = wo.size
 
-  const xsize = c.w / (wsize.w + 1)
-  const xgap = (c.w - xsize * wsize.w) / (wsize.w + 1)
+  const xsize = c.w / (wsize.w + 0.2)
+  const xgap = (c.w - xsize * wsize.w) / (wsize.w + 0.2)
   const xstep = xsize + xgap
   const width = area.w * xstep - xgap
 
