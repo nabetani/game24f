@@ -70,6 +70,6 @@ export function makeMsg(wo: W.World): string[] {
   pushDef(r, dmsgs.get(wo.duration))
   pushDef(r, powerTen(wo))
   pushDef(r, tmsg(wo))
-  console.log({ wo: wo, r: r })
+  // console.log({ wo: wo, r: r })
   return r
 }

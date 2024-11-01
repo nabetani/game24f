@@ -9,6 +9,7 @@ import { MessageList } from "./MessageList"
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import * as Mui from "@mui/material";
 import * as G from "./game2"
+import * as W from "./World"
 
 function App() {
   const [wo, updateWorld] = useImmer(WS.world.value)
@@ -70,13 +71,14 @@ function App() {
   const op = (cmd: string): void => {
     switch (cmd) {
       case "reset":
-        updateWorld(w => {
+        updateWorld((w: W.World) => {
           const e = G.emptyWorld()
           w.buildings = e.buildings
           w.duration = e.duration
           w.powers = e.powers
           w.total = e.total
           w.size = e.size
+          w.messages = []
         })
     }
   }

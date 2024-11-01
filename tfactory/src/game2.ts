@@ -372,8 +372,6 @@ export const progress = (o: World): void => {
   o.total += i.money ?? 0
   o.powers = powersAdd(o.powers, i)
   const msgs = makeMsg(o)
-  console.log({ o: o, msgs: msgs })
-  o.messages ??= []
   o.messages.push(...msgs)
 }
 
