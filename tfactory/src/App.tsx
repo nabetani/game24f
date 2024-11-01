@@ -32,6 +32,12 @@ function App() {
     cssVariables: true,
     spacing: u * 10,
     components: {
+      MuiButtonBase: {
+        defaultProps: {
+          disableRipple: true,
+          disableTouchRipple: true,
+        }
+      },
       MuiRadio: {
         defaultProps: {
           size: "small",
