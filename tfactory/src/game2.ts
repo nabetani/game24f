@@ -68,8 +68,8 @@ export namespace CellKind {
 
   abstract class Building implements I {
     abstract get maxLevel(): number
+    abstract get canImprove(): boolean
     abstract get kind(): FieldObjKindType
-    get canImprove(): boolean { return true }
     abstract buildableLevel(_: Powers): number
     abstract buildCost(level: number, size: SizeType): number;
     abstract incomeBase(_: IncomeBaseParamType): number
@@ -80,6 +80,7 @@ export namespace CellKind {
   }
 
   abstract class StdBuilding extends Building {
+    get canImprove(): boolean { return true }
     abstract get kind(): FieldObjKindType
     get maxLevel(): number { return 50 }
     abstract buildlevelSrc(p: Powers): number
@@ -176,6 +177,7 @@ export namespace CellKind {
   }
 
   class House extends Building {
+    get canImprove(): boolean { return true }
     buildCost(_1: number, _2: SizeType): number { return 0 }
     get kind(): FieldObjKindType {
       return FieldObjKind.house
@@ -209,6 +211,7 @@ export namespace CellKind {
 
   }
   class Magic extends Building {
+    get canImprove(): boolean { return false }
     power(q: Quality, _areaSize: number): number {
       return this.incomeBase(q)
     }
