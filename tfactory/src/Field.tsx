@@ -312,6 +312,53 @@ function fieldObjArea(area: W.Area, wo: W.World): W.Area {
   }
 }
 
+function CellDecoF(p: { w: number, h: number, power: number | undefined }): JSX.Element {
+  const d = [
+    "M 10,10",
+    "v 80",
+    "h 16",
+    "v -50",
+    "h 16",
+    "v 50",
+    "h 16",
+    "v -80",
+  ].join(" ")
+  const dur = 0.1 + 40 / (Math.log10(Math.max(10, p.power ?? 10)))
+  return <svg style={{
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: p.w,
+    height: p.h,
+  }} version="1.1"
+    viewBox="-55 -5 105 105"
+    width={p.w} height={p.h}
+    xmlns="http://www.w3.org/2000/svg">
+    <g fill="white" stroke="none" opacity={0.2}>
+      <path d={d} id="t">
+        <animateTransform
+          attributeName="transform"
+          attributeType="XML"
+          type="rotate"
+          from="0 34 45"
+          to="360 34 45"
+          dur={`${dur}s`}
+          repeatCount="indefinite" />
+      </path>
+    </g>
+  </svg>
+}
+
+function CellDeco(p: { cell: World.Cell, w: number, h: number, power: number | undefined }): JSX.Element {
+  switch (p.cell.kind) {
+    case W.FieldObjKind.factory:
+      return <CellDecoF w={p.w} h={p.h} power={p.power} />
+    default:
+      return <></>
+  }
+}
+
+
 function FieldObj(p: { world: W.World, updateWorld: Updater<W.World>, cell: W.Cell }): JSX.Element {
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null | undefined>(null);
   const fo = p.cell
@@ -325,10 +372,6 @@ function FieldObj(p: { world: W.World, updateWorld: Updater<W.World>, cell: W.Ce
     position: "absolute",
     left: foa.x,
     top: foa.y,
-    minWidth: foa.w,
-    maxWidth: foa.w,
-    minHeight: foa.h,
-    maxHeight: foa.h,
     overflow: "hidden",
     margin: 0,
     padding: 0,
@@ -337,7 +380,7 @@ function FieldObj(p: { world: W.World, updateWorld: Updater<W.World>, cell: W.Ce
     [World.FieldObjKind.none, "#eee"],
     [World.FieldObjKind.bLabo, "oklch(0.5 0.4 240)"],
     [World.FieldObjKind.pLabo, "oklch(0.4 0.4 150)"],
-    [World.FieldObjKind.factory, "oklch(0.3 0.4 110)"],
+    [World.FieldObjKind.factory, "oklch(0.45 0.4 100)"],
     [World.FieldObjKind.magic, "#000"],
     [World.FieldObjKind.house, "oklch(0.2 0.4 10)"],
   ]).get(fo.kind)
@@ -351,14 +394,14 @@ function FieldObj(p: { world: W.World, updateWorld: Updater<W.World>, cell: W.Ce
   const open = Boolean(anchorEl);
   const id = open ? `simple-popover-${U.XY.fromXY(fo.area).toNum()}` : undefined;
   const cond = G.condition(p.world, p.cell)
-  const pline = (x: number | undefined) => {
+  const pline = (prefix: string, x: number | undefined) => {
     if (x == null) { return <></> }
     const regexp = /^((?:\-)?\d+)(\.\d+)?(\D+)?$/g;
     const m = [...U.numText(x).matchAll(regexp)];
     const [_, ms, ls, u] = (m || [])[0]
     return <Mui.Box alignSelf={"center"}>
       <Mui.Stack direction={"row"} alignItems={"baseline"}>
-        <Mui.Typography fontSize={fontSize}>{ms}</Mui.Typography>
+        <Mui.Typography fontSize={fontSize}>{prefix}{ms}</Mui.Typography>
         {ls ? <Mui.Typography fontSize={smallFontSize}>{ls}</Mui.Typography> : <></>}
         <Mui.Typography fontSize={fontSize}>{u}</Mui.Typography>
       </Mui.Stack ></Mui.Box>
@@ -436,8 +479,9 @@ function FieldObj(p: { world: W.World, updateWorld: Updater<W.World>, cell: W.Ce
       variant="contained"
       onClick={handleClick}>
       {icon}
+      <CellDeco cell={fo} w={foa.w} h={foa.h} power={cond.power} />
       <Mui.Stack>
-        {pline(cond.power)}
+        {pline((fo.kind == World.FieldObjKind.magic ? "× " : ""), cond.power)}
         {sline(cond.level, cond.improve)}
       </Mui.Stack>
     </Mui.Button>
