@@ -157,6 +157,39 @@ function RootMenuUI(p: {
   </>
 }
 
+function IconMenu(): JSX.Element {
+  const w = 22
+  const h = w
+  const b0 = [
+    `M 100,30`,
+    `A 30,30 0 0 0 70,0`,
+    `L 30,0`,
+    `A 30,30 90 0 0 0,30`,
+  ].join(" ")
+  const b1 = [
+    `M 0,80`,
+    `A 20,20 180 0 0 20,100`,
+    `L 80,100`,
+    `A 20,20 270 0 0 100,80`,
+  ].join(" ")
+  function P({ y, h, col }: { y: number, h: number, col: string }): JSX.Element {
+    return <g fill={col}>
+      <rect x={0} y={y} width={100} height={h} />
+    </g>
+  }
+  return <svg version="1.1"
+    viewBox="-10 -20 120 140"
+    width={w} height={h}
+    xmlns="http://www.w3.org/2000/svg">
+    <g fill="#CD9F64"><path d={b0} /></g>
+    <g fill="#E2B883"><path d={b1} /></g>
+    <P y={32} h={10} col="#A5D800" />
+    <P y={44} h={10} col="red" />
+    <P y={56} h={5} col="yellow" />
+    <P y={63} h={15} col="#AA5600" />
+  </svg>
+}
+
 function MenuButton(p: {
   op: (cmd: string) => void,
   world: W.World
@@ -172,7 +205,7 @@ function MenuButton(p: {
   const id = "rootmenu"
 
   return <><Mui.Button variant='contained' onClick={handleClick}>
-    <Icon.Menu />
+    <IconMenu />
   </Mui.Button>
     <Mui.Popover
       id={id}
