@@ -312,18 +312,20 @@ function fieldObjArea(area: W.Area, wo: W.World): W.Area {
   }
 }
 
+const tightsPath = [
+  "M -24,-40",
+  "v 80",
+  "h 16",
+  "v -50",
+  "h 16",
+  "v 50",
+  "h 16",
+  "v -80",
+].join(" ")
+
 function CellDecoF(p: { w: number, h: number, power: number | undefined }): JSX.Element {
-  const d = [
-    "M 10,10",
-    "v 80",
-    "h 16",
-    "v -50",
-    "h 16",
-    "v 50",
-    "h 16",
-    "v -80",
-  ].join(" ")
   const dur = 0.1 + 40 / (Math.log10(Math.max(10, p.power ?? 10)))
+  const d = tightsPath
   return <svg style={{
     position: "absolute",
     top: 0,
@@ -331,7 +333,7 @@ function CellDecoF(p: { w: number, h: number, power: number | undefined }): JSX.
     width: p.w,
     height: p.h,
   }} version="1.1"
-    viewBox="-55 -5 105 105"
+    viewBox="-100 -55 105 105"
     width={p.w} height={p.h}
     xmlns="http://www.w3.org/2000/svg">
     <g fill="white" stroke="none" opacity={0.2}>
@@ -340,8 +342,70 @@ function CellDecoF(p: { w: number, h: number, power: number | undefined }): JSX.
           attributeName="transform"
           attributeType="XML"
           type="rotate"
-          from="0 34 45"
-          to="360 34 45"
+          from="0 0 0"
+          to="360 0 0"
+          dur={`${dur}s`}
+          repeatCount="indefinite" />
+      </path>
+    </g>
+  </svg>
+}
+
+function CellDecoP(p: { w: number, h: number, power: number | undefined }): JSX.Element {
+  const dur = 0.1 + 40 / (Math.log10(Math.max(10, p.power ?? 10)))
+  const d = tightsPath
+  return <svg style={{
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: p.w,
+    height: p.h,
+  }} version="1.1"
+    viewBox="-100 -55 105 105"
+    width={p.w} height={p.h}
+    xmlns="http://www.w3.org/2000/svg">
+    <g fill="white" stroke="none" opacity={0.2}>
+      <path d={d} id="t">
+        <animateTransform
+          attributeName="transform"
+          attributeType="XML"
+          type="scale"
+          values="0.5;1;0.5"
+          dur={`${dur}s`}
+          repeatCount="indefinite" />
+      </path>
+    </g>
+  </svg>
+}
+
+function CellDecoB(p: { w: number, h: number, power: number | undefined }): JSX.Element {
+  const dur = 0.1 + 40 / (Math.log10(Math.max(10, p.power ?? 10)))
+  const d = tightsPath
+  const values = [...Array(30)].map((_, i) => 1.2 ** (i - 14)).join(";")
+  return <svg style={{
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: p.w,
+    height: p.h,
+  }} version="1.1"
+    viewBox="-100 -55 105 105"
+    width={p.w} height={p.h}
+    xmlns="http://www.w3.org/2000/svg">
+    <g fill="white" stroke="none" opacity={0.2}>
+      <animateTransform
+        attributeName="transform"
+        attributeType="XML"
+        type="rotate"
+        values="0;360"
+        dur={`${dur / 2}s`}
+        repeatCount="indefinite" />
+      <path d={d} id="t">
+        <animateTransform
+          attributeName="transform"
+          attributeType="XML"
+          type="scale"
+          values={values}
           dur={`${dur}s`}
           repeatCount="indefinite" />
       </path>
@@ -353,6 +417,10 @@ function CellDeco(p: { cell: World.Cell, w: number, h: number, power: number | u
   switch (p.cell.kind) {
     case W.FieldObjKind.factory:
       return <CellDecoF w={p.w} h={p.h} power={p.power} />
+    case W.FieldObjKind.pLabo:
+      return <CellDecoP w={p.w} h={p.h} power={p.power} />
+    case W.FieldObjKind.bLabo:
+      return <CellDecoB w={p.w} h={p.h} power={p.power} />
     default:
       return <></>
   }
