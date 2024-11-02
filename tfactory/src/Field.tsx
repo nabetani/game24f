@@ -353,6 +353,29 @@ function CellDecoF(p: { w: number, h: number, power: number | undefined }): JSX.
 
 function CellDecoP(p: { w: number, h: number, power: number | undefined }): JSX.Element {
   const dur = 0.1 + 40 / (Math.log10(Math.max(10, p.power ?? 10)))
+
+  function T({ r }: { r: number }): JSX.Element {
+    return <g fill="white" stroke="none" opacity={0.2}>
+      <animateTransform
+        attributeName="transform"
+        attributeType="XML"
+        type="translate"
+        values={`-100,-200;100,200`}
+        begin={`${-r * dur}s`}
+        dur={`${dur}s`}
+        offset={`${dur * r}s`}
+        repeatCount="indefinite" />
+      <path d={d} id="t">
+        <animateTransform
+          attributeName="transform"
+          attributeType="XML"
+          type="rotate"
+          values="0;360"
+          dur={`${dur / 2}s`}
+          repeatCount="indefinite" />
+      </path>
+    </g>
+  }
   const d = tightsPath
   return <svg style={{
     position: "absolute",
@@ -364,13 +387,40 @@ function CellDecoP(p: { w: number, h: number, power: number | undefined }): JSX.
     viewBox="-100 -55 105 105"
     width={p.w} height={p.h}
     xmlns="http://www.w3.org/2000/svg">
+    <T r={0} />
+    <T r={1 / 3} />
+    <T r={2 / 3} />
+  </svg>
+}
+
+function CellDecoB(p: { w: number, h: number, power: number | undefined }): JSX.Element {
+  const dur = 0.1 + 40 / (Math.log10(Math.max(10, p.power ?? 10)))
+  const d = tightsPath
+  const values = [...Array(30)].map((_, i) => 1.2 ** (i - 14)).join(";")
+  return <svg style={{
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: p.w,
+    height: p.h,
+  }} version="1.1"
+    viewBox="-100 -55 105 105"
+    width={p.w} height={p.h}
+    xmlns="http://www.w3.org/2000/svg">
     <g fill="white" stroke="none" opacity={0.2}>
+      <animateTransform
+        attributeName="transform"
+        attributeType="XML"
+        type="rotate"
+        values="0;360"
+        dur={`${dur / 2}s`}
+        repeatCount="indefinite" />
       <path d={d} id="t">
         <animateTransform
           attributeName="transform"
           attributeType="XML"
           type="scale"
-          values="0.5;1;0.5"
+          values={values}
           dur={`${dur}s`}
           repeatCount="indefinite" />
       </path>
@@ -378,7 +428,7 @@ function CellDecoP(p: { w: number, h: number, power: number | undefined }): JSX.
   </svg>
 }
 
-function CellDecoB(p: { w: number, h: number, power: number | undefined }): JSX.Element {
+function CellDecoM(p: { w: number, h: number, power: number | undefined }): JSX.Element {
   const dur = 0.1 + 40 / (Math.log10(Math.max(10, p.power ?? 10)))
   const d = tightsPath
   const values = [...Array(30)].map((_, i) => 1.2 ** (i - 14)).join(";")
@@ -421,6 +471,8 @@ function CellDeco(p: { cell: World.Cell, w: number, h: number, power: number | u
       return <CellDecoP w={p.w} h={p.h} power={p.power} />
     case W.FieldObjKind.bLabo:
       return <CellDecoB w={p.w} h={p.h} power={p.power} />
+    case W.FieldObjKind.magic:
+      return <CellDecoM w={p.w} h={p.h} power={p.power} />
     default:
       return <></>
   }
