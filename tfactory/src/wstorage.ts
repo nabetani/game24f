@@ -1,4 +1,5 @@
 import * as G from "./game2"
+import * as W from "./World"
 
 // Array.new(25){[*?a..?z,*?A..?Z,*0..9].sample}.join+"."
 const APP_WS_ID = "2MT97aUqHAiuj6aoxpHvMXhnq."
@@ -35,4 +36,4 @@ class WSItem<T> {
 }
 
 export const soundOn = new WSItem<boolean>("soundOn", false)
-export const world = new WSItem<G.World>("world", G.emptyWorld())
+export const world = new WSItem<W.World>("world", G.emptyWorld())

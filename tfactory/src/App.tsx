@@ -1,6 +1,7 @@
+import * as Icon from '@mui/icons-material';
 import Field from './Field'
 import './App.css'
-import React from 'react'
+import React, { useState } from 'react'
 import { useImmer } from 'use-immer';
 import * as Layout from "./layout"
 import * as WS from "./wstorage";
@@ -11,8 +12,37 @@ import * as Mui from "@mui/material";
 import * as G from "./game2"
 import * as W from "./World"
 
+function Tutorial({ closer }: { closer: () => void }): JSX.Element {
+
+  const lines = [
+    "グレーのマスをクリックすると各種建物を建築できます。",
+    "建物をクリックすると、情報確認 などができます。",
+    "各種建物の特徴などを知りたい場合は、左上のハンバーガーボタンを押してください。",
+    "設定変更や ゲームのリセットも 左上のハンバーガーボタンから行うことができます。",
+  ]
+
+  return <>
+    <Mui.DialogTitle>操作方法</Mui.DialogTitle>
+    <Mui.IconButton
+      sx={{
+        position: 'absolute',
+        right: 8,
+        top: 8,
+      }}
+      onClick={() => closer()}
+    ><Icon.Close /></Mui.IconButton>
+    <Mui.DialogContent dividers>
+      {lines.map((e) => {
+        return <Mui.Typography gutterBottom>• {e}</Mui.Typography>
+      })}
+    </Mui.DialogContent>
+  </>
+}
+
+
 function App() {
   const [wo, updateWorld] = useImmer(WS.world.value)
+  const [showStartUI, setShowStartUI] = useState(W.isInitialWorld(WS.world.value))
 
   React.useEffect(() => {
     let timeoutId = setInterval(() => {
@@ -84,6 +114,9 @@ function App() {
   }
 
   return <ThemeProvider theme={theme}>
+    <Mui.Dialog onClose={() => { setShowStartUI(false) }} open={showStartUI}>
+      <Tutorial closer={() => setShowStartUI(false)} />
+    </Mui.Dialog>
     <Mui.Stack direction="column"
       style={{
         display: 'flex', flexDirection: "column",

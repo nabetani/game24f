@@ -1,3 +1,4 @@
+import { duration } from "@mui/material";
 
 export type World = {
   buildings: Cell[];
@@ -46,3 +47,6 @@ export const FieldObjKind = {
 } as const;
 export type FieldObjKindType = (typeof FieldObjKind)[keyof (typeof FieldObjKind)];
 
+export const isInitialWorld = (w: World): boolean => {
+  return w.buildings.length == 1 && (w.buildings[0]?.q?.improve ?? 0) == 0
+}
