@@ -429,9 +429,10 @@ function CellDecoB(p: { w: number, h: number, power: number | undefined }): JSX.
 }
 
 function CellDecoM(p: { w: number, h: number, power: number | undefined }): JSX.Element {
-  const dur = 0.1 + 40 / (Math.log10(Math.max(10, p.power ?? 10)))
+  const poix = Math.log10(Math.max(10, p.power ?? 10))
+  const dur = 0.1 + 40 / poix
+  const po = Math.ceil(poix ** 0.6 * 3)
   const d = tightsPath
-  const values = [...Array(30)].map((_, i) => 1.2 ** (i - 14)).join(";")
   return <svg style={{
     position: "absolute",
     top: 0,
@@ -439,7 +440,7 @@ function CellDecoM(p: { w: number, h: number, power: number | undefined }): JSX.
     width: p.w,
     height: p.h,
   }} version="1.1"
-    viewBox="-100 -55 105 105"
+    viewBox="-250 -160 320 320"
     width={p.w} height={p.h}
     xmlns="http://www.w3.org/2000/svg">
     <g fill="white" stroke="none" opacity={0.2}>
@@ -448,17 +449,21 @@ function CellDecoM(p: { w: number, h: number, power: number | undefined }): JSX.
         attributeType="XML"
         type="rotate"
         values="0;360"
-        dur={`${dur / 2}s`}
+        dur={`${dur}s`}
         repeatCount="indefinite" />
-      <path d={d} id="t">
-        <animateTransform
-          attributeName="transform"
-          attributeType="XML"
-          type="scale"
-          values={values}
-          dur={`${dur}s`}
-          repeatCount="indefinite" />
-      </path>
+      {[...Array(po)].map((_, i) => i).map((e) =>
+        <g transform={`rotate(${e * 360 / po})`}>
+          <path d={d} id="t">
+            <animateTransform
+              attributeName="transform"
+              attributeType="XML"
+              type="translate"
+              values="0,80;0,120;0,80;0,80;0,80;0,80;0,80"
+              dur={`${dur / (po * 1.4)}s`}
+              begin={`${-e * dur / po}s`}
+              repeatCount="indefinite" />
+          </path>
+        </g>)}
     </g>
   </svg>
 }
