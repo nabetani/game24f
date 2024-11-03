@@ -481,18 +481,34 @@ function CellDecoM(p: { w: number, h: number, cond: G.CondType | undefined }): J
 
 function NeibourEffect(p: { cell: World.Cell, w: number, h: number, cond: G.CondType | undefined }): JSX.Element {
   const vb = `0 0 ${p.w} ${p.h}`
+  const delta = 0.3 * p.h / p.cell.area.h
+  const delta2 = delta / 3
   // const vb = `${-p.w} ${-p.h} ${p.w * 3} ${p.h * 3}`
   function HT(o: { x: number, y: number, dir: 1 | -1, positive: boolean }): JSX.Element {
     const r = p.w / p.cell.area.w
-    const x0 = (o.x) * r
     const x1 = (o.x + 0.5) * r
-    const x2 = (o.x + 1) * r
-    const y0 = o.y * p.h / p.cell.area.h
-    const y1 = y0 - (x0 - x1) * o.dir
+    const x0 = x1 - delta
+    const x2 = x1 + delta
+    const y0 = o.y * p.h / p.cell.area.h + delta2 * o.dir
+    const y1 = y0 + delta * o.dir
     const path = [
       `M ${x0} ${y0}`,
       `L ${x1} ${y1}`,
       `L ${x2} ${y0}`,
+    ].join(" ")
+    return <path d={path} fill={o.positive ? "white" : "black"} />
+  }
+  function VT(o: { x: number, y: number, dir: 1 | -1, positive: boolean }): JSX.Element {
+    const r = p.h / p.cell.area.h
+    const y1 = (o.y + 0.5) * r
+    const y0 = y1 - delta
+    const y2 = y1 + delta
+    const x0 = o.x * p.w / p.cell.area.w + delta2 * o.dir
+    const x1 = x0 + delta * o.dir
+    const path = [
+      `M ${x0} ${y0}`,
+      `L ${x1} ${y1}`,
+      `L ${x0} ${y2}`,
     ].join(" ")
     return <path d={path} fill={o.positive ? "white" : "black"} />
   }
@@ -516,6 +532,14 @@ function NeibourEffect(p: { cell: World.Cell, w: number, h: number, cond: G.Cond
           case "t":
             return [...Array(e.len)].map((_, ix) => {
               return <HT x={e.pos + ix} y={0} dir={1} positive={e.positive} />
+            })
+          case "l":
+            return [...Array(e.len)].map((_, ix) => {
+              return <VT y={e.pos + ix} x={0} dir={1} positive={e.positive} />
+            })
+          case "r":
+            return [...Array(e.len)].map((_, ix) => {
+              return <VT y={e.pos + ix} x={p.cell.area.w} dir={-1} positive={e.positive} />
             })
           default:
             return <></>
