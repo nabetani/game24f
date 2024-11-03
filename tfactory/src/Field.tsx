@@ -323,8 +323,8 @@ const tightsPath = [
   "v -80",
 ].join(" ")
 
-function CellDecoF(p: { w: number, h: number, power: number | undefined }): JSX.Element {
-  const dur = 0.1 + 40 / (Math.log10(Math.max(10, p.power ?? 10)))
+function CellDecoP(p: { w: number, h: number, power: number | undefined }): JSX.Element {
+  const dur = (0.1 + 80 / (Math.log10(Math.max(10, p.power ?? 10))) ** 2)
   const d = tightsPath
   return <svg style={{
     position: "absolute",
@@ -351,8 +351,8 @@ function CellDecoF(p: { w: number, h: number, power: number | undefined }): JSX.
   </svg>
 }
 
-function CellDecoP(p: { w: number, h: number, power: number | undefined }): JSX.Element {
-  const dur = 0.1 + 40 / (Math.log10(Math.max(10, p.power ?? 10)))
+function CellDecoF(p: { w: number, h: number, power: number | undefined }): JSX.Element {
+  const dur = 2 * (0.1 + 80 / (Math.log10(Math.max(10, p.power ?? 10))) ** 2)
 
   function T({ r }: { r: number }): JSX.Element {
     return <g fill="white" stroke="none" opacity={0.2}>
@@ -360,7 +360,7 @@ function CellDecoP(p: { w: number, h: number, power: number | undefined }): JSX.
         attributeName="transform"
         attributeType="XML"
         type="translate"
-        values={`-100,-200;100,200`}
+        values={`-100,200;100,-200`}
         begin={`${-r * dur}s`}
         dur={`${dur}s`}
         offset={`${dur * r}s`}
@@ -384,7 +384,7 @@ function CellDecoP(p: { w: number, h: number, power: number | undefined }): JSX.
     width: p.w,
     height: p.h,
   }} version="1.1"
-    viewBox="-100 -55 105 105"
+    viewBox="-80 -55 105 105"
     width={p.w} height={p.h}
     xmlns="http://www.w3.org/2000/svg">
     <T r={0} />
@@ -394,9 +394,21 @@ function CellDecoP(p: { w: number, h: number, power: number | undefined }): JSX.
 }
 
 function CellDecoB(p: { w: number, h: number, power: number | undefined }): JSX.Element {
-  const dur = 0.1 + 40 / (Math.log10(Math.max(10, p.power ?? 10)))
+  const dur = (0.1 + 60 / (Math.log10(Math.max(10, p.power ?? 10))) ** 1.5)
   const d = tightsPath
-  const values = [...Array(30)].map((_, i) => 1.2 ** (i - 14)).join(";")
+  const values = [0, ...Array(30)].map((_, i) => 1.25 ** (i - 14)).join(";")
+  function P({ begin }: { begin: number }): JSX.Element {
+    return <path d={d} id="t">
+      <animateTransform
+        attributeName="transform"
+        attributeType="XML"
+        type="scale"
+        values={values}
+        dur={`${dur}s`}
+        begin={`${-begin * dur}s`}
+        repeatCount="indefinite" />
+    </path>
+  }
   return <svg style={{
     position: "absolute",
     top: 0,
@@ -415,23 +427,16 @@ function CellDecoB(p: { w: number, h: number, power: number | undefined }): JSX.
         values="0;360"
         dur={`${dur / 2}s`}
         repeatCount="indefinite" />
-      <path d={d} id="t">
-        <animateTransform
-          attributeName="transform"
-          attributeType="XML"
-          type="scale"
-          values={values}
-          dur={`${dur}s`}
-          repeatCount="indefinite" />
-      </path>
+      <P begin={0} />
+      <P begin={0.5} />
     </g>
   </svg>
 }
 
 function CellDecoM(p: { w: number, h: number, power: number | undefined }): JSX.Element {
-  const poix = Math.log10(Math.max(10, p.power ?? 10))
-  const dur = 0.1 + 40 / poix
-  const po = Math.ceil(poix ** 0.6 * 3)
+  const dur = 0.1 + 40 / (Math.log10(Math.max(10, p.power ?? 10))) ** 1.5
+  const tcount = 7
+  const dur1 = dur * Math.SQRT1_2 / tcount
   const d = tightsPath
   return <svg style={{
     position: "absolute",
@@ -451,16 +456,16 @@ function CellDecoM(p: { w: number, h: number, power: number | undefined }): JSX.
         values="0;360"
         dur={`${dur}s`}
         repeatCount="indefinite" />
-      {[...Array(po)].map((_, i) => i).map((e) =>
-        <g transform={`rotate(${e * 360 / po})`}>
+      {[...Array(tcount)].map((_, i) => i).map((e) =>
+        <g transform={`rotate(${e * 360 / tcount})`}>
           <path d={d} id="t">
             <animateTransform
               attributeName="transform"
               attributeType="XML"
               type="translate"
               values="0,80;0,120;0,80;0,80;0,80;0,80;0,80"
-              dur={`${dur / (po * 1.4)}s`}
-              begin={`${-e * dur / po}s`}
+              dur={`${dur1}s`}
+              begin={`${-e * dur / tcount}s`}
               repeatCount="indefinite" />
           </path>
         </g>)}
