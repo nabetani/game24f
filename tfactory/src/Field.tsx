@@ -583,7 +583,7 @@ function FieldObj(p: { world: W.World, updateWorld: Updater<W.World>, cell: W.Ce
       case World.FieldObjKind.bLabo:
         return <Icon.Science sx={iconStyle} />
       case World.FieldObjKind.magic:
-        return <Icon.OpenWith sx={iconStyle} />
+        return <Icon.AutoFixHigh sx={iconStyle} />
       case World.FieldObjKind.house:
         return <Icon.Home sx={iconStyle} />
       default:
