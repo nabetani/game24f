@@ -532,11 +532,11 @@ function CellDeco(p: { cell: World.Cell, w: number, h: number, cond: G.CondType 
     case W.FieldObjKind.factory:
       return <>{nef}<CellDecoF w={p.w} h={p.h} cond={p.cond} /></>
     case W.FieldObjKind.pLabo:
-      return <CellDecoP w={p.w} h={p.h} cond={p.cond} />
+      return <>{nef}<CellDecoP w={p.w} h={p.h} cond={p.cond} /></>
     case W.FieldObjKind.bLabo:
-      return <CellDecoB w={p.w} h={p.h} cond={p.cond} />
+      return <>{nef}<CellDecoB w={p.w} h={p.h} cond={p.cond} /></>
     case W.FieldObjKind.magic:
-      return <CellDecoM w={p.w} h={p.h} cond={p.cond} />
+      return <>{nef}<CellDecoM w={p.w} h={p.h} cond={p.cond} /></>
     default:
       return <></>
   }
