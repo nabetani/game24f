@@ -323,8 +323,9 @@ const tightsPath = [
   "v -80",
 ].join(" ")
 
-function CellDecoP(p: { w: number, h: number, power: number | undefined }): JSX.Element {
-  const dur = (0.1 + 80 / (Math.log10(Math.max(10, p.power ?? 10))) ** 2)
+function CellDecoP(p: { w: number, h: number, cond: G.CondType | undefined }): JSX.Element {
+  const power = p.cond?.power ?? 10
+  const dur = (0.1 + 80 / (Math.log10(Math.max(10, power))) ** 2)
   const d = tightsPath
   return <svg style={{
     position: "absolute",
@@ -351,8 +352,9 @@ function CellDecoP(p: { w: number, h: number, power: number | undefined }): JSX.
   </svg>
 }
 
-function CellDecoF(p: { w: number, h: number, power: number | undefined }): JSX.Element {
-  const dur = 2 * (0.1 + 80 / (Math.log10(Math.max(10, p.power ?? 10))) ** 2)
+function CellDecoF(p: { w: number, h: number, cond: G.CondType | undefined }): JSX.Element {
+  const power = p.cond?.power ?? 10
+  const dur = 2 * (0.1 + 80 / (Math.log10(Math.max(10, power))) ** 2)
 
   function T({ r }: { r: number }): JSX.Element {
     return <g fill="white" stroke="none" opacity={0.2}>
@@ -393,8 +395,9 @@ function CellDecoF(p: { w: number, h: number, power: number | undefined }): JSX.
   </svg>
 }
 
-function CellDecoB(p: { w: number, h: number, power: number | undefined }): JSX.Element {
-  const dur = (0.1 + 60 / (Math.log10(Math.max(10, p.power ?? 10))) ** 1.5)
+function CellDecoB(p: { w: number, h: number, cond: G.CondType | undefined }): JSX.Element {
+  const power = p.cond?.power ?? 10
+  const dur = (0.1 + 60 / (Math.log10(Math.max(10, power))) ** 1.5)
   const d = tightsPath
   const values = [0, ...Array(30)].map((_, i) => 1.25 ** (i - 14)).join(";")
   function P({ begin }: { begin: number }): JSX.Element {
@@ -433,9 +436,10 @@ function CellDecoB(p: { w: number, h: number, power: number | undefined }): JSX.
   </svg>
 }
 
-function CellDecoM(p: { w: number, h: number, power: number | undefined }): JSX.Element {
-  const dur = 0.1 + 100 / (Math.log10(Math.max(10, p.power ?? 10))) ** 2.2
-  const rep = Math.round(Math.max(2, 12 - (Math.log10(Math.max(10, p.power ?? 10)))))
+function CellDecoM(p: { w: number, h: number, cond: G.CondType | undefined }): JSX.Element {
+  const power = p.cond?.power ?? 10
+  const dur = 0.1 + 100 / (Math.log10(Math.max(10, power))) ** 2.2
+  const rep = Math.round(Math.max(2, 12 - (Math.log10(Math.max(10, power)))))
   const tcount = 7
   const dur1 = dur * Math.SQRT1_2 / tcount
   const d = tightsPath
@@ -475,16 +479,64 @@ function CellDecoM(p: { w: number, h: number, power: number | undefined }): JSX.
   </svg>
 }
 
-function CellDeco(p: { cell: World.Cell, w: number, h: number, power: number | undefined }): JSX.Element {
+function NeibourEffect(p: { cell: World.Cell, w: number, h: number, cond: G.CondType | undefined }): JSX.Element {
+  const vb = `0 0 ${p.w} ${p.h}`
+  // const vb = `${-p.w} ${-p.h} ${p.w * 3} ${p.h * 3}`
+  function HT(o: { x: number, y: number, dir: 1 | -1, positive: boolean }): JSX.Element {
+    const r = p.w / p.cell.area.w
+    const x0 = (o.x) * r
+    const x1 = (o.x + 0.5) * r
+    const x2 = (o.x + 1) * r
+    const y0 = o.y * p.h / p.cell.area.h
+    const y1 = y0 - (x0 - x1) * o.dir
+    const path = [
+      `M ${x0} ${y0}`,
+      `L ${x1} ${y1}`,
+      `L ${x2} ${y0}`,
+    ].join(" ")
+    return <path d={path} fill={o.positive ? "white" : "black"} />
+  }
+  return <svg style={{
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: p.w,
+    height: p.h,
+  }} version="1.1"
+    viewBox={vb}
+    width={p.w} height={p.h}
+    xmlns="http://www.w3.org/2000/svg">
+    <g stroke="none" opacity={0.5}>
+      {(p.cond?.neibourEffect?.effects ?? []).map(e => {
+        switch (e.dir) {
+          case "b":
+            return [...Array(e.len)].map((_, ix) => {
+              return <HT x={e.pos + ix} y={p.cell.area.h} dir={-1} positive={e.positive} />
+            })
+          case "t":
+            return [...Array(e.len)].map((_, ix) => {
+              return <HT x={e.pos + ix} y={0} dir={1} positive={e.positive} />
+            })
+          default:
+            return <></>
+        }
+      })}
+    </g>
+  </svg>
+
+}
+
+function CellDeco(p: { cell: World.Cell, w: number, h: number, cond: G.CondType | undefined }): JSX.Element {
+  const nef = <NeibourEffect {...p} />
   switch (p.cell.kind) {
     case W.FieldObjKind.factory:
-      return <CellDecoF w={p.w} h={p.h} power={p.power} />
+      return <>{nef}<CellDecoF w={p.w} h={p.h} cond={p.cond} /></>
     case W.FieldObjKind.pLabo:
-      return <CellDecoP w={p.w} h={p.h} power={p.power} />
+      return <CellDecoP w={p.w} h={p.h} cond={p.cond} />
     case W.FieldObjKind.bLabo:
-      return <CellDecoB w={p.w} h={p.h} power={p.power} />
+      return <CellDecoB w={p.w} h={p.h} cond={p.cond} />
     case W.FieldObjKind.magic:
-      return <CellDecoM w={p.w} h={p.h} power={p.power} />
+      return <CellDecoM w={p.w} h={p.h} cond={p.cond} />
     default:
       return <></>
   }
@@ -611,7 +663,7 @@ function FieldObj(p: { world: W.World, updateWorld: Updater<W.World>, cell: W.Ce
         variant="contained"
         onClick={handleClick}>
         {icon}
-        <CellDeco cell={fo} w={foa.w} h={foa.h} power={cond.power} />
+        <CellDeco cell={fo} w={foa.w} h={foa.h} cond={cond} />
         <Mui.Stack>
           {pline((fo.kind == World.FieldObjKind.magic ? "× " : ""), cond.power)}
           {sline(cond.level, cond.improve)}

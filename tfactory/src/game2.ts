@@ -40,7 +40,8 @@ export type BuildParam = {
 }
 
 export type NeibourEffectUnit = {
-  a: Area,
+  dir: "t" | "b" | "r" | "l",
+  pos: number,
   len: number,
   positive: boolean
 }
@@ -129,11 +130,11 @@ export namespace CellKind {
       let e = 1
       let m: Cell[] = []
       const neffects: NeibourEffectUnit[] = []
-      eachNeibours(w, c.area, (b, tLen) => {
+      eachNeibours(w, c.area, (dir, pos, tLen, b) => {
         const dl = b.q.level - c.q.level
         if (this.isPowerNeibourType(b.kind) && 0 <= dl) {
           e += 0.5 * tLen * (dl + 1)
-          neffects.push({ a: b.area, len: tLen, positive: true })
+          neffects.push({ dir: dir, pos: pos, len: tLen, positive: true })
         }
         if (b.kind == FieldObjKind.magic) {
           m.push(b)
@@ -224,10 +225,10 @@ export namespace CellKind {
     neibourEffect(w: World, c: Cell): NeibourEffects {
       const neffects: NeibourEffectUnit[] = []
       let e = 1
-      eachNeibours(w, c.area, (b, tLen) => {
+      eachNeibours(w, c.area, (dir, pos, tLen, b) => {
         const dl = b.q.level - c.q.level
         if (b.kind == FieldObjKind.pLabo && 0 <= dl) {
-          neffects.push({ a: b.area, len: tLen, positive: true })
+          neffects.push({ dir: dir, pos: pos, len: tLen, positive: true })
           e += 0.5 * tLen * (dl + 1)
         }
         return
@@ -269,9 +270,9 @@ export namespace CellKind {
     neibourEffect(w: World, c: Cell): NeibourEffects {
       let e = 0
       const neffects: NeibourEffectUnit[] = []
-      eachNeibours(w, c.area, (b, tLen) => {
+      eachNeibours(w, c.area, (dir, pos, tLen, b) => {
         if (b.kind == FieldObjKind.house) {
-          neffects.push({ a: b.area, len: tLen, positive: true })
+          neffects.push({ dir: dir, pos: pos, len: tLen, positive: true })
           e += tLen * b.q.improve
         }
       })
@@ -298,30 +299,41 @@ export namespace CellKind {
   } as { [key in FieldObjKindType]: I }
 }
 
-const touchingLen = (a: Area, b: Area): number => {
+type TouchDirType = "t" | "b" | "r" | "l"
+
+const touchingLen = (a: Area, b: Area): [TouchDirType, number, number] => {
   type n4 = [number, number, number, number]
   const x: n4 = [a.x, a.w, b.x, b.w]
   const y: n4 = [a.y, a.h, b.y, b.h]
-  const touching = ([x0, w0, x1, w1]: n4): boolean => {
-    return x0 + w0 == x1 || x1 + w1 == x0
-
+  const touching = ([x0, w0, x1, w1]: n4, dir: [TouchDirType, TouchDirType]): false | TouchDirType => {
+    if (x0 + w0 == x1) return dir[0]
+    if (x1 + w1 == x0) return dir[1]
+    return false
   }
-  const overwrap = ([x0, w0, x1, w1]: n4): number => {
+  const overwrap = ([x0, w0, x1, w1]: n4): [number, number] => {
     const r = Math.min(x0 + w0, x1 + w1)
     const l = Math.max(x0, x1)
-    return Math.max(r - l, 0)
+    return [l - x1, Math.max(r - l, 0)]
   }
-  if (touching(x)) return overwrap(y)
-  if (touching(y)) return overwrap(x)
-  return 0
+  const tx = touching(x, ["l", "r"])
+  if (!!tx) {
+    return [tx, ...overwrap(y)]
+  }
+  const ty = touching(y, ["t", "b"])
+  if (!!ty) {
+    return [ty, ...overwrap(x)]
+  }
+  return ["t", 0, 0]
 }
 
-const eachNeibours = (w: World, a: Area, proc: (b: Cell, t: number) => void) => {
+const eachNeibours = (w: World, a: Area, proc: (
+  dir: TouchDirType, x: number, t: number, b: Cell
+) => void) => {
   w.buildings.forEach(b => {
     if (b.construction <= 0) {
-      const t = touchingLen(b.area, a)
+      const [dir, x, t] = touchingLen(b.area, a)
       if (0 < t) {
-        proc(b, t)
+        proc(dir, x, t, b)
       }
     }
   })
