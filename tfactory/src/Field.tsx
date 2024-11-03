@@ -490,7 +490,6 @@ function CellDeco(p: { cell: World.Cell, w: number, h: number, power: number | u
   }
 }
 
-
 function FieldObj(p: { world: W.World, updateWorld: Updater<W.World>, cell: W.Cell }): JSX.Element {
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null | undefined>(null);
   const fo = p.cell
@@ -500,7 +499,7 @@ function FieldObj(p: { world: W.World, updateWorld: Updater<W.World>, cell: W.Ce
   const fontSize = foa.h / 4
   const smallFontSize = fontSize * 0.7
 
-  const s: React.CSSProperties = {
+  const cellCSS: React.CSSProperties = {
     position: "absolute",
     left: foa.x,
     top: foa.y,
@@ -550,7 +549,7 @@ function FieldObj(p: { world: W.World, updateWorld: Updater<W.World>, cell: W.Ce
     const t = Math.PI * 2 * x
     const dx = r * (-Math.sin(t))
     const dy = r * (1 - Math.cos(t))
-    return <div className={"cell"} style={s}>
+    return <div className={"cell"} style={cellCSS}>
       <svg version="1.1"
         width={foa.w} height={foa.h}
         xmlns="http://www.w3.org/2000/svg">
@@ -592,48 +591,49 @@ function FieldObj(p: { world: W.World, updateWorld: Updater<W.World>, cell: W.Ce
     }
   })()}</Mui.Box>
 
-  return <div className={"cell"} style={s}>
-    <Mui.Button
-      aria-describedby={id} fullWidth={false} size="small"
-      sx={{
-        backgroundColor: col,
-        borderWidth: Layout.border() * 2,
-        borderColor: "black",
-        borderStyle: (open ? "solid" : "none"),
-        padding: 0,
-        margin: "0",
-        minWidth: foa.w,
-        width: foa.w,
-        height: foa.h,
-        textTransform: "none",
-        fontSize: fontSize,
-      }}
-      variant="contained"
-      onClick={handleClick}>
-      {icon}
-      <CellDeco cell={fo} w={foa.w} h={foa.h} power={cond.power} />
-      <Mui.Stack>
-        {pline((fo.kind == World.FieldObjKind.magic ? "× " : ""), cond.power)}
-        {sline(cond.level, cond.improve)}
-      </Mui.Stack>
-    </Mui.Button>
-    <Mui.Popover
-      id={id}
-      open={open}
-      anchorEl={anchorEl}
-      onClose={handleClose}
-      anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'left',
-      }}
-    ><CellClickUI
-        world={p.world}
-        updateWorld={p.updateWorld}
-        cell={p.cell}
-        closer={() => {
-          setAnchorEl(null);
-          setBuildArea && setBuildArea(undefined)
-        }} /></Mui.Popover></div >
+  return <>
+    <div className={"cell"} style={cellCSS}>
+      <Mui.Button
+        aria-describedby={id} fullWidth={false} size="small"
+        sx={{
+          backgroundColor: col,
+          borderWidth: Layout.border() * 2,
+          borderColor: "black",
+          borderStyle: (open ? "solid" : "none"),
+          padding: 0,
+          margin: "0",
+          minWidth: foa.w,
+          width: foa.w,
+          height: foa.h,
+          textTransform: "none",
+          fontSize: fontSize,
+        }}
+        variant="contained"
+        onClick={handleClick}>
+        {icon}
+        <CellDeco cell={fo} w={foa.w} h={foa.h} power={cond.power} />
+        <Mui.Stack>
+          {pline((fo.kind == World.FieldObjKind.magic ? "× " : ""), cond.power)}
+          {sline(cond.level, cond.improve)}
+        </Mui.Stack>
+      </Mui.Button>
+      <Mui.Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+      ><CellClickUI
+          world={p.world}
+          updateWorld={p.updateWorld}
+          cell={p.cell}
+          closer={() => {
+            setAnchorEl(null);
+            setBuildArea && setBuildArea(undefined)
+          }} /></Mui.Popover></div ></>
 }
 
 function Field(p: { world: W.World, updateWorld: Updater<W.World> }): JSX.Element {
