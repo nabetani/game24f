@@ -220,7 +220,7 @@ function StateUI(p: {
     ["能力", U.numText(c.power ?? 0)],
     ["基礎能力", U.numText(c.basicPower ?? 0)],
     ["強化の効果", `× ${U.ratioText(c.improveRatio ?? 1)}`],
-    ["隣の建物の効果", `× ${U.ratioText(c.neibourEffect ?? 1)}`],
+    ["隣の建物の効果", `× ${U.ratioText(c.neibourEffect?.power ?? 1)}`],
   ]
   return <>
     <Mui.Box>
