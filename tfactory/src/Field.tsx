@@ -389,9 +389,9 @@ function CellDecoF(p: { w: number, h: number, cond: G.CondType | undefined }): J
     viewBox="-80 -55 105 105"
     width={p.w} height={p.h}
     xmlns="http://www.w3.org/2000/svg">
-    <T r={0} />
-    <T r={1 / 3} />
-    <T r={2 / 3} />
+    <T key="0" r={0} />
+    <T key="1" r={1 / 3} />
+    <T key="2" r={2 / 3} />
   </svg>
 }
 
@@ -462,8 +462,8 @@ function CellDecoM(p: { w: number, h: number, cond: G.CondType | undefined }): J
         values="0;360"
         dur={`${dur}s`}
         repeatCount="indefinite" />
-      {[...Array(tcount)].map((_, i) => i).map((e) =>
-        <g transform={`rotate(${e * 360 / tcount})`}>
+      {[...Array(tcount)].map((_, i) => i).map((e, i) =>
+        <g key={`${i}`} transform={`rotate(${e * 360 / tcount})`}>
           <path d={d} id="t">
             <animateTransform
               attributeName="transform"
@@ -541,23 +541,23 @@ function NeibourEffect(p: { cell: World.Cell, w: number, h: number, cond: G.Cond
     width={p.w} height={p.h}
     xmlns="http://www.w3.org/2000/svg">
     <g stroke="none" opacity={0.3}>
-      {effects.map(e => {
+      {effects.map((e, ix) => {
         switch (e.dir) {
           case "b":
             return [...Array(e.len)].map((_, ix) => {
-              return <HT x={e.pos + ix} y={p.cell.area.h} dir={-1} positive={e.positive} />
+              return <HT key={`${ix}`} x={e.pos + ix} y={p.cell.area.h} dir={-1} positive={e.positive} />
             })
           case "t":
             return [...Array(e.len)].map((_, ix) => {
-              return <HT x={e.pos + ix} y={0} dir={1} positive={e.positive} />
+              return <HT key={`${ix}`} x={e.pos + ix} y={0} dir={1} positive={e.positive} />
             })
           case "l":
             return [...Array(e.len)].map((_, ix) => {
-              return <VT y={e.pos + ix} x={0} dir={1} positive={e.positive} />
+              return <VT key={`${ix}`} y={e.pos + ix} x={0} dir={1} positive={e.positive} />
             })
           case "r":
             return [...Array(e.len)].map((_, ix) => {
-              return <VT y={e.pos + ix} x={p.cell.area.w} dir={-1} positive={e.positive} />
+              return <VT key={`${ix}`} y={e.pos + ix} x={p.cell.area.w} dir={-1} positive={e.positive} />
             })
           default:
             return <></>
