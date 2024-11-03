@@ -404,13 +404,8 @@ function CellDecoB(p: { w: number, h: number, power: number | undefined }): JSX.
 }
 
 function CellDecoM(p: { w: number, h: number, power: number | undefined }): JSX.Element {
-  const power = p.power ?? 10
-  const dur = 0.1 + 100 / (Math.log10(Math.max(10, power))) ** 2.2
-  const rep = Math.round(Math.max(2, 12 - (Math.log10(Math.max(10, power)))))
-  const tcount = 7
-  const dur1 = dur * Math.SQRT1_2 / tcount
-  const d = tightsPath
-  const values = "0,80;0,120" + ";0,80".repeat(rep)
+  const iz = 16
+  const edge = 5
   return <svg style={{
     position: "absolute",
     top: 0,
@@ -418,10 +413,20 @@ function CellDecoM(p: { w: number, h: number, power: number | undefined }): JSX.
     width: p.w,
     height: p.h,
   }} version="1.1"
-    viewBox="-250 -160 320 320"
+    viewBox="-200 -125 250 250"
     width={p.w} height={p.h}
     xmlns="http://www.w3.org/2000/svg">
     <g fill="white" stroke="none" opacity={0.2}>
+      {[...Array(iz)].map((_, ix) => {
+        const t = ix * 360 / iz
+        return <g transform={`rotate(${t}) translate(100 0) scale(0.4)`}><path d={tightsPath} /></g>
+      })}
+      {[...Array(5)].map((_, rot) => {
+        return <g transform={`rotate( ${72 * rot - 90})`}>
+          {[...Array(edge)].map((_, ix) => {
+            return <g transform={`translate( 31,${(ix - (edge - 1) / 2) * 40}) scale(0.4)`}><path d={tightsPath} /></g>
+          })}</g>
+      })}
     </g>
   </svg>
 }
