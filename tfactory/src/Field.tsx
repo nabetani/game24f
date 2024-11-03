@@ -176,9 +176,9 @@ function AddBuildingUI(p: {
       {param.toBiuld && 0 < (param.size ?? 0) && <>
         <Mui.Stack direction={"column"}>
           <Mui.Typography>
-            建設費: {U.numText(bs.cost)} T
+            建設費: {U.numText(bs.cost)}
           </Mui.Typography>
-          <Mui.Typography> 工期: {U.numText(bs.duration)} w</Mui.Typography>
+          <Mui.Typography> 工期: {U.numText(bs.duration)}</Mui.Typography>
           <Mui.Typography> 能力: {U.numText(bs.power)}</Mui.Typography>
         </Mui.Stack></>
       }
@@ -493,7 +493,7 @@ function NeibourEffect(p: { cell: World.Cell, w: number, h: number, cond: G.Cond
     width={p.w} height={p.h}
     xmlns="http://www.w3.org/2000/svg">
     <g stroke="none" opacity={0.3}>
-      {effects.map((e, ix) => {
+      {effects.map((e) => {
         switch (e.dir) {
           case "b":
             return [...Array(e.len)].map((_, ix) => {
@@ -697,7 +697,6 @@ function Field(p: { world: W.World, updateWorld: Updater<W.World> }): JSX.Elemen
         height: c.h,
         maxHeight: c.h,
         minHeight: c.h,
-        borderStyle: "solid",
         overflow: "hidden",
         marginLeft: "auto",
         marginRight: "auto",

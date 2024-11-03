@@ -121,7 +121,6 @@ function App() {
       style={{
         display: 'flex', flexDirection: "column",
         margin: "auto",
-        borderStyle: "solid",
         width: c.w,
         minWidth: c.w,
         maxWidth: c.w,
@@ -131,7 +130,7 @@ function App() {
       }}>
       <Header world={wo} op={op} />
       <Field world={wo} updateWorld={updateWorld} />
-      <Mui.Box border={3} style={{ flexGrow: 1 }}>
+      <Mui.Box style={{ flexGrow: 1 }}>
         <MessageList world={wo} updateWorld={updateWorld} />
       </Mui.Box>
     </Mui.Stack>
