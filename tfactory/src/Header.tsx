@@ -240,52 +240,40 @@ function HeaderStatus(p: {
 }): JSX.Element {
   const r0 = { name: "保有", v: p.world.powers }
   const r1 = { name: "増加", v: G.incomeW(p.world) }
-  const cellStyle = { fontSize: Layout.clientWH().h / 60 }
   const cellWithLevel = (v: number): JSX.Element =>
-    <Mui.TableCell sx={cellStyle}>
-      <Mui.Stack direction={"row"} alignItems={"baseline"}>
-        <Digit v={v} />
-        <Mui.Typography fontSize={Layout.clientWH().h / 80}>
-          (Lv. {G.buildLevel(v)})
-        </Mui.Typography>
-      </Mui.Stack>
-    </Mui.TableCell>
+    <Mui.Stack direction={"row"} alignItems={"baseline"}>
+      <Digit v={v} />
+      <Mui.Typography fontSize={Layout.clientWH().h / 80}>
+        &nbsp;(Lv. {G.buildLevel(v)})
+      </Mui.Typography>
+    </Mui.Stack>
+  function Cell({ children }: { children: JSX.Element | JSX.Element[] | string }): JSX.Element {
+    return <Mui.Grid2 sx={{ p: 0.3, display: 'flex', alignItems: 'flex-end', justifyContent: "center" }} size={10 / 3}><Mui.Typography>{children}</Mui.Typography></Mui.Grid2>
+  }
+  function Head({ children }: { children: JSX.Element | JSX.Element[] | string }): JSX.Element {
+    return <Mui.Grid2 sx={{ p: 0.3, display: 'flex', alignItems: 'flex-end', justifyContent: "center" }} size={1.8}><Mui.Typography>{children}</Mui.Typography></Mui.Grid2>
+  }
   return (
     <>
-      <Mui.TableContainer component={Mui.Paper}>
-        <Mui.Table sx={{}} size="small" >
-          <Mui.TableHead>
-            <Mui.TableRow>
-              <Mui.TableCell sx={cellStyle} >
-                <MenuButton op={p.op} world={p.world} />
-              </Mui.TableCell>
-              <Mui.TableCell sx={cellStyle} >タイツ</Mui.TableCell>
-              <Mui.TableCell sx={cellStyle} >生産技術</Mui.TableCell>
-              <Mui.TableCell sx={cellStyle} >基礎技術</Mui.TableCell>
-            </Mui.TableRow>
-          </Mui.TableHead>
-          <Mui.TableBody>
-            <Mui.TableRow key={r0.name}>
-              <Mui.TableCell sx={cellStyle} component="th" scope="row">
-                {r0.name}
-              </Mui.TableCell>
-              <Mui.TableCell sx={cellStyle}><Digit v={r0.v.money} /></Mui.TableCell>
-              {cellWithLevel(r0.v.pDev)}
-              {cellWithLevel(r0.v.bDev)}
-            </Mui.TableRow>
-
-            <Mui.TableRow key={r1.name}>
-              <Mui.TableCell sx={cellStyle} component="th" scope="row">
-                {r1.name}
-              </Mui.TableCell>
-              <Mui.TableCell sx={cellStyle}><Digit v={r1.v.money} /></Mui.TableCell>
-              <Mui.TableCell sx={cellStyle} ><Digit v={r1.v.pDev} /></Mui.TableCell>
-              <Mui.TableCell sx={cellStyle} ><Digit v={r1.v.bDev} /></Mui.TableCell>
-            </Mui.TableRow>
-
-          </Mui.TableBody>
-        </Mui.Table>
-      </Mui.TableContainer>
+      <Mui.Grid2 container>
+        <Head>
+          <MenuButton op={p.op} world={p.world} />
+        </Head>
+        <Cell>お金</Cell>
+        <Cell>生産技術</Cell>
+        <Cell>基礎技術</Cell>
+        {/*--------------*/}
+        <Head>{r0.name}</Head>
+        <Cell><Digit v={r0.v.money} /></Cell>
+        <Cell>{cellWithLevel(r0.v.pDev)}</Cell>
+        <Cell>{cellWithLevel(r0.v.bDev)}</Cell>
+        {/*--------------*/}
+        <Head>{r1.name}</Head>
+        <Cell><Digit v={r1.v.money} /></Cell>
+        <Cell>{cellWithLevel(r1.v.pDev)}</Cell>
+        <Cell>{cellWithLevel(r1.v.bDev)}</Cell>
+      </Mui.Grid2>
+      <Mui.Divider />
       <Mui.Grid2 container>
         <Mui.Grid2 size={1} />
         <Mui.Grid2 size={3}>
