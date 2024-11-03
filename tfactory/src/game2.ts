@@ -483,10 +483,20 @@ export const destroyCost = (_wo: World, c: Cell): number | null => {
   return cost * r
 }
 
-export const improveCost = (_wo: World, c: Cell): number | null => {
+export const improveCost = (_wo: World, c: Cell, i: number): number | null => {
   const k = CellKind.o[c.kind]
   const size = c.area.w as SizeType
-  return k.improveCost(c.q, size)
+  let cost: number | null = 0;
+  [...Array(i)].forEach((_, ix) => {
+    const q = { ...c.q, improve: c.q.improve + i }
+    const add = k.improveCost(q, size)
+    if (add == null || cost == null) {
+      cost = null
+    } else {
+      cost += add
+    }
+  })
+  return cost
 }
 
 export const canImprove = (_wo: World, c: Cell): boolean => {
@@ -498,14 +508,14 @@ export const isBuilding = (_wo: World, c: Cell): boolean => {
   return c.kind != FieldObjKind.none
 }
 
-export const improve = (w: World, c: Cell): void => {
+export const improve = (w: World, c: Cell, i: number): void => {
   const p = c.area
-  const cost = improveCost(w, c)
+  const cost = improveCost(w, c, i)
   if (cost == null) { return }
   for (let b of w.buildings) {
     const q = b.area
     if (p.x == q.x && p.y == q.y) {
-      b.q.improve++
+      b.q.improve += i
       w.powers.money -= cost
       return
     }

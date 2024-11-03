@@ -55,25 +55,33 @@ function ImproveUI(p: {
   cell: W.Cell,
   closer: () => void
 }): JSX.Element {
-  const cost = G.improveCost(p.world, p.cell)
   return <>
     <Mui.Box>
-      <Mui.FormControl size="small">
-        <Mui.Stack>
-          {cost == null
-            ? <></>
-            : <Mui.Typography>
-              コスト: {U.numText(cost)}
-            </Mui.Typography>}
-          <Mui.Button variant="contained"
-            disabled={cost == null || p.world.powers.money < cost}
-            onClick={() => {
-              p.updateWorld((w: W.World) => {
-                G.improve(w, p.cell)
-              })
-              p.closer()
-            }}
-          >強化</Mui.Button>
+      <Mui.FormControl size="small" >
+        <Mui.Stack direction="column" spacing={2}>
+          {[1, 3, 10, 30].map(e => {
+            const cost = G.improveCost(p.world, p.cell, e)
+            return <>
+              <Mui.Stack direction="row" spacing={2}>
+                <Mui.Button variant="contained"
+                  disabled={cost == null || p.world.powers.money < cost}
+                  onClick={() => {
+                    p.updateWorld((w: W.World) => {
+                      G.improve(w, p.cell, e)
+                    })
+                    p.closer()
+                  }}
+                >強化 × {e}</Mui.Button>
+                <Mui.Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  {cost == null
+                    ? <></>
+                    : <Mui.Typography>
+                      コスト: {U.numText(cost)}
+                    </Mui.Typography>}
+                </Mui.Box>
+              </Mui.Stack>
+            </>
+          })}
         </Mui.Stack>
       </Mui.FormControl>
     </Mui.Box>
