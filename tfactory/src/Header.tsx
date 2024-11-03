@@ -251,14 +251,14 @@ function HeaderStatus(p: {
     return <Mui.Grid2 sx={{ p: 0.3, display: 'flex', alignItems: 'flex-end', justifyContent: "center" }} size={10 / 3}><Mui.Typography>{children}</Mui.Typography></Mui.Grid2>
   }
   function Head({ children }: { children: JSX.Element | JSX.Element[] | string }): JSX.Element {
-    return <Mui.Grid2 sx={{ p: 0.3, display: 'flex', alignItems: 'flex-end', justifyContent: "center" }} size={1.8}><Mui.Typography>{children}</Mui.Typography></Mui.Grid2>
+    return <Mui.Grid2 sx={{ p: 0.3 }} size={1.8}><Mui.Typography>{children}</Mui.Typography></Mui.Grid2>
   }
   return (
     <>
       <Mui.Grid2 container>
-        <Head>
+        <Mui.Grid2 sx={{ p: 0.3 }} size={1.8}>
           <MenuButton op={p.op} world={p.world} />
-        </Head>
+        </Mui.Grid2>
         <Cell>お金</Cell>
         <Cell>生産技術</Cell>
         <Cell>基礎技術</Cell>
