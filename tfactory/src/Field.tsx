@@ -478,13 +478,27 @@ function CellDecoM(p: { w: number, h: number, cond: G.CondType | undefined }): J
     </g>
   </svg>
 }
+function Ani(p: { dir: [number, number] }): JSX.Element {
+  const [x, y] = p.dir
+  const k = 3
+  return <animateTransform
+    attributeName="transform"
+    attributeType="XML"
+    type="translate"
+    values={`0,0;${x * k},${y * k};0,0`}
+    dur="0.3s"
+    repeatCount="indefinite" />
 
+}
 function NeibourEffect(p: { cell: World.Cell, w: number, h: number, cond: G.CondType | undefined }): JSX.Element {
   const vb = `0 0 ${p.w} ${p.h}`
-  const delta = 0.3 * p.h / p.cell.area.h
-  const delta2 = delta / 3
+  const deltas = (positive: boolean) => {
+    const d = (positive ? 0.2 : 0.35) * p.h / p.cell.area.h
+    return [d, d / 3]
+  }
   // const vb = `${-p.w} ${-p.h} ${p.w * 3} ${p.h * 3}`
   function HT(o: { x: number, y: number, dir: 1 | -1, positive: boolean }): JSX.Element {
+    const [delta, delta2] = deltas(o.positive)
     const r = p.w / p.cell.area.w
     const x1 = (o.x + 0.5) * r
     const x0 = x1 - delta
@@ -496,9 +510,11 @@ function NeibourEffect(p: { cell: World.Cell, w: number, h: number, cond: G.Cond
       `L ${x1} ${y1}`,
       `L ${x2} ${y0}`,
     ].join(" ")
-    return <path d={path} fill={o.positive ? "white" : "black"} />
+    return <path d={path} fill={o.positive ? "#ff0" : "black"} ><Ani dir={[0, o.dir]} /></path>
+
   }
   function VT(o: { x: number, y: number, dir: 1 | -1, positive: boolean }): JSX.Element {
+    const [delta, delta2] = deltas(o.positive)
     const r = p.h / p.cell.area.h
     const y1 = (o.y + 0.5) * r
     const y0 = y1 - delta
@@ -510,8 +526,10 @@ function NeibourEffect(p: { cell: World.Cell, w: number, h: number, cond: G.Cond
       `L ${x1} ${y1}`,
       `L ${x0} ${y2}`,
     ].join(" ")
-    return <path d={path} fill={o.positive ? "white" : "black"} />
+    return <path d={path} fill={o.positive ? "#ff0" : "black"} ><Ani dir={[o.dir, 0]} /></path>
   }
+  const effects = p.cond?.neibourEffect?.effects ?? []
+  if (effects == null || effects.length == 0) { return <></> }
   return <svg style={{
     position: "absolute",
     top: 0,
@@ -522,8 +540,8 @@ function NeibourEffect(p: { cell: World.Cell, w: number, h: number, cond: G.Cond
     viewBox={vb}
     width={p.w} height={p.h}
     xmlns="http://www.w3.org/2000/svg">
-    <g stroke="none" opacity={0.5}>
-      {(p.cond?.neibourEffect?.effects ?? []).map(e => {
+    <g stroke="none" opacity={0.3}>
+      {effects.map(e => {
         switch (e.dir) {
           case "b":
             return [...Array(e.len)].map((_, ix) => {
@@ -562,7 +580,7 @@ function CellDeco(p: { cell: World.Cell, w: number, h: number, cond: G.CondType 
     case W.FieldObjKind.magic:
       return <>{nef}<CellDecoM w={p.w} h={p.h} cond={p.cond} /></>
     default:
-      return <></>
+      return <>{nef}</>
   }
 }
 
