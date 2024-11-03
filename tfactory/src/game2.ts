@@ -129,6 +129,7 @@ export namespace CellKind {
     neibourEffect(w: World, c: Cell): NeibourEffects {
       let e = 1
       let m: Cell[] = []
+      let mneffects: NeibourEffectUnit[] = []
       const neffects: NeibourEffectUnit[] = []
       eachNeibours(w, c.area, (dir, pos, tLen, b) => {
         const dl = b.q.level - c.q.level
@@ -137,14 +138,17 @@ export namespace CellKind {
           neffects.push({ dir: dir, pos: pos, len: tLen, positive: true })
         }
         if (b.kind == FieldObjKind.magic) {
+          mneffects.push({ dir: dir, pos: pos + (tLen - 1) / 2, len: 1, positive: false })
           m.push(b)
         }
       })
       const power = e * ((): number => {
         if (m.length == 0) { return 1 }
         if (m.length == 1) {
+          neffects.push({ ...mneffects[0], positive: true })
           return magic.incomeBase({ level: m[0].q.level }) * magic.neibourEffect(w, m[0]).power
         }
+        neffects.push(...mneffects)
         return 1e-3
       })()
       return {
