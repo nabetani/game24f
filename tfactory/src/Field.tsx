@@ -323,10 +323,12 @@ const tightsPath = [
   "v -80",
 ].join(" ")
 
-function CellDecoP(p: { w: number, h: number, cond: G.CondType | undefined }): JSX.Element {
-  const power = p.cond?.power ?? 10
-  const dur = (0.1 + 80 / (Math.log10(Math.max(10, power))) ** 2)
-  const d = tightsPath
+function CellDecoP(p: { w: number, h: number, power: number | undefined }): JSX.Element {
+  const tx = 5
+  const count = tx * 4
+  const txstep = 90
+  const tystep = 90
+  const deg = 50
   return <svg style={{
     position: "absolute",
     top: 0,
@@ -334,51 +336,27 @@ function CellDecoP(p: { w: number, h: number, cond: G.CondType | undefined }): J
     width: p.w,
     height: p.h,
   }} version="1.1"
-    viewBox="-100 -55 105 105"
+    viewBox="-100 -80 420 420"
     width={p.w} height={p.h}
     xmlns="http://www.w3.org/2000/svg">
     <g fill="white" stroke="none" opacity={0.2}>
-      <path d={d} id="t">
-        <animateTransform
-          attributeName="transform"
-          attributeType="XML"
-          type="rotate"
-          from="0 0 0"
-          to="360 0 0"
-          dur={`${dur}s`}
-          repeatCount="indefinite" />
-      </path>
+      {[...Array(count)].map((_, ix) => {
+        const x = ix % tx
+        const y = (ix - x) / tx
+        return <g
+          transform={` translate(${x * txstep} ${y * tystep}) rotate(${deg * ix}) `}>
+          <path d={tightsPath} /></g>
+      })}
+
     </g>
   </svg>
 }
 
-function CellDecoF(p: { w: number, h: number, cond: G.CondType | undefined }): JSX.Element {
-  const power = p.cond?.power ?? 10
-  const dur = 2 * (0.1 + 80 / (Math.log10(Math.max(10, power))) ** 2)
-
-  function T({ r }: { r: number }): JSX.Element {
-    return <g fill="white" stroke="none" opacity={0.2}>
-      <animateTransform
-        attributeName="transform"
-        attributeType="XML"
-        type="translate"
-        values={`-100,200;100,-200`}
-        begin={`${-r * dur}s`}
-        dur={`${dur}s`}
-        offset={`${dur * r}s`}
-        repeatCount="indefinite" />
-      <path d={d} id="t">
-        <animateTransform
-          attributeName="transform"
-          attributeType="XML"
-          type="rotate"
-          values="0;360"
-          dur={`${dur / 2}s`}
-          repeatCount="indefinite" />
-      </path>
-    </g>
-  }
-  const d = tightsPath
+function CellDecoF(p: { w: number, h: number, power: number | undefined }): JSX.Element {
+  const tx = 6
+  const ty = 3
+  const kx = 60
+  const ky = 100
   return <svg style={{
     position: "absolute",
     top: 0,
@@ -386,58 +364,47 @@ function CellDecoF(p: { w: number, h: number, cond: G.CondType | undefined }): J
     width: p.w,
     height: p.h,
   }} version="1.1"
-    viewBox="-80 -55 105 105"
-    width={p.w} height={p.h}
-    xmlns="http://www.w3.org/2000/svg">
-    <T key="0" r={0} />
-    <T key="1" r={1 / 3} />
-    <T key="2" r={2 / 3} />
-  </svg>
-}
-
-function CellDecoB(p: { w: number, h: number, cond: G.CondType | undefined }): JSX.Element {
-  const power = p.cond?.power ?? 10
-  const dur = (0.1 + 60 / (Math.log10(Math.max(10, power))) ** 1.5)
-  const d = tightsPath
-  const values = [0, ...Array(30)].map((_, i) => 1.25 ** (i - 14)).join(";")
-  function P({ begin }: { begin: number }): JSX.Element {
-    return <path d={d} id="t">
-      <animateTransform
-        attributeName="transform"
-        attributeType="XML"
-        type="scale"
-        values={values}
-        dur={`${dur}s`}
-        begin={`${-begin * dur}s`}
-        repeatCount="indefinite" />
-    </path>
-  }
-  return <svg style={{
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: p.w,
-    height: p.h,
-  }} version="1.1"
-    viewBox="-100 -55 105 105"
+    viewBox="-100 -80 350 350"
     width={p.w} height={p.h}
     xmlns="http://www.w3.org/2000/svg">
     <g fill="white" stroke="none" opacity={0.2}>
-      <animateTransform
-        attributeName="transform"
-        attributeType="XML"
-        type="rotate"
-        values="0;360"
-        dur={`${dur / 2}s`}
-        repeatCount="indefinite" />
-      <P begin={0} />
-      <P begin={0.5} />
+      {[...Array(tx * ty)].map((_, ix) => {
+        const x = ix % tx
+        const y = (ix - x) / tx
+        return <path d={tightsPath} transform={`translate(${x * kx},${y * ky})`} />
+      })}
     </g>
   </svg>
 }
 
-function CellDecoM(p: { w: number, h: number, cond: G.CondType | undefined }): JSX.Element {
-  const power = p.cond?.power ?? 10
+function CellDecoB(p: { w: number, h: number, power: number | undefined }): JSX.Element {
+  const count = 30
+  const scale0 = 0.1
+  const scale = 1.2
+  const deg = 50
+  return <svg style={{
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: p.w,
+    height: p.h,
+  }} version="1.1"
+    viewBox="-250 -160 320 320"
+    width={p.w} height={p.h}
+    xmlns="http://www.w3.org/2000/svg">
+    <g fill="white" stroke="none" opacity={0.2}>
+      {[...Array(count)].map((_, ix) => {
+        return <g
+          transform={`rotate(${deg * ix}) scale(${scale0 * scale ** ix}) translate(0 90) `}>
+          <path d={tightsPath} /></g>
+      })}
+
+    </g>
+  </svg>
+}
+
+function CellDecoM(p: { w: number, h: number, power: number | undefined }): JSX.Element {
+  const power = p.power ?? 10
   const dur = 0.1 + 100 / (Math.log10(Math.max(10, power))) ** 2.2
   const rep = Math.round(Math.max(2, 12 - (Math.log10(Math.max(10, power)))))
   const tcount = 7
@@ -455,26 +422,6 @@ function CellDecoM(p: { w: number, h: number, cond: G.CondType | undefined }): J
     width={p.w} height={p.h}
     xmlns="http://www.w3.org/2000/svg">
     <g fill="white" stroke="none" opacity={0.2}>
-      <animateTransform
-        attributeName="transform"
-        attributeType="XML"
-        type="rotate"
-        values="0;360"
-        dur={`${dur}s`}
-        repeatCount="indefinite" />
-      {[...Array(tcount)].map((_, i) => i).map((e, i) =>
-        <g key={`${i}`} transform={`rotate(${e * 360 / tcount})`}>
-          <path d={d} id="t">
-            <animateTransform
-              attributeName="transform"
-              attributeType="XML"
-              type="translate"
-              values={values}
-              dur={`${dur1}s`}
-              begin={`${-e * dur1 * 3 / tcount}s`}
-              repeatCount="indefinite" />
-          </path>
-        </g>)}
     </g>
   </svg>
 }
@@ -486,7 +433,7 @@ function Ani(p: { dir: [number, number] }): JSX.Element {
     attributeType="XML"
     type="translate"
     values={`0,0;${x * k},${y * k};0,0`}
-    dur="0.3s"
+    dur="1s"
     repeatCount="indefinite" />
 
 }
@@ -572,13 +519,13 @@ function CellDeco(p: { cell: World.Cell, w: number, h: number, cond: G.CondType 
   const nef = <NeibourEffect {...p} />
   switch (p.cell.kind) {
     case W.FieldObjKind.factory:
-      return <>{nef}<CellDecoF w={p.w} h={p.h} cond={p.cond} /></>
+      return <>{nef}<CellDecoF w={p.w} h={p.h} power={p.cond?.power} /></>
     case W.FieldObjKind.pLabo:
-      return <>{nef}<CellDecoP w={p.w} h={p.h} cond={p.cond} /></>
+      return <>{nef}<CellDecoP w={p.w} h={p.h} power={p.cond?.power} /></>
     case W.FieldObjKind.bLabo:
-      return <>{nef}<CellDecoB w={p.w} h={p.h} cond={p.cond} /></>
+      return <>{nef}<CellDecoB w={p.w} h={p.h} power={p.cond?.power} /></>
     case W.FieldObjKind.magic:
-      return <>{nef}<CellDecoM w={p.w} h={p.h} cond={p.cond} /></>
+      return <>{nef}<CellDecoM w={p.w} h={p.h} power={p.cond?.power} /></>
     default:
       return <>{nef}</>
   }
