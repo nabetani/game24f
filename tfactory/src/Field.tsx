@@ -434,10 +434,12 @@ function CellDecoB(p: { w: number, h: number, power: number | undefined }): JSX.
 }
 
 function CellDecoM(p: { w: number, h: number, power: number | undefined }): JSX.Element {
-  const dur = 0.1 + 40 / (Math.log10(Math.max(10, p.power ?? 10))) ** 1.5
+  const dur = 0.1 + 100 / (Math.log10(Math.max(10, p.power ?? 10))) ** 2.2
+  const rep = Math.round(Math.max(2, 12 - (Math.log10(Math.max(10, p.power ?? 10)))))
   const tcount = 7
   const dur1 = dur * Math.SQRT1_2 / tcount
   const d = tightsPath
+  const values = "0,80;0,120" + ";0,80".repeat(rep)
   return <svg style={{
     position: "absolute",
     top: 0,
@@ -463,9 +465,9 @@ function CellDecoM(p: { w: number, h: number, power: number | undefined }): JSX.
               attributeName="transform"
               attributeType="XML"
               type="translate"
-              values="0,80;0,120;0,80;0,80;0,80;0,80;0,80"
+              values={values}
               dur={`${dur1}s`}
-              begin={`${-e * dur / tcount}s`}
+              begin={`${-e * dur1 * 3 / tcount}s`}
               repeatCount="indefinite" />
           </path>
         </g>)}
