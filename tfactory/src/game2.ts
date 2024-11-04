@@ -396,7 +396,9 @@ export const incomeB = (w: World, c: Cell): Powers => {
   } else {
     const k = CellKind.o[c.kind]
     const r = powersZero()
-    r[t] = Math.floor((k.power(c.q, c.area.h * c.area.w) ?? 0) * k.neibourEffect(w, c).power)
+    const nef = k.neibourEffect(w, c)
+    const power = k.power(c.q, c.area.h * c.area.w)
+    r[t] = actualPower(power, nef) ?? 0
     return r
   }
 }
@@ -598,6 +600,12 @@ export const canMigrate = (w: World): boolean => {
   return w.buildings.some(b => b.kind == FieldObjKind.magic && w.maxMagic <= b.q.level)
 }
 
+const actualPower = (power: number | undefined, nef: NeibourEffects): undefined | number => {
+  if (power == null) { return undefined }
+  if (power == 0) { return 0 }
+  return Math.max(1, Math.floor(power * nef.power))
+}
+
 export const condition = (w: World, c: Cell): CondType => {
   const k = CellKind.o[c.kind]
   const power = k.power(c.q, c.area.w * c.area.h)
@@ -608,7 +616,7 @@ export const condition = (w: World, c: Cell): CondType => {
   return {
     level: power == undefined ? undefined : c.q.level,
     improve: power == undefined ? undefined : c.q.improve,
-    power: power && Math.floor(power * nef.power),
+    power: actualPower(power, nef),
     construction: c.construction,
     constructionTotal: c.constructionTotal,
     basicPower: basicPower,
