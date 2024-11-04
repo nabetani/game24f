@@ -332,11 +332,22 @@ const tightsPath = [
 ].join(" ")
 
 function CellDecoP(p: { w: number, h: number, power: number | undefined }): JSX.Element {
-  const tx = 5
-  const count = tx * 4
-  const txstep = 90
-  const tystep = 90
-  const deg = 50
+  const count = 15
+  const vx = 200
+  const vy = 100
+  function T({ ix, offset }: { ix: number, offset: number }): JSX.Element {
+    const t = ix * 3 / count - 1.5
+    const th = t * Math.PI + offset
+    const kx = 0.1
+    const x = (t - kx * Math.sin(th * 2)) * vx
+    const y = Math.sin(th) * vy
+    const dx = (1 - kx * Math.PI * 2 * Math.cos(th * 2)) * vx
+    const dy = Math.cos(th) * vy * Math.PI
+    const deg = 90 + Math.atan2(dy, dx) * 180 / Math.PI
+    return <g
+      transform={` translate(${x} ${y}) scale(${0.7}) rotate(${deg}) `}>
+      <path d={tightsPath} /></g>
+  }
   return <svg style={{
     position: "absolute",
     top: 0,
@@ -344,16 +355,13 @@ function CellDecoP(p: { w: number, h: number, power: number | undefined }): JSX.
     width: p.w,
     height: p.h,
   }} version="1.1"
-    viewBox="-100 -80 420 420"
+    viewBox="-130 -150 220 350"
     width={p.w} height={p.h}
     xmlns="http://www.w3.org/2000/svg">
-    <g fill="white" stroke="none" opacity={0.2}>
+    <g fill="white" stroke="none" opacity={0.2} transform="rotate(-20)">
       {[...Array(count)].map((_, ix) => {
-        const x = ix % tx
-        const y = (ix - x) / tx
-        return <g
-          transform={` translate(${x * txstep} ${y * tystep}) rotate(${deg * ix}) `}>
-          <path d={tightsPath} /></g>
+        return <><T ix={ix} offset={3.5} />
+          <T ix={ix} offset={5} /></>
       })}
 
     </g>
@@ -361,10 +369,6 @@ function CellDecoP(p: { w: number, h: number, power: number | undefined }): JSX.
 }
 
 function CellDecoF(p: { w: number, h: number, power: number | undefined }): JSX.Element {
-  const tx = 6
-  const ty = 3
-  const kx = 60
-  const ky = 100
   return <svg style={{
     position: "absolute",
     top: 0,
@@ -372,15 +376,11 @@ function CellDecoF(p: { w: number, h: number, power: number | undefined }): JSX.
     width: p.w,
     height: p.h,
   }} version="1.1"
-    viewBox="-100 -80 350 350"
+    viewBox="-80 -50 100 100"
     width={p.w} height={p.h}
     xmlns="http://www.w3.org/2000/svg">
     <g fill="white" stroke="none" opacity={0.2}>
-      {[...Array(tx * ty)].map((_, ix) => {
-        const x = ix % tx
-        const y = (ix - x) / tx
-        return <path d={tightsPath} transform={`translate(${x * kx},${y * ky})`} />
-      })}
+      <path d={tightsPath} transform="rotate(33)" />
     </g>
   </svg>
 }
