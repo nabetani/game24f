@@ -79,7 +79,6 @@ export function makeMsg(wo: W.World): string[] {
   const m = dmsgs.get(wo.duration)
   if (m != null) {
     pushDef(r, [m])
-    console.log(tmsgs)
   }
   pushDef(r, tmsg(wo))
   return r
