@@ -29,40 +29,58 @@ function GeneralUI(p: {
   </>
 }
 
-function ResetUI(p: {
-  op: (cmd: string) => void,
-  closer: () => void,
-}): JSX.Element {
+function ResetUIUnit({ buttonText, onClick }: { buttonText: string, onClick: () => void }): JSX.Element {
   const [visible, setVisible] = React.useState<boolean>(false);
   return <>
     <Mui.Stack direction={"column"} gap={3}>
       <Mui.Stack direction={"row"} alignItems={'baseline'} gap={3}>
-        <Mui.Typography>最初からやりなおす</Mui.Typography>
+        <Mui.Typography>{buttonText}</Mui.Typography>
         <Mui.Button variant='contained' color='warning' onClick={() => { setVisible(true) }}>実行</Mui.Button>
       </Mui.Stack>
       {visible ? <>
-        <Mui.Button variant='contained' color='error' onClick={() => { p.closer(); p.op("reset") }}>本当に実行する！</Mui.Button>
+        <Mui.Button variant='contained' color='error' onClick={onClick}>本当に実行する！</Mui.Button>
       </> : <></>}
     </Mui.Stack >
   </>
 }
 
+function ResetUI(p: {
+  world: W.World,
+  op: (cmd: string) => void,
+  closer: () => void,
+}): JSX.Element {
+  if (p.world.maxMagic == 1) {
+    return <ResetUIUnit buttonText="最初からやり直す" onClick={() => { p.closer(); p.op("reset") }} />
+  } else {
+    return <Mui.Stack direction="column" gap={2}>
+      <ResetUIUnit key="0" buttonText="完全に最初からやり直す" onClick={() => { p.closer(); p.op("reset") }} />
+      <Mui.Divider />
+      <ResetUIUnit key="1" buttonText="最高魔術研レベルなどはこのままでやり直す" onClick={() => { p.closer(); p.op("reset") }} />
+    </Mui.Stack>
+  }
+}
+
 function MigrateUI(p: {
+  world: W.World,
   op: (cmd: string) => void,
   closer: () => void,
 }): JSX.Element {
   const [visible, setVisible] = React.useState<boolean>(false);
   return <>
     <Mui.Stack direction={"column"} gap={3}>
-      <Mui.Stack direction={"row"} alignItems={'baseline'} gap={3}>
+      {G.trueMaxMagicLevel <= p.world.maxMagic ? <>
         <Mui.Typography>
-          時間の流れがちょっと速くて、魔術研の最高レベルが今より高い世界に転生する<br />
-        </Mui.Typography>
-        <Mui.Button variant='contained' color='warning' onClick={() => { setVisible(true) }}>実行</Mui.Button>
-      </Mui.Stack>
-      {visible ? <>
-        <Mui.Button variant='contained' color='error' onClick={() => { p.closer(); p.op("migrate") }}>本当に転生する！</Mui.Button>
-      </> : <></>}
+          これ以上転生できません...
+        </Mui.Typography></>
+        : <><Mui.Stack direction={"row"} alignItems={'baseline'} gap={3}>
+          <Mui.Typography>
+            時間の流れがちょっと速くて、<br />魔術研の最高レベルが今より高い世界に転生する<br />
+          </Mui.Typography>
+          <Mui.Button variant='contained' color='warning' onClick={() => { setVisible(true) }}>実行</Mui.Button>
+        </Mui.Stack>
+          {visible ? <>
+            <Mui.Button variant='contained' color='error' onClick={() => { p.closer(); p.op("migrate") }}>本当に転生する！</Mui.Button>
+          </> : <></>}</>}
     </Mui.Stack >
   </>
 }
@@ -170,11 +188,11 @@ function RootMenuUI(p: {
         <GeneralUI op={p.op} closer={p.closer} />
       </MuiL.TabPanel>
       <MuiL.TabPanel value={mtab.reset}>
-        <ResetUI op={p.op} closer={p.closer} />
+        <ResetUI world={p.world} op={p.op} closer={p.closer} />
       </MuiL.TabPanel>
       {G.canMigrate(p.world) ?
         <MuiL.TabPanel value={mtab.migrate}>
-          <MigrateUI op={p.op} closer={p.closer} />
+          <MigrateUI world={p.world} op={p.op} closer={p.closer} />
         </MuiL.TabPanel> : <></>}
     </MuiL.TabContext>
   </>
