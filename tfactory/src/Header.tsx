@@ -12,6 +12,7 @@ const mtab = {
   usage: "mtab-usage",
   general: "mtab-general",
   reset: "mtab-reset",
+  migrate: "mtab-migrate",
 } as const
 
 function GeneralUI(p: {
@@ -41,6 +42,26 @@ function ResetUI(p: {
       </Mui.Stack>
       {visible ? <>
         <Mui.Button variant='contained' color='error' onClick={() => { p.closer(); p.op("reset") }}>本当に実行する！</Mui.Button>
+      </> : <></>}
+    </Mui.Stack >
+  </>
+}
+
+function MigrateUI(p: {
+  op: (cmd: string) => void,
+  closer: () => void,
+}): JSX.Element {
+  const [visible, setVisible] = React.useState<boolean>(false);
+  return <>
+    <Mui.Stack direction={"column"} gap={3}>
+      <Mui.Stack direction={"row"} alignItems={'baseline'} gap={3}>
+        <Mui.Typography>
+          時間の流れがちょっと速くて、魔術研の最高レベルが今より高い世界に転生する<br />
+        </Mui.Typography>
+        <Mui.Button variant='contained' color='warning' onClick={() => { setVisible(true) }}>実行</Mui.Button>
+      </Mui.Stack>
+      {visible ? <>
+        <Mui.Button variant='contained' color='error' onClick={() => { p.closer(); p.op("migrate") }}>本当に転生する！</Mui.Button>
       </> : <></>}
     </Mui.Stack >
   </>
@@ -139,6 +160,7 @@ function RootMenuUI(p: {
           <Mui.Tab label="遊び方とルール" value={mtab.usage} />
           <Mui.Tab label="設定" value={mtab.general} />
           <Mui.Tab label="リセット" value={mtab.reset} />
+          {G.canMigrate(p.world) ? <Mui.Tab label="転生" value={mtab.migrate} /> : <></>}
         </MuiL.TabList>
       </Mui.Box>
       <MuiL.TabPanel value={mtab.usage}>
@@ -150,6 +172,10 @@ function RootMenuUI(p: {
       <MuiL.TabPanel value={mtab.reset}>
         <ResetUI op={p.op} closer={p.closer} />
       </MuiL.TabPanel>
+      {G.canMigrate(p.world) ?
+        <MuiL.TabPanel value={mtab.migrate}>
+          <MigrateUI op={p.op} closer={p.closer} />
+        </MuiL.TabPanel> : <></>}
     </MuiL.TabContext>
   </>
 }

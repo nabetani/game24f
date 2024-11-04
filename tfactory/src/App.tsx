@@ -50,7 +50,7 @@ function App() {
         G.progress(w)
         WS.world.write(w)
       })
-    }, 250) // TODO: 250
+    }, 300 * 0.8 ** wo.maxMagic)
     return () => {
       clearTimeout(timeoutId)
     }
@@ -108,8 +108,22 @@ function App() {
           w.powers = e.powers
           w.total = e.total
           w.size = e.size
+          w.maxMagic = e.maxMagic
           w.messages = []
         })
+        return
+      case "migrate":
+        updateWorld((w: W.World) => {
+          const e = G.emptyWorld()
+          w.buildings = e.buildings
+          w.duration = e.duration
+          w.powers = e.powers
+          w.total = e.total
+          w.size = e.size
+          w.maxMagic = Math.min(G.trueMaxMagicLevel, w.maxMagic + 1)
+          w.messages = []
+        })
+        return
     }
   }
 

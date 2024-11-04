@@ -3,6 +3,8 @@ import { makeMsg } from './makeMsg';
 import * as U from './util'
 import { Area, Cell, FieldObjKind, FieldObjKindType, Powers, Quality, World } from './World';
 
+export const trueMaxMagicLevel = 10
+
 const hasIntersection = (a: Area, b: Area): boolean => {
   const i = (a0: number, al: number, b0: number, bl: number): boolean => {
     const a1 = a0 + al - 1
@@ -62,9 +64,9 @@ export namespace CellKind {
   export interface I {
     get kind(): FieldObjKindType
     get canImprove(): boolean
-    get maxLevel(): number | null
+    maxLevel(w: World | null): number | null
     get destroyCostRatio(): number | null
-    buildableLevel(p: Powers): number
+    buildableLevel(w: World): number
     buildCost(level: number, size: SizeType): number
     improveCost(q: Quality, size: SizeType): number | null
     power(q: Quality, areaSize: number): number | undefined
@@ -73,9 +75,9 @@ export namespace CellKind {
   }
   class None implements I {
     get kind(): FieldObjKindType { return FieldObjKind.none }
-    get maxLevel() { return null }
+    maxLevel(_w: World | null) { return null }
     get canImprove(): boolean { return false }
-    buildableLevel(_: Powers): number { return 0 }
+    buildableLevel(_w: World): number { return 0 }
     buildCost(_1: number, _2: SizeType): number { return 0 }
     improveCost(_q: Quality, _size: SizeType): null { return null }
     power(_q: Quality, _areaSize: number): undefined { return undefined }
@@ -86,10 +88,10 @@ export namespace CellKind {
   type IncomeBaseParamType = { level: number, improve?: number }
 
   abstract class Building implements I {
-    abstract get maxLevel(): number
+    abstract maxLevel(w: World | null): number
     abstract get canImprove(): boolean
     abstract get kind(): FieldObjKindType
-    abstract buildableLevel(_: Powers): number
+    abstract buildableLevel(w: World): number
     abstract buildCost(level: number, size: SizeType): number;
     abstract incomeBase(_: IncomeBaseParamType): number
     abstract improveCost(q: Quality, size: SizeType): number | null
@@ -101,7 +103,7 @@ export namespace CellKind {
   abstract class StdBuilding extends Building {
     get canImprove(): boolean { return true }
     abstract get kind(): FieldObjKindType
-    get maxLevel(): number { return 50 }
+    maxLevel(_w: World | null): number { return 50 }
     abstract buildlevelSrc(p: Powers): number
     abstract get buildCostBase(): number
     get destroyCostRatio(): number { return 0.1 }
@@ -116,10 +118,11 @@ export namespace CellKind {
       const b = this.buildCost(q.level, size)
       return b / 10
     }
-    buildableLevel(p: Powers): number {
+    buildableLevel(w: World): number {
+      const p = w.powers
       return U.clamp(
         Math.floor(Math.log10(this.buildlevelSrc(p))),
-        0, this.maxLevel)
+        0, this.maxLevel(w))
     }
     improve(i: IncomeBaseParamType): number {
       return 1 + (i.improve ?? 0) ** 0.8 / 10
@@ -217,7 +220,7 @@ export namespace CellKind {
     power(q: Quality, _areaSize: number): number {
       return this.incomeBase(q)
     }
-    get maxLevel(): number { return 1 }
+    maxLevel(_w: World | null): number { return 1 }
     get destroyCostRatio(): null { return null }
     incomeBase(i: IncomeBaseParamType): number {
       const imp = (1.0 + (i.improve ?? 0) ** 0.8 * 0.1)
@@ -225,7 +228,7 @@ export namespace CellKind {
       const levBase = 1
       return start * levBase ** (i.level - 1) * imp
     }
-    buildableLevel(_: Powers): number { return 0 }
+    buildableLevel(_w: World): number { return 0 }
     neibourEffect(w: World, c: Cell): NeibourEffects {
       const neffects: NeibourEffectUnit[] = []
       let e = 1
@@ -249,7 +252,7 @@ export namespace CellKind {
     buildCost(level: number, size: SizeType): number {
       const base = 1000e12 // 1000兆
       // lv. 1→10 で、コストが 1e14 → 1e64 (1e50倍）
-      const relLevel = (level - 1) / (this.maxLevel - 1)
+      const relLevel = (level - 1) / (this.maxLevel(null) - 1)
       const c = size * base * 10 ** (relLevel * 50)
       return U.didigit(c)
     }
@@ -257,13 +260,17 @@ export namespace CellKind {
       return FieldObjKind.magic
     }
     get destroyCostRatio(): number { return 100 }
-    get maxLevel(): number { return 10 }
-    buildableLevel(p: Powers): number {
+    maxLevel(w: World | null): number {
+      if (w != null) { return w.maxMagic }
+      return trueMaxMagicLevel
+    }
+    buildableLevel(w: World): number {
+      const p = w.powers
       const m = buildLevel(Math.min(p.bDev, p.pDev))
       // Lv.10 で 1 がビルド可能。そこから5ごとに増える
       const b = 1 + Math.floor((m - 10) / 5)
       // console.log({ b: b, m: m, p: p })
-      return U.clamp(b, 0, this.maxLevel)
+      return U.clamp(b, 0, this.maxLevel(w))
     }
     improveCost(_q: Quality, _size: SizeType): null {
       return null
@@ -367,6 +374,7 @@ export const emptyWorld = (): World => {
     duration: 0,
     total: 0,
     messages: ["操業開始"],
+    maxMagic: 1,
     // powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
     powers: { money: 1e68, pDev: 1e68, bDev: 1e68 } // TODO: fix
   }
@@ -488,7 +496,7 @@ export const improveCost = (_wo: World, c: Cell, i: number): number | null => {
   const size = c.area.w as SizeType
   let cost: number | null = 0;
   [...Array(i)].forEach((_, ix) => {
-    const q = { ...c.q, improve: c.q.improve + i }
+    const q = { ...c.q, improve: c.q.improve + ix }
     const add = k.improveCost(q, size)
     if (add == null || cost == null) {
       cost = null
@@ -528,7 +536,7 @@ export const canBuildAt = (_: World, c: Cell): boolean => (
 
 export const canBuildMagic = (wo: World): boolean => {
   const m = CellKind.magic
-  return 0 < m.buildableLevel(wo.powers)
+  return 0 < m.buildableLevel(wo)
 }
 
 export const bulidState = (wo: World, param: BuildParam, topleft: { x: number, y: number }): BuildState => {
@@ -560,7 +568,7 @@ export const bulidState = (wo: World, param: BuildParam, topleft: { x: number, y
 
 export const visibleMaxLevel = (w: World, kind: FieldObjKindType): number => {
   const k = CellKind.o[kind]
-  return k.buildableLevel(w.powers)
+  return k.buildableLevel(w)
 }
 
 export const addBuilding = (w: World, a: Area, param: BuildParam): void => {
@@ -584,6 +592,10 @@ export type CondType = {
   basicPower?: number
   improveRatio?: number
   neibourEffect?: NeibourEffects
+}
+
+export const canMigrate = (w: World): boolean => {
+  return w.buildings.some(b => b.kind == FieldObjKind.magic && w.maxMagic <= b.q.level)
 }
 
 export const condition = (w: World, c: Cell): CondType => {

@@ -1,4 +1,3 @@
-import { duration } from "@mui/material";
 
 export type World = {
   buildings: Cell[];
@@ -6,6 +5,7 @@ export type World = {
   total: number;
   powers: Powers;
   messages: string[];
+  maxMagic: number;
   size: { w: number, h: number },
 
   prev: {
