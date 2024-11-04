@@ -1,10 +1,10 @@
 import * as W from "./World"
 import * as U from './util'
 
-const pushDef = (r: string[], m: string | undefined | null) => {
+const pushDef = (r: string[], m: string[]) => {
   if (m != null) {
     console.log(m)
-    r.push(m)
+    r.push(...m)
   }
 }
 
@@ -14,11 +14,20 @@ const dmsgs = new Map<number, string>(
   ]
 )
 
+function powerOfTen(): [number, string][] {
+  const msgs: [number, string][] = []
+  for (let i = 4; i < 72; i++) {
+    msgs.push([10 ** i, `タイツの出荷が ${U.numText(10 ** i, true)}枚を超えた`])
+  }
+  return msgs
+}
+
 const kg = 1e3 / 50
 const ton = 1e6 / 50
 const me = 5.972e24 * kg
 const ms = 1.9891e30 * kg
-const tmsgs = ([
+const tmsgs = (([
+  ...powerOfTen(),
   [43.4 * ton, "出荷したタイツの総重量が 初代ガンダム の重さを超えた"],
   [45e3 * ton, "出荷したタイツの総重量が 初代ウルトラマンの体重 を超えた"],
   [1800e4 * ton, "出荷したタイツの総重量が 初代マクロス の運用慣性重量 を超えた"],
@@ -44,34 +53,24 @@ const tmsgs = ([
   [10e10 * ms, "出荷したタイツの総重量が マゼラン星雲 の質量を超えた"],
   [2e12 * ms, "出荷したタイツの総重量が 天の川銀河 の質量を超えた"],
   [1.5e53 * kg, "出荷したタイツの総重量が観測可能な宇宙の全質量を超えた"],
-] as [number, string][]).sort((a: [number, string], b: [number, string]) => a[0] - b[0])
+]) as [number, string][]).sort((a: [number, string], b: [number, string]) => a[0] - b[0])
 
-const tmsg = (wo: W.World): string | null => {
+const tmsg = (wo: W.World): string[] => {
+  const msgs: string[] = []
   for (const [n, m] of tmsgs) {
     if (wo.prev.total < n && n <= wo.total) {
-      return m
+      msgs.push(m)
     }
   }
-  return null
-}
-
-const powerTen = (wo: W.World): string | null => {
-  const p = (n: number): number => Math.floor(Math.log10(Math.max(n, 1)))
-  const p1 = p(wo.total)
-  if (p1 < 4) { return null }
-  const p0 = p(wo.prev.total)
-  if (p0 == p1) { return null }
-  const m = `タイツの出荷が ${U.numText(10 ** p1, true)}枚を超えた`
-  console.log(m)
-
-  return m
+  return msgs
 }
 
 export function makeMsg(wo: W.World): string[] {
   const r: string[] = []
-  pushDef(r, dmsgs.get(wo.duration))
-  pushDef(r, powerTen(wo))
+  const m = dmsgs.get(wo.duration)
+  if (m != null) {
+    pushDef(r, [m])
+  }
   pushDef(r, tmsg(wo))
-  // console.log({ wo: wo, r: r })
   return r
 }
