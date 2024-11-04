@@ -160,7 +160,9 @@ function AddBuildingUI(p: {
       </Mui.RadioGroup>
       {param.toBiuld && <>
         <Mui.Stack direction="row" gap={3} alignItems="baseline">
-          <Mui.FormLabel id="q-selector">技術レベル {param?.level ?? "??"}</Mui.FormLabel>
+          <Mui.FormLabel id="q-selector">{
+            param.toBiuld == World.FieldObjKind.magic ? "魔術" : "技術"
+          }レベル {param?.level ?? "??"}</Mui.FormLabel>
           <Mui.Button size="small" onClick={() => levelAdd(-1)} disabled={(param.level ?? 0) < 2}><Icon.ArrowBackIos fontSize="inherit" /></Mui.Button>
           <Mui.Button size="small" onClick={() => levelAdd(1)} disabled={levelMax <= (param.level ?? levelMax)}><Icon.ArrowForwardIos fontSize="inherit" /></Mui.Button>
         </Mui.Stack>
@@ -179,6 +181,7 @@ function AddBuildingUI(p: {
           marks
           min={1}
           max={levelMax}
+          disabled={levelMax == 1}
         /></>
       }
       {param.toBiuld && 0 < (param.size ?? 0) && <>

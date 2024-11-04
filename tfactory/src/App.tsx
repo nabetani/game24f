@@ -100,7 +100,7 @@ function App() {
 
   const op = (cmd: string): void => {
     switch (cmd) {
-      case "reset":
+      case "complete-reset":
         updateWorld((w: W.World) => {
           const e = G.emptyWorld()
           w.buildings = e.buildings
@@ -109,6 +109,18 @@ function App() {
           w.total = e.total
           w.size = e.size
           w.maxMagic = e.maxMagic
+          w.messages = []
+        })
+        return
+      case "reset":
+        updateWorld((w: W.World) => {
+          const e = G.emptyWorld()
+          w.buildings = e.buildings
+          w.duration = e.duration
+          w.powers = e.powers
+          w.total = e.total
+          w.size = e.size
+          // w.maxMagic
           w.messages = []
         })
         return

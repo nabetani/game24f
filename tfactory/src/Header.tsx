@@ -50,10 +50,10 @@ function ResetUI(p: {
   closer: () => void,
 }): JSX.Element {
   if (p.world.maxMagic == 1) {
-    return <ResetUIUnit buttonText="最初からやり直す" onClick={() => { p.closer(); p.op("reset") }} />
+    return <ResetUIUnit buttonText="最初からやり直す" onClick={() => { p.closer(); p.op("complete-reset") }} />
   } else {
     return <Mui.Stack direction="column" gap={2}>
-      <ResetUIUnit key="0" buttonText="完全に最初からやり直す" onClick={() => { p.closer(); p.op("reset") }} />
+      <ResetUIUnit key="0" buttonText="完全に最初からやり直す" onClick={() => { p.closer(); p.op("complete-reset") }} />
       <Mui.Divider />
       <ResetUIUnit key="1" buttonText="最高魔術研レベルなどはこのままでやり直す" onClick={() => { p.closer(); p.op("reset") }} />
     </Mui.Stack>
