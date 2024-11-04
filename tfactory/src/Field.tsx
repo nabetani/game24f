@@ -427,12 +427,12 @@ function CellDecoM(p: { w: number, h: number, power: number | undefined }): JSX.
     <g fill="white" stroke="none" opacity={0.2}>
       {[...Array(iz)].map((_, ix) => {
         const t = ix * 360 / iz
-        return <g transform={`rotate(${t}) translate(100 0) scale(0.4)`}><path d={tightsPath} /></g>
+        return <g key={`${ix}`} transform={`rotate(${t}) translate(100 0) scale(0.4)`}><path d={tightsPath} /></g>
       })}
       {[...Array(5)].map((_, rot) => {
-        return <g transform={`rotate( ${72 * rot - 90})`}>
+        return <g key={`${rot}`} transform={`rotate( ${72 * rot - 90})`}>
           {[...Array(edge)].map((_, ix) => {
-            return <g transform={`translate( 31,${(ix - (edge - 1) / 2) * 40}) scale(0.4)`}><path d={tightsPath} /></g>
+            return <g key={`${ix}`} transform={`translate( 31,${(ix - (edge - 1) / 2) * 40}) scale(0.4)`}><path d={tightsPath} /></g>
           })}</g>
       })}
     </g>
