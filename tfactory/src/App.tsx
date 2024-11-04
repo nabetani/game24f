@@ -32,8 +32,8 @@ function Tutorial({ closer }: { closer: () => void }): JSX.Element {
       onClick={() => closer()}
     ><Icon.Close /></Mui.IconButton>
     <Mui.DialogContent dividers>
-      {lines.map((e) => {
-        return <Mui.Typography gutterBottom>• {e}</Mui.Typography>
+      {lines.map((e, ix) => {
+        return <Mui.Typography key={ix} gutterBottom>• {e}</Mui.Typography>
       })}
     </Mui.DialogContent>
   </>
