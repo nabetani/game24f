@@ -360,10 +360,9 @@ function CellDecoP(p: { w: number, h: number, power: number | undefined }): JSX.
     xmlns="http://www.w3.org/2000/svg">
     <g fill="white" stroke="none" opacity={0.2} transform="rotate(-20)">
       {[...Array(count)].map((_, ix) => {
-        return <><T ix={ix} offset={3.5} />
-          <T ix={ix} offset={5} /></>
+        return <React.Fragment key={ix}><T key="0" ix={ix} offset={3.5} />
+          <T key="1" ix={ix} offset={5} /></React.Fragment>
       })}
-
     </g>
   </svg>
 }
@@ -403,6 +402,7 @@ function CellDecoB(p: { w: number, h: number, power: number | undefined }): JSX.
     <g fill="white" stroke="none" opacity={0.2}>
       {[...Array(count)].map((_, ix) => {
         return <g
+          key={ix.toString()}
           transform={`rotate(${deg * ix}) scale(${scale0 * scale ** ix}) translate(0 90) `}>
           <path d={tightsPath} /></g>
       })}

@@ -116,11 +116,8 @@ function UsageUI(p: {
     </>}
 
     <Mui.Divider />
-    <T>できること</T>
     <Mui.Box sx={{ pl: 2 }}><T>
-      • 工場や研究所の建築<br />
-      • 工場や研究所の強化<br />
-      • 工場や研究所の撤去<br />
+      工場や研究所の建築・強化 などを行い、タイツをたくさん作りましょう。<br />
     </T></Mui.Box>
   </>
 }
@@ -223,11 +220,11 @@ function Digit(p: { v: number }): JSX.Element {
   const s = U.numText(p.v)
   const [_, d, u] = s.match(/^([\d\.]+)(\D+)?$/) ?? []
   if (u == null) {
-    return <Mui.Typography key="d">{d}</Mui.Typography>
+    return <Mui.Typography component="span" key="d">{d}</Mui.Typography>
   }
   const z = [...u].length == 1 ? "100%" : "70%"
   return <>
-    <Mui.Typography key="d">{d}<span style={{
+    <Mui.Typography component="span" key="d">{d}<span style={{
       fontSize: z,
       letterSpacing: "-0.1em",
     }}>{u}</span></Mui.Typography>
@@ -241,9 +238,9 @@ function HeaderStatus(p: {
   const r0 = { name: "保有", v: p.world.powers }
   const r1 = { name: "増加", v: G.incomeW(p.world) }
   const cellWithLevel = (v: number): JSX.Element =>
-    <Mui.Stack direction={"row"} alignItems={"baseline"}>
+    <Mui.Stack component="span" direction={"row"} alignItems={"baseline"}>
       <Digit v={v} />
-      <Mui.Typography fontSize={Layout.clientWH().h / 80}>
+      <Mui.Typography component="span" fontSize={Layout.clientWH().h / 80}>
         &nbsp;(Lv. {G.buildLevel(v)})
       </Mui.Typography>
     </Mui.Stack>
