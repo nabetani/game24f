@@ -13,6 +13,10 @@ const mtab = {
   general: "mtab-general",
   reset: "mtab-reset",
   migrate: "mtab-migrate",
+
+  operation: "mtab-goal",
+  story: "mtab-story",
+  buildings: "mtab-buildings",
 } as const
 
 function GeneralUI(p: {
@@ -91,74 +95,114 @@ function UsageUI(p: {
   closer: () => void,
 }): JSX.Element {
   const T = Mui.Typography
-  return <>
-    <T>
-      タイツを作るゲームです。ゴールはありません。<br />
-      建物は5種類あり、特徴は以下の通りです。</T>
-    <Mui.Divider />
-    <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
-      <Icon.Home /> <T>自宅 兼 工場</T></Mui.Stack>
-    <Mui.Box sx={{ pl: 4 }}><T>
-      • タイツを製造する<br />
-      • 建築も撤去もできない
-      {G.canBuildMagic(p.world) ? <>
-        <br />• 隣接する魔術研の能力を上げる
-      </> : <></>}
-    </T></Mui.Box>
-    <Mui.Divider />
+  const [value, setValue] = React.useState<string>(mtab.story);
+  const handleChange = (_: React.SyntheticEvent, newValue: string) => {
+    setValue(newValue);
+  };
 
-    <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
-      <Icon.Factory /><T>工場</T></Mui.Stack>
-    <Mui.Box sx={{ pl: 4 }}><T>
-      • タイツを製造する<br />
-      • 建築可能レベルは「生産技術」で決まる
-      {G.canBuildMagic(p.world) ? <>
-        <br />• 隣接する魔術研が一個だと能力が上がり、複数だと能力が下がる
-      </> : <></>}
-    </T>
-    </Mui.Box>
-    <Mui.Divider />
-    <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
-      <Icon.Settings /><T>生産技研</T></Mui.Stack>
-    <Mui.Box sx={{ pl: 4 }}><T>
-      • 生産技術を上げる<br />
-      • 建築可能レベルは「基礎技術」で決まる<br />
-      • 隣接する工場などの能力を上げることがある
-      {G.canBuildMagic(p.world) ? <>
-        <br />• 隣接する魔術研が一個だと能力が上がり、複数だと能力が下がる
-      </> : <></>}</T>
-    </Mui.Box>
-    <Mui.Divider />
-    <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
-      <Icon.Science /><T> 基礎研</T></Mui.Stack>
-    <Mui.Box sx={{ pl: 4 }}><T>
-      • 基礎技術を上げる<br />
-      • 建築可能レベルは「基礎技術」で決まる<br />
-      • 隣接する生産技研の能力を上げることがある
-      {G.canBuildMagic(p.world) ? <>
-        <br />• 隣接する魔術研が一個だと能力が上がり、複数だと能力が下がる
-      </> : <></>}</T>
-    </Mui.Box>
-    <Mui.Divider />
-    {G.canBuildMagic(p.world) ? <>
-      <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
-        <Icon.AutoFixHigh /><T>魔術研</T></Mui.Stack>
-      <Mui.Box sx={{ pl: 4 }}><T>
-        • 何も生産せず、隣接する施設に影響を与える
-        <br />• 強化できない
-        <br />• 撤去費用が膨大
-      </T>
+  function TY({ children, sx }: { sx?: Mui.SxProps<Mui.Theme>, children: JSX.Element | (string | JSX.Element)[] | string }): JSX.Element {
+    return <T sx={{ ...sx, pb: 0.5 }}>{children}</T>
+  }
+  const magic = G.canBuildMagic(p.world)
+
+
+  return <Mui.Box sx={{ border: 1, m: 1, borderRadius: 5, borderColor: "#eee", backgroundColor: "#e8e8e8" }}>
+    <MuiL.TabContext value={value}>
+      <Mui.Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <MuiL.TabList onChange={handleChange}>
+          <Mui.Tab label="ストーリー" value={mtab.story} />
+          <Mui.Tab label="操作" value={mtab.operation} />
+          <Mui.Tab label="建物" value={mtab.buildings} />
+        </MuiL.TabList>
       </Mui.Box>
-    </> : <>
-      <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
-        <Icon.Help /><T> ???</T></Mui.Stack>
-    </>}
+      <MuiL.TabPanel value={mtab.story}>
+        <TY>自宅兼工場でタイツを作るあなたのもとに、銀色の顔をしたスーツ姿の人物（？）が現れた。</TY>
+        <TY><br />銀色「あなたのタイツを売ってください」</TY>
+        <TY>あなた「うちのタイツはちょっとお高くなってますけど、大丈夫でしょうか……」</TY>
+        <TY>銀色「値段は、一足 xx円 でどうでしょう。」</TY>
+        <TY>あなた（……そんなに高く？）</TY>
+        <TY>銀色「納期はでき次第で良きです。個数は全部です。」</TY>
+        <TY>あなた「全部？」</TY>
+        <TY>銀色「御社のタイツを無制限に全部買うので、たくさん作ってください。」</TY>
+        <TY>あなた「無制限……」</TY>
+        <TY>銀色「必要な材料やエネルギーは格安で無制限に調達できます。」</TY>
+        <TY>あなた「無制限に調達……」</TY>
+        <TY>銀色「おわかりいただけないと思いますが、実は御社にとっても重大な案件で、宇宙の存亡が……」</TY>
+        <TY>あなた「え、宇宙のそん……え？」</TY>
+        <TY>銀色「御社にとって良いビジネス思います」</TY>
+        <TY>あなた「え、あ、はい。やりましょう。」</TY>
+        <T><br />かくして、タイツの増産が始まった。</T>
 
-    <Mui.Divider />
-    <Mui.Box sx={{ pl: 2 }}><T>
-      工場や研究所の建築・強化 などを行い、タイツをたくさん作りましょう。<br />
-    </T></Mui.Box>
-  </>
+      </MuiL.TabPanel>
+      <MuiL.TabPanel value={mtab.operation}>
+        <TY>グレーのマスをクリックすると各種建物を建築できます。</TY>
+        <TY>建物をクリックすると、情報確認 などができます。</TY>
+        <TY>各種建物の特徴などを知りたい場合は、左上のハンバーガーボタンを押してください。</TY>
+        <TY>設定変更や ゲームのリセットも 左上のハンバーガーボタンから行うことができます。</TY>
+      </MuiL.TabPanel>
+      <MuiL.TabPanel value={mtab.buildings}>
+
+
+        <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
+          <Icon.Home /> <T>自宅 兼 工場</T></Mui.Stack>
+        <Mui.Box sx={{ pl: 4 }}><T>
+          • タイツを製造する<br />
+          • 建築も撤去もできない
+          {magic ? <>
+            <br />• 隣接する魔術研の能力を上げる
+          </> : <></>}
+        </T></Mui.Box>
+        <Mui.Divider />
+
+        <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
+          <Icon.Factory /><T>工場</T></Mui.Stack>
+        <Mui.Box sx={{ pl: 4 }}><T>
+          • タイツを製造する<br />
+          • 建築可能レベルは「生産技術」で決まる
+          {magic ? <>
+            <br />• 隣接する魔術研が一個だと能力が上がり、複数だと能力が下がる
+          </> : <></>}
+        </T>
+        </Mui.Box>
+        <Mui.Divider />
+        <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
+          <Icon.Settings /><T>生産技研</T></Mui.Stack>
+        <Mui.Box sx={{ pl: 4 }}><T>
+          • 生産技術を上げる<br />
+          • 建築可能レベルは「基礎技術」で決まる<br />
+          • 隣接する工場などの能力を上げることがある
+          {magic ? <>
+            <br />• 隣接する魔術研が一個だと能力が上がり、複数だと能力が下がる
+          </> : <></>}</T>
+        </Mui.Box>
+        <Mui.Divider />
+        <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
+          <Icon.Science /><T> 基礎研</T></Mui.Stack>
+        <Mui.Box sx={{ pl: 4 }}><T>
+          • 基礎技術を上げる<br />
+          • 建築可能レベルは「基礎技術」で決まる<br />
+          • 隣接する生産技研の能力を上げることがある
+          {magic ? <>
+            <br />• 隣接する魔術研が一個だと能力が上がり、複数だと能力が下がる
+          </> : <></>}</T>
+        </Mui.Box>
+        <Mui.Divider />
+        {magic ? <>
+          <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
+            <Icon.AutoFixHigh /><T>魔術研</T></Mui.Stack>
+          <Mui.Box sx={{ pl: 4 }}><T>
+            • 何も生産せず、隣接する施設に影響を与える
+            <br />• 強化できない
+            <br />• 撤去費用が膨大
+          </T>
+          </Mui.Box>
+        </> : <>
+          <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
+            <Icon.Help /><T> ???</T></Mui.Stack>
+        </>}
+      </MuiL.TabPanel>
+    </MuiL.TabContext>
+  </Mui.Box>
 }
 
 function RootMenuUI(p: {
@@ -175,13 +219,13 @@ function RootMenuUI(p: {
     <MuiL.TabContext value={value}>
       <Mui.Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <MuiL.TabList onChange={handleChange} aria-label="lab API tabs example" >
-          <Mui.Tab label="遊び方とルール" value={mtab.usage} />
+          <Mui.Tab label="遊び方など" value={mtab.usage} />
           <Mui.Tab label="設定" value={mtab.general} />
           <Mui.Tab label="リセット" value={mtab.reset} />
           {G.canMigrate(p.world) ? <Mui.Tab label="転生" value={mtab.migrate} /> : <></>}
         </MuiL.TabList>
       </Mui.Box>
-      <MuiL.TabPanel value={mtab.usage}>
+      <MuiL.TabPanel value={mtab.usage} sx={{ p: 0 }}>
         <UsageUI world={p.world} op={p.op} closer={p.closer} />
       </MuiL.TabPanel>
       <MuiL.TabPanel value={mtab.general}>
@@ -311,8 +355,8 @@ function HeaderStatus(p: {
         {/*--------------*/}
         <Head>{r1.name}</Head>
         <Cell><Digit v={r1.v.money} /></Cell>
-        <Cell>{cellWithLevel(r1.v.pDev)}</Cell>
-        <Cell>{cellWithLevel(r1.v.bDev)}</Cell>
+        <Cell ><Digit v={r1.v.pDev} /></Cell>
+        <Cell ><Digit v={r1.v.bDev} /></Cell>
       </Mui.Grid2>
       <Mui.Divider />
       <Mui.Grid2 container>
