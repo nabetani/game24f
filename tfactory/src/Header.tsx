@@ -7,6 +7,7 @@ import * as Icon from '@mui/icons-material';
 import * as MuiL from "@mui/lab";
 import React from 'react'
 import * as W from "./World"
+import * as appconst from "./appconst"
 
 const mtab = {
   usage: "mtab-usage",
@@ -17,6 +18,7 @@ const mtab = {
   operation: "mtab-goal",
   story: "mtab-story",
   buildings: "mtab-buildings",
+  info: "mtab-info",
 } as const
 
 function GeneralUI(p: {
@@ -103,42 +105,50 @@ function UsageUI(p: {
   function TY({ children, sx }: { sx?: Mui.SxProps<Mui.Theme>, children: JSX.Element | (string | JSX.Element)[] | string }): JSX.Element {
     return <T sx={{ ...sx, pb: 0.5 }}>{children}</T>
   }
+  function TB({ children, sx }: { sx?: Mui.SxProps<Mui.Theme>, children: JSX.Element | (string | JSX.Element)[] | string }): JSX.Element {
+    return <T sx={{ ...sx, pb: 0.5, fontWeight: "bold" }}>{children}</T>
+  }
   const magic = G.canBuildMagic(p.world)
 
+  function ALink({ children, href }: { children: JSX.Element | string | (string | JSX.Element)[], href: string }): JSX.Element {
+    return <Mui.ListItem><Mui.Link href={href}><T>{children}</T></Mui.Link></Mui.ListItem>
+  }
 
-  return <Mui.Box sx={{ border: 1, m: 1, borderRadius: 5, borderColor: "#eee", backgroundColor: "#e8e8e8" }}>
+  return <Mui.Box sx={{ border: 1, m: 1, borderRadius: 5, borderColor: "#eee", backgroundColor: "#f8f8f8" }}>
     <MuiL.TabContext value={value}>
       <Mui.Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <MuiL.TabList onChange={handleChange}>
           <Mui.Tab label="ストーリー" value={mtab.story} />
           <Mui.Tab label="操作" value={mtab.operation} />
           <Mui.Tab label="建物" value={mtab.buildings} />
+          <Mui.Tab label="情報" value={mtab.info} />
         </MuiL.TabList>
       </Mui.Box>
       <MuiL.TabPanel value={mtab.story}>
         <TY>自宅兼工場でタイツを作るあなたのもとに、銀色の顔をしたスーツ姿の人物（？）が現れた。</TY>
-        <TY><br />銀色「あなたのタイツを売ってください」</TY>
-        <TY>あなた「うちのタイツはちょっとお高くなってますけど、大丈夫でしょうか……」</TY>
-        <TY>銀色「値段は、一足 xx円 でどうでしょう。」</TY>
+        <TB><br />銀色「あなたのタイツを売ってください。」</TB>
+        <TY>あなた「ちょっと変わった素材のタイツしか作ってなくて、ちょっとお高めなんですが、大丈夫でしょうか……」</TY>
+        <TB>銀色「値段は、一足 xx円 でどうでしょう。」</TB>
         <TY>あなた（……そんなに高く？）</TY>
-        <TY>銀色「納期はでき次第で良きです。個数は全部です。」</TY>
+        <TB>銀色「納期はでき次第で良きです。個数は全部です。」</TB>
         <TY>あなた「全部？」</TY>
-        <TY>銀色「御社のタイツを無制限に全部買うので、たくさん作ってください。」</TY>
+        <TB>銀色「御社のタイツを無制限に全部買うので、たくさん作ってください。」</TB>
         <TY>あなた「無制限……」</TY>
-        <TY>銀色「必要な材料やエネルギーは格安で無制限に調達できます。」</TY>
+        <TB>銀色「必要な材料やエネルギーは格安で無制限に調達です。」</TB>
         <TY>あなた「無制限に調達……」</TY>
-        <TY>銀色「おわかりいただけないと思いますが、実は御社にとっても重大な案件で、宇宙の存亡が……」</TY>
+        <TB>銀色「おわかりいただけないと思いますが、実は御社にとっても重大な案件で、宇宙の存亡が……」</TB>
         <TY>あなた「え、宇宙のそん……え？」</TY>
-        <TY>銀色「御社にとって良いビジネス思います」</TY>
+        <TB>銀色「つまり、御社にとって良いビジネス思います。」</TB>
         <TY>あなた「え、あ、はい。やりましょう。」</TY>
         <T><br />かくして、タイツの増産が始まった。</T>
 
       </MuiL.TabPanel>
       <MuiL.TabPanel value={mtab.operation}>
         <TY>グレーのマスをクリックすると各種建物を建築できます。</TY>
-        <TY>建物をクリックすると、情報確認 などができます。</TY>
-        <TY>各種建物の特徴などを知りたい場合は、左上のハンバーガーボタンを押してください。</TY>
-        <TY>設定変更や ゲームのリセットも 左上のハンバーガーボタンから行うことができます。</TY>
+        <TY>建物をクリックすると色々できます。</TY>
+        <TY>建物の能力や、建物に対してできる操作は種類によって異なります。詳細は隣の「建物」タブにあります。</TY>
+        <TY><br /></TY>
+        <TY>「魔王を倒す」のような明確なゴールはありませんので、辞め時がありません。ご注意ください。</TY>
       </MuiL.TabPanel>
       <MuiL.TabPanel value={mtab.buildings}>
 
@@ -201,8 +211,17 @@ function UsageUI(p: {
             <Icon.Help /><T> ???</T></Mui.Stack>
         </>}
       </MuiL.TabPanel>
+      <MuiL.TabPanel value={mtab.info}>
+        <Mui.List>
+          <ALink href="https://taittsuu.com/users/nabetani">鍋谷武典@タイッツー</ALink>
+          <ALink href={"https://taittsuu.com/taiitsus/hashtags/search?query=" + appconst.ttag}> タイッツー #{appconst.ttag}</ALink>
+          <ALink href="https://nabetani.hatenadiary.com/entry/game24f">制作ノート</ALink>
+          <ALink href="https://suzuri.jp/Nabetani-T/designs">SUZURI - Nabetani-T</ALink>
+          <ALink href="https://github.com/nabetani/game24f">Souce code and Licence</ALink>
+        </Mui.List>
+      </MuiL.TabPanel>
     </MuiL.TabContext>
-  </Mui.Box>
+  </Mui.Box >
 }
 
 function RootMenuUI(p: {
@@ -335,6 +354,9 @@ function HeaderStatus(p: {
   function Cell({ children }: { children: JSX.Element | JSX.Element[] | string }): JSX.Element {
     return <Mui.Grid2 sx={{ p: 0.3, display: 'flex', alignItems: 'flex-end', justifyContent: "center" }} size={10 / 3}><Mui.Typography>{children}</Mui.Typography></Mui.Grid2>
   }
+  function CellH({ children }: { children: JSX.Element | JSX.Element[] | string }): JSX.Element {
+    return <Mui.Grid2 sx={{ p: 0.3, display: 'flex', alignItems: 'flex-end', justifyContent: "center" }} size={10 / 3}><Mui.Typography sx={{ fontSize: 16 }}>{children}</Mui.Typography></Mui.Grid2>
+  }
   function Head({ children }: { children: JSX.Element | JSX.Element[] | string }): JSX.Element {
     return <Mui.Grid2 sx={{ p: 0.3 }} size={1.8}><Mui.Typography>{children}</Mui.Typography></Mui.Grid2>
   }
@@ -344,9 +366,9 @@ function HeaderStatus(p: {
         <Mui.Grid2 sx={{ p: 0.3 }} size={1.8}>
           <MenuButton op={p.op} world={p.world} />
         </Mui.Grid2>
-        <Cell>お金</Cell>
-        <Cell>生産技術</Cell>
-        <Cell>基礎技術</Cell>
+        <CellH>お金</CellH>
+        <CellH>生産技術</CellH>
+        <CellH>基礎技術</CellH>
         {/*--------------*/}
         <Head>{r0.name}</Head>
         <Cell><Digit v={r0.v.money} /></Cell>
@@ -361,11 +383,15 @@ function HeaderStatus(p: {
       <Mui.Divider />
       <Mui.Grid2 container>
         <Mui.Grid2 size={1} />
-        <Mui.Grid2 size={3}>
-          <Mui.Typography>期間: {`${p.world.duration}`}</Mui.Typography>
+        <Mui.Grid2 size={4.5} sx={{ py: 0.5, display: 'flex', alignItems: 'flex-end' }}>
+          <Mui.Typography sx={{ fontSize: 14 }}>期間: {`${p.world.duration}`}</Mui.Typography>
         </Mui.Grid2>
-        <Mui.Grid2 size={5}>
-          <Mui.Typography>総タイツ: {U.numText(p.world.total)}</Mui.Typography>
+        <Mui.Grid2 size={4.5} sx={{ py: 0.5, display: 'flex', alignItems: 'flex-end' }}>
+          <Mui.Typography sx={{ fontSize: 14 }}>総タイツ: {U.numText(p.world.total)}</Mui.Typography>
+        </Mui.Grid2>
+        <Mui.Grid2 size={2} sx={{ py: 0.5, display: 'flex', alignItems: 'flex-end' }}>
+          <Mui.Chip sx={{ fontSize: 13 }} size="small" variant='outlined' color="primary" label="タイーツ"
+            onClick={() => { }} />
         </Mui.Grid2>
       </Mui.Grid2>
     </>
