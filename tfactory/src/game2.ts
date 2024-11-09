@@ -361,9 +361,10 @@ const newHouse = (x: number, y: number, q: Quality): Cell => {
 }
 
 export const emptyWorld = (): World => {
+  const d0 = 365 * 24 * 60 * 60 * 40
   return {
     prev: {
-      duration: 0,
+      duration: d0,
       powers: { bDev: 0, pDev: 0, money: 0 },
       total: 0,
     },
@@ -371,7 +372,7 @@ export const emptyWorld = (): World => {
     buildings: [
       newHouse(2, 4, { improve: 0, level: 1 }),
     ],
-    duration: 0,
+    duration: d0,
     total: 0,
     messages: ["操業開始"],
     maxMagic: 1,
