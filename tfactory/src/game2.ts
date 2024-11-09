@@ -361,7 +361,7 @@ const newHouse = (x: number, y: number, q: Quality): Cell => {
 }
 
 export const emptyWorld = (): World => {
-  const d0 = 365 * 24 * 60 * 60 * 40
+  const d0 = 0
   return {
     prev: {
       duration: d0,

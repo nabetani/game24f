@@ -28,7 +28,7 @@ export function MessageList(
 
   return <Mui.Grid2 container spacing={1} sx={{ p: 1 }}>
     <Mui.Grid2 size="auto" sx={{ display: 'flex', alignItems: 'center' }}>
-      <Mui.Badge color="secondary" badgeContent={msgs.length - msgIx[1] - 1} >
+      <Mui.Badge color="secondary" badgeContent={Math.max(0, msgs.length - msgIx[1] - 1)} >
         <Icon.Mail fontSize="large" color="primary" />
       </Mui.Badge>
     </Mui.Grid2>
