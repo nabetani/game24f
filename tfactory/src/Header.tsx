@@ -9,6 +9,8 @@ import React from 'react'
 import * as W from "./World"
 import * as appconst from "./appconst"
 import { taiitsu } from './taiitsu';
+import * as WS from "./wstorage";
+import * as sound from "./sound"
 
 const mtab = {
   usage: "mtab-usage",
@@ -26,11 +28,20 @@ function GeneralUI(p: {
   op: (cmd: string) => void,
   closer: () => void,
 }): JSX.Element {
+  const [soundOn, setSoundOn] = React.useState(WS.soundOn.value)
   return <>
     <Mui.Stack direction={"column"}>
       <Mui.Stack direction={"row"} alignItems={'baseline'}>
         <Mui.Typography>サウンド</Mui.Typography>
-        <Mui.Switch></Mui.Switch>
+        <Mui.Switch checked={soundOn} onChange={(_, checked: boolean) => {
+          WS.soundOn.write(checked)
+          setSoundOn(checked)
+          if (checked) {
+            sound.play("bgm")
+          } else {
+            sound.stopAll()
+          }
+        }} />
       </Mui.Stack>
     </Mui.Stack >
   </>
@@ -242,7 +253,7 @@ function RootMenuUI(p: {
           <Mui.Tab label="遊び方など" value={mtab.usage} />
           <Mui.Tab label="設定" value={mtab.general} />
           <Mui.Tab label="リセット" value={mtab.reset} />
-          {G.canMigrate(p.world) ? <Mui.Tab label="転生" value={mtab.migrate} /> : <></>}
+          {G.canMigrate(p.world) ? <Mui.Tab label="転生" value={mtab.migrate} /> : []}
         </MuiL.TabList>
       </Mui.Box>
       <MuiL.TabPanel value={mtab.usage} sx={{ p: 0 }}>
@@ -315,17 +326,18 @@ function MenuButton(p: {
   const bp = (theme: Mui.Theme) => bh(theme) / 20
   const bm = (theme: Mui.Theme) => bh(theme) / 40
 
-  return <><Mui.Button variant='contained' onClick={handleClick}
-    sx={{
-      m: bm,
-      p: bp,
-      minWidth: bw,
-      width: bw,
-      height: bh,
-      minHeight: bh,
-    }}>
-    <IconMenu />
-  </Mui.Button>
+  return <>
+    <Mui.Button variant='contained' onClick={handleClick}
+      sx={{
+        m: bm,
+        p: bp,
+        minWidth: bw,
+        width: bw,
+        height: bh,
+        minHeight: bh,
+      }}>
+      <IconMenu />
+    </Mui.Button>
     <Mui.Popover
       id={id}
       open={open}
@@ -335,7 +347,9 @@ function MenuButton(p: {
         vertical: 'bottom',
         horizontal: 'left',
       }}>
-      <RootMenuUI op={p.op} world={p.world} closer={handleClose} /></Mui.Popover></>
+      <RootMenuUI op={p.op} world={p.world} closer={handleClose} />
+    </Mui.Popover>
+  </>
 }
 
 function Digit(p: { v: number }): JSX.Element {

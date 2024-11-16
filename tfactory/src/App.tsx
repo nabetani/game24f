@@ -11,6 +11,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import * as Mui from "@mui/material";
 import * as G from "./game2"
 import * as W from "./World"
+import * as sound from "./sound"
 
 function Tutorial({ closer }: { closer: () => void }): JSX.Element {
 
@@ -47,7 +48,7 @@ function App() {
   React.useEffect(() => {
     let timeoutId = setInterval(() => {
       updateWorld(w => {
-        G.progress(w)
+        G.progress(w, sound.play)
         WS.world.write(w)
       })
     }, 300 * 0.8 ** wo.maxMagic)

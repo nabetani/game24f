@@ -416,7 +416,7 @@ const progressB = (c: Cell): void => {
   if (0 < c.construction) --c.construction
 }
 
-export const progress = (o: World): void => {
+export const progress = (o: World, playSound: (_: string) => void): void => {
   if (o.prev == null) {
     o.prev = { duration: 0, powers: { money: 0, pDev: 0, bDev: 0 }, total: 0 }
   }
@@ -430,6 +430,9 @@ export const progress = (o: World): void => {
   o.total += i.money ?? 0
   o.powers = powersAdd(o.powers, i)
   const msgs = makeMsg(o)
+  if (0 < (msgs?.length ?? 0)) {
+    playSound("mail")
+  }
   o.messages.push(...msgs)
 }
 
