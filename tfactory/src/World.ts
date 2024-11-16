@@ -1,10 +1,14 @@
 
+export type Message = {
+  text: string,
+  at: number,
+}
 export type World = {
   buildings: Cell[];
   duration: number;
   total: number;
   powers: Powers;
-  messages: string[];
+  messages: Message[];
   maxMagic: number;
   size: { w: number, h: number },
 

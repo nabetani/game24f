@@ -374,10 +374,10 @@ export const emptyWorld = (): World => {
     ],
     duration: d0,
     total: 0,
-    messages: ["操業開始"],
+    messages: [],
     maxMagic: 1,
-    // powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
-    powers: { money: 1e68, pDev: 1e68, bDev: 1e68 } // TODO: fix
+    powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
+    // powers: { money: 1e68, pDev: 1e68, bDev: 1e68 } // TODO: fix
   }
 }
 

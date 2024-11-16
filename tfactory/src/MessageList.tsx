@@ -5,6 +5,7 @@ import * as W from "./World"
 import React from "react";
 import { clamp } from "./util";
 import * as WS from "./wstorage";
+import { taiitsu } from "./taiitsu";
 
 export function MessageList(
   p: { world: W.World, updateWorld: Updater<W.World> }
@@ -34,7 +35,22 @@ export function MessageList(
     </Mui.Grid2>
     <Mui.Grid2 size="grow">
       {curMsg &&
-        <Mui.Paper sx={{ textAlign: "left", height: 60, p: 1, backgroundColor: "#eef" }} ><Mui.Typography>{curMsg}</Mui.Typography></Mui.Paper>}
+        <Mui.Paper sx={{ p: 0, m: 0, backgroundColor: "#eef" }} >
+          <Mui.Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between', // 上下に要素を分けて配置
+            padding: 1,
+            height: 80,
+          }}>
+            <Mui.Typography align="left">{curMsg.text}</Mui.Typography>
+            <Mui.Box sx={{ display: "flex", justifyContent: "right" }}>
+              <Mui.Chip color="primary" label="タイーツ" size="small" variant="outlined"
+                onClick={() => { taiitsu(p.world, curMsg.at, [curMsg.text]) }} />
+
+            </Mui.Box>
+          </Mui.Box>
+        </Mui.Paper>}
     </Mui.Grid2>
     <Mui.Grid2 size={1}>
       <Mui.ButtonGroup orientation="vertical">

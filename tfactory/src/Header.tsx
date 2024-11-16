@@ -8,6 +8,7 @@ import * as MuiL from "@mui/lab";
 import React from 'react'
 import * as W from "./World"
 import * as appconst from "./appconst"
+import { taiitsu } from './taiitsu';
 
 const mtab = {
   usage: "mtab-usage",
@@ -391,7 +392,9 @@ function HeaderStatus(p: {
         </Mui.Grid2>
         <Mui.Grid2 size={2} sx={{ py: 0.5, display: 'flex', alignItems: 'flex-end' }}>
           <Mui.Chip sx={{ fontSize: 13 }} size="small" variant='outlined' color="primary" label="タイーツ"
-            onClick={() => { }} />
+            onClick={() => {
+              taiitsu(p.world, p.world.duration, [`総タイツ: ${U.numText(p.world.total)}`])
+            }} />
         </Mui.Grid2>
       </Mui.Grid2>
     </>
