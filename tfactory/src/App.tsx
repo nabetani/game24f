@@ -93,8 +93,9 @@ function App() {
       button: {
         fontSize: u * 16,
       },
-      body1: { fontSize: u * 16 },
-      body2: { fontSize: u * 16 },
+      body1: { fontSize: u * 18 },
+      body2: { fontSize: u * 15 },
+      caption: { fontSize: u * 22 },
     },
   });
 

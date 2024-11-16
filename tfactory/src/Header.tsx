@@ -263,7 +263,8 @@ function RootMenuUI(p: {
 }
 
 function IconMenu(): JSX.Element {
-  const w = 22
+  const theme = Mui.useTheme()
+  const w = theme.typography.fontSize * 2
   const h = w
   const b0 = [
     `M 100,30`,
@@ -309,7 +310,20 @@ function MenuButton(p: {
   };
   const id = "rootmenu"
 
-  return <><Mui.Button variant='contained' onClick={handleClick}>
+  const bw = (theme: Mui.Theme) => theme.typography.fontSize * 3
+  const bh = (theme: Mui.Theme) => theme.typography.fontSize * 2
+  const bp = (theme: Mui.Theme) => bh(theme) / 20
+  const bm = (theme: Mui.Theme) => bh(theme) / 40
+
+  return <><Mui.Button variant='contained' onClick={handleClick}
+    sx={{
+      m: bm,
+      p: bp,
+      minWidth: bw,
+      width: bw,
+      height: bh,
+      minHeight: bh,
+    }}>
     <IconMenu />
   </Mui.Button>
     <Mui.Popover
@@ -356,7 +370,7 @@ function HeaderStatus(p: {
     return <Mui.Grid2 sx={{ p: 0.3, display: 'flex', alignItems: 'flex-end', justifyContent: "center" }} size={10 / 3}><Mui.Typography>{children}</Mui.Typography></Mui.Grid2>
   }
   function CellH({ children }: { children: JSX.Element | JSX.Element[] | string }): JSX.Element {
-    return <Mui.Grid2 sx={{ p: 0.3, display: 'flex', alignItems: 'flex-end', justifyContent: "center" }} size={10 / 3}><Mui.Typography sx={{ fontSize: 16 }}>{children}</Mui.Typography></Mui.Grid2>
+    return <Mui.Grid2 sx={{ p: 0.3, display: 'flex', alignItems: 'flex-end', justifyContent: "center" }} size={10 / 3}><Mui.Typography variant="caption">{children}</Mui.Typography></Mui.Grid2>
   }
   function Head({ children }: { children: JSX.Element | JSX.Element[] | string }): JSX.Element {
     return <Mui.Grid2 sx={{ p: 0.3 }} size={1.8}><Mui.Typography>{children}</Mui.Typography></Mui.Grid2>
@@ -383,15 +397,15 @@ function HeaderStatus(p: {
       </Mui.Grid2>
       <Mui.Divider />
       <Mui.Grid2 container>
-        <Mui.Grid2 size={1} />
-        <Mui.Grid2 size={4.5} sx={{ py: 0.5, display: 'flex', alignItems: 'flex-end' }}>
-          <Mui.Typography sx={{ fontSize: 14 }}>期間: {`${p.world.duration}`}</Mui.Typography>
+        <Mui.Grid2 size={0.8} />
+        <Mui.Grid2 size={3.5} sx={{ py: 0.5, display: 'flex', alignItems: 'flex-end' }}>
+          <Mui.Typography variant='caption'>期間: {`${p.world.duration}`}</Mui.Typography>
         </Mui.Grid2>
-        <Mui.Grid2 size={4.5} sx={{ py: 0.5, display: 'flex', alignItems: 'flex-end' }}>
-          <Mui.Typography sx={{ fontSize: 14 }}>総タイツ: {U.numText(p.world.total)}</Mui.Typography>
+        <Mui.Grid2 size={5.7} sx={{ py: 0.5, display: 'flex', alignItems: 'flex-end' }}>
+          <Mui.Typography variant='caption'>総タイツ: {U.numText(p.world.total)}</Mui.Typography>
         </Mui.Grid2>
         <Mui.Grid2 size={2} sx={{ py: 0.5, display: 'flex', alignItems: 'flex-end' }}>
-          <Mui.Chip sx={{ fontSize: 13 }} size="small" variant='outlined' color="primary" label="タイーツ"
+          <Mui.Chip size="small" variant='outlined' color="primary" label="タイーツ"
             onClick={() => {
               taiitsu(p.world, p.world.duration, [`総タイツ: ${U.numText(p.world.total)}`])
             }} />
