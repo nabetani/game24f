@@ -179,7 +179,7 @@ export namespace CellKind {
   }
 
   class PLabo extends StdBuilding {
-    get buildCostBase(): number { return 9 }
+    get buildCostBase(): number { return 1.1 }
     buildlevelSrc(p: Powers): number {
       return p.bDev
     }
@@ -190,12 +190,12 @@ export namespace CellKind {
       return k === FieldObjKind.bLabo
     }
     incomeBase(i: IncomeBaseParamType): number {
-      return U.qdigit(20 * 6 ** (i.level - 1) * this.improve(i))
+      return U.qdigit(10 * 6 ** (i.level - 1) * this.improve(i))
     }
   }
 
   class BLabo extends StdBuilding {
-    get buildCostBase(): number { return 60 }
+    get buildCostBase(): number { return 1.2 }
     buildlevelSrc(p: Powers): number {
       return p.bDev
     }
@@ -204,7 +204,7 @@ export namespace CellKind {
     }
     isPowerNeibourType(_k: FieldObjKindType): boolean { return false }
     incomeBase(i: IncomeBaseParamType): number {
-      return U.qdigit(4 * 6 ** (i.level - 1) * this.improve(i))
+      return U.qdigit(1 * 6 ** (i.level - 1) * this.improve(i))
     }
   }
 
