@@ -1,24 +1,57 @@
 import * as WS from "./wstorage";
 
+var sounds: { [key: string]: ((start: boolean) => void) | null } = {}
+
+const audioContext = new (window.AudioContext)();
+
 export const play = (t: string) => {
-  if (WS.soundOn.value) {
-    const e = document.getElementById(`sound.${t}`) as HTMLAudioElement;
-    console.log({ t: t, e: e })
-    if (e) {
-      const v = e.getAttribute("volume")
-      e.volume = v ? parseFloat(v) : 1
-      e.play()
-    }
+  if (!WS.soundOn.value) { return }
+  const e = document.getElementById(`sound.${t}`) as HTMLAudioElement;
+  const attrNum = (name: string, fallback: number): number => {
+    const a = e.getAttribute(name)
+    return a ? parseFloat(a) : fallback
   }
+  const attrBool = (name: string, fallback: boolean): boolean => {
+    const a = e.getAttribute(name)
+    return a ? a.toLowerCase() == "true" : fallback
+  }
+  console.log({ e: e });
+  (async () => {
+    const sound = sounds[t] ?? await (async (): Promise<((start: boolean) => void) | null> => {
+      const res = await fetch(e.src);
+      if (!res.ok) {
+        console.log({ "sound.play": res })
+        return null
+      }
+      const arrayBuffer = await res.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      const gainNode = audioContext.createGain();
+      gainNode.gain.value = attrNum("volume", 1);
+      const loop = attrBool("loop", false);
+      let source: AudioBufferSourceNode | null = null
+      return (start: boolean) => {
+        if (start) {
+          if (source != null) {
+            source.stop();
+          }
+          source = audioContext.createBufferSource();
+          source.buffer = audioBuffer;
+          source.connect(gainNode)
+          source.loop = loop
+          gainNode.connect(audioContext.destination);
+          source.start();
+        } else {
+          source?.stop()
+        }
+      }
+    })()
+    if (sound != null) {
+      sounds[t] = sound
+      sound(true)
+    }
+  })()
 }
 
 export const stopAll = () => {
-  const s = document.getElementById("sounds") as HTMLElement
-  s?.childNodes?.forEach((e0) => {
-    const e = e0 as HTMLAudioElement
-    if (e.tagName == "AUDIO") {
-      e.pause()
-      e.currentTime = 0
-    }
-  })
+  Object.entries(sounds).forEach(([_, v]) => v && v(false))
 }
