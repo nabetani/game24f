@@ -103,7 +103,7 @@ export namespace CellKind {
   abstract class StdBuilding extends Building {
     get canImprove(): boolean { return true }
     abstract get kind(): FieldObjKindType
-    maxLevel(_w: World | null): number { return 50 }
+    maxLevel(_w: World | null): number { return 68 }
     abstract buildlevelSrc(p: Powers): number
     abstract get buildCostBase(): number
     get destroyCostRatio(): number { return 0.1 }
