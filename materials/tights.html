@@ -1,0 +1,39 @@
+<html>
+
+<body>
+  <svg id="svg" style="border:solid red 1px" version="1.1" xmlns="http://www.w3.org/2000/svg" width="1200" height="1200"
+    viewBox="-100 -100 200 200">
+    <defs>
+      <path id="t" d="M -24,-40 v 80 h 16 v -50 h 16 v 50 h 16 v -80 z" />
+    </defs>
+    <use href="#t" fill="green" stroke-width="1" stroke="black" transform="translate(50,0)" />
+    <!-- <use href="#t" fill="green" transform="translate(50,0)rotate(90) " />
+    <use href="#t" fill="green" transform="translate(50,0)rotate(45) " />
+    <use href="#t" fill="green" transform="translate(50,0)scale(2)rotate(90) " />
+    <use href="#t" fill="green" transform="translate(50,0)scale(2)rotate(45) " /> -->
+  </svg>
+</body>
+<script>
+  const svg = document.getElementById("svg");
+  console.log(svg);
+  const p = () => Math.random() * 300 - 150
+  const n = 1500
+  const ex = 0.997
+  for (let i = 0; i < n; i++) {
+    const node = document.createElementNS("http://www.w3.org/2000/svg", "use")
+    node.setAttribute("href", "#t");
+    const l = Math.random() * 0.4 + 0.5
+    const h = Math.random() * 360
+    const scale = 5 * ex ** i
+    node.setAttribute("fill", `oklch(${l} 0.4 ${h})`);
+    node.setAttribute("stroke", `oklch(${l / 2 - 0.1} 0.4 ${h})`);
+    node.setAttribute("stroke-width", `${2 / (scale ** 0.6)}`);
+    node.setAttribute("transform",
+      `translate(${p()},${p()})
+      scale(${scale})
+      rotate(${Math.random() * 360})`)
+    svg.appendChild(node)
+  }
+</script>
+
+</html>
