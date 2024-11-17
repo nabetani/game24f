@@ -13,49 +13,59 @@ import * as G from "./game2"
 import * as W from "./World"
 import * as sound from "./sound"
 
-function Tutorial({ closer }: { closer: () => void }): JSX.Element {
+function SplashDialog(p: { onClose: () => void }): JSX.Element {
+  const theme = Mui.useTheme()
+  const w = theme.typography.fontSize * 25
+  return <Mui.Dialog open={true}>
+    <Mui.DialogContent>
+      <Mui.Card>
+        <Mui.CardMedia
+          component="img"
+          sx={{ width: w, }}
+          image="/title.webp"
+          alt="タイツ工場"
+        />
+        <Mui.CardContent>
+          <Mui.Box
+            sx={{ position: "relative" }}>
+            閉じるとスタートです。<br />
+            遊び方などについては<br />
+            左上のハンバーガボタンから確認できます。
+            <Mui.IconButton
+              sx={{
+                position: 'absolute',
+                right: 0,
+                top: 0,
+              }}
+              onClick={() => p.onClose()}
+            ><Icon.Close /></Mui.IconButton>
+          </Mui.Box>
+        </Mui.CardContent>
+      </Mui.Card>
 
-  const lines = [
-    "グレーのマスをクリックすると各種建物を建築できます。",
-    "建物をクリックすると、情報確認 などができます。",
-    "各種建物の特徴などを知りたい場合は、左上のハンバーガーボタンを押してください。",
-    "設定変更や ゲームのリセットも 左上のハンバーガーボタンから行うことができます。",
-  ]
-
-  return <>
-    <Mui.DialogTitle>操作方法</Mui.DialogTitle>
-    <Mui.IconButton
-      sx={{
-        position: 'absolute',
-        right: 8,
-        top: 8,
-      }}
-      onClick={() => closer()}
-    ><Icon.Close /></Mui.IconButton>
-    <Mui.DialogContent dividers>
-      {lines.map((e, ix) => {
-        return <Mui.Typography key={ix} gutterBottom>• {e}</Mui.Typography>
-      })}
     </Mui.DialogContent>
-  </>
+  </Mui.Dialog>
 }
 
 
 function App() {
   const [wo, updateWorld] = useImmer(WS.world.value)
-  const [showStartUI, setShowStartUI] = useState(W.isInitialWorld(WS.world.value))
+  const [started, setStarted] = useState(false)
+
 
   React.useEffect(() => {
-    let timeoutId = setInterval(() => {
-      updateWorld(w => {
-        G.progress(w, sound.play)
-        WS.world.write(w)
-      })
-    }, 300 * 0.8 ** wo.maxMagic)
-    return () => {
-      clearTimeout(timeoutId)
+    if (started) {
+      let timeoutId = setInterval(() => {
+        updateWorld(w => {
+          G.progress(w, sound.play)
+          WS.world.write(w)
+        })
+      }, 300 * 0.8 ** wo.maxMagic)
+      return () => {
+        clearTimeout(timeoutId)
+      }
     }
-  }, [wo])
+  }, [started])
   const c = Layout.clientWH()
 
   const u = c.h / 1000
@@ -142,9 +152,10 @@ function App() {
   }
 
   return <ThemeProvider theme={theme}>
-    <Mui.Dialog onClose={() => { setShowStartUI(false) }} open={showStartUI}>
-      <Tutorial closer={() => setShowStartUI(false)} />
-    </Mui.Dialog>
+    {started ? <></> : <SplashDialog onClose={() => {
+      sound.play("bgm");
+      setStarted(true);
+    }} />}
     <Mui.Stack direction="column"
       style={{
         display: 'flex', flexDirection: "column",
