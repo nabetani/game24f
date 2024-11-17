@@ -667,11 +667,13 @@ function FieldObj(p: { world: W.World, updateWorld: Updater<W.World>, cell: W.Ce
     <div className={"cell"} style={cellCSS}>
       <Mui.Button
         aria-describedby={id} fullWidth={false} size="small"
+        style={{
+          filter: (open ? "contrast(0.4) brightness(1.5)" : ""),
+        }}
         sx={{
           backgroundColor: col,
-          borderWidth: Layout.border() * 2,
           borderColor: "black",
-          borderStyle: (open ? "solid" : "none"),
+          borderStyle: "none",
           padding: 0,
           margin: "0",
           minWidth: foa.w,
