@@ -1,5 +1,6 @@
 import * as W from "./World"
 import * as U from './util'
+import * as G from "./game2"
 
 const pushDef = (r: W.Message[], at: number, m: string[]) => {
   if (m != null) {
@@ -81,6 +82,16 @@ const tmsg = (wo: W.World): string[] => {
     if (wo.prev.total < n && n <= wo.total) {
       msgs.push(m)
     }
+  }
+  if (wo.prev.buildableMagicLevel < wo.buildableMagicLevel) {
+    if (wo.prev.buildableMagicLevel == 0) {
+      msgs.push("魔術研が開放された")
+    } else {
+      msgs.push(`魔術研 Lv. ${wo.buildableMagicLevel} が開放された`)
+    }
+  }
+  if (!wo.prev.canMigrate && wo.canMigrate && wo.maxMagic < G.trueMaxMagicLevel) {
+    msgs.push("新しい操作「転生」が開放された（ハンバーガーボタン → 転生）")
   }
   return msgs
 }

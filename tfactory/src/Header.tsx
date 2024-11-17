@@ -5,7 +5,7 @@ import * as Layout from "./layout"
 import * as Mui from "@mui/material";
 import * as Icon from '@mui/icons-material';
 import * as MuiL from "@mui/lab";
-import React from 'react'
+import React, { ReactNode } from 'react'
 import * as W from "./World"
 import * as appconst from "./appconst"
 import { taiitsu } from './taiitsu';
@@ -47,18 +47,23 @@ function GeneralUI(p: {
   </>
 }
 
-function ResetUIUnit({ buttonText, onClick }: { buttonText: string, onClick: () => void }): JSX.Element {
+function ResetUIUnit({ buttonText, onClick, children }: { children: ReactNode, buttonText: string, onClick: () => void }): JSX.Element {
   const [visible, setVisible] = React.useState<boolean>(false);
   return <>
-    <Mui.Stack direction={"column"} gap={3}>
-      <Mui.Stack direction={"row"} alignItems={'baseline'} gap={3}>
-        <Mui.Typography>{buttonText}</Mui.Typography>
-        <Mui.Button variant='contained' color='warning' onClick={() => { setVisible(true) }}>実行</Mui.Button>
-      </Mui.Stack>
-      {visible ? <>
-        <Mui.Button variant='contained' color='error' onClick={onClick}>本当に実行する！</Mui.Button>
-      </> : <></>}
-    </Mui.Stack >
+    <Mui.Grid2 container spacing={3} alignItems={'baseline'}>
+      <Mui.Grid2 size="grow">
+        <Mui.Typography variant='body1'>{buttonText}</Mui.Typography>
+      </Mui.Grid2>
+      <Mui.Grid2 size="auto">
+        <Mui.Button variant='contained' color='warning' onClick={() => { setVisible(true) }}>
+          {children}
+        </Mui.Button>
+      </Mui.Grid2>
+      {visible ? <Mui.Grid2 size={12}>
+
+        <Mui.Button fullWidth variant='contained' color='error' onClick={onClick}>本当に実行する！</Mui.Button>
+      </Mui.Grid2> : <></>}
+    </Mui.Grid2 >
   </>
 }
 
@@ -68,12 +73,18 @@ function ResetUI(p: {
   closer: () => void,
 }): JSX.Element {
   if (p.world.maxMagic == 1) {
-    return <ResetUIUnit buttonText="最初からやり直す" onClick={() => { p.closer(); p.op("complete-reset") }} />
+    return <ResetUIUnit buttonText="最初からやり直す" onClick={() => { p.closer(); p.op("complete-reset") }} >
+      <Icon.Undo />&nbsp;実行
+    </ResetUIUnit>
   } else {
     return <Mui.Stack direction="column" gap={2}>
-      <ResetUIUnit key="0" buttonText="完全に最初からやり直す" onClick={() => { p.closer(); p.op("complete-reset") }} />
+      <ResetUIUnit key="0" buttonText="完全に最初からやり直す" onClick={() => { p.closer(); p.op("complete-reset") }}  >
+        <Icon.Undo />&nbsp;実行
+      </ResetUIUnit>
       <Mui.Divider />
-      <ResetUIUnit key="1" buttonText="最高魔術研レベルなどはこのままでやり直す" onClick={() => { p.closer(); p.op("reset") }} />
+      <ResetUIUnit key="1" buttonText="最高魔術研レベルなどはこのままでやり直す" onClick={() => { p.closer(); p.op("reset") }}  >
+        <Icon.RestartAlt />&nbsp;実行
+      </ResetUIUnit>
     </Mui.Stack>
   }
 }
@@ -90,15 +101,23 @@ function MigrateUI(p: {
         <Mui.Typography>
           これ以上転生できません...
         </Mui.Typography></>
-        : <><Mui.Stack direction={"row"} alignItems={'baseline'} gap={3}>
-          <Mui.Typography>
-            時間の流れがちょっと速くて、<br />魔術研の最高レベルが今より高い世界に転生する<br />
-          </Mui.Typography>
-          <Mui.Button variant='contained' color='warning' onClick={() => { setVisible(true) }}>実行</Mui.Button>
-        </Mui.Stack>
+        : <Mui.Grid2 container spacing={3}>
+          <Mui.Grid2 size="grow" alignItems={'baseline'}>
+            <Mui.Typography>
+              時間の流れがちょっと速くて、<br />魔術研の最高レベルが今より高い世界に転生する<br />
+            </Mui.Typography>
+          </Mui.Grid2>
+          <Mui.Grid2 size="auto">
+            <Mui.Button variant='contained' color='secondary' onClick={() => { setVisible(true) }}>
+              <Icon.Storm />&nbsp;
+              実行
+            </Mui.Button>
+          </Mui.Grid2>
           {visible ? <>
-            <Mui.Button variant='contained' color='error' onClick={() => { p.closer(); p.op("migrate") }}>本当に転生する！</Mui.Button>
-          </> : <></>}</>}
+            <Mui.Grid2 size={12}>
+              <Mui.Button fullWidth variant='contained' color='error' onClick={() => { p.closer(); p.op("migrate") }}>本当に転生する！</Mui.Button>
+            </Mui.Grid2>
+          </> : <></>}</Mui.Grid2>}
     </Mui.Stack >
   </>
 }

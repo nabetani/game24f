@@ -72,7 +72,7 @@ function App() {
         clearTimeout(timeoutId)
       }
     }
-  }, [started])
+  }, [started, wo.maxMagic])
   const c = Layout.clientWH()
 
   const u = c.h / 1000

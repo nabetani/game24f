@@ -9,13 +9,17 @@ export type World = {
   total: number;
   powers: Powers;
   messages: Message[];
+  buildableMagicLevel: number;
+  canMigrate: boolean;
   maxMagic: number;
   size: { w: number, h: number },
 
   prev: {
+    canMigrate: boolean;
     duration: number;
     total: number;
     powers: Powers;
+    buildableMagicLevel: number;
   },
 };
 export type Cell = {

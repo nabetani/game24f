@@ -367,6 +367,8 @@ export const emptyWorld = (): World => {
       duration: d0,
       powers: { bDev: 0, pDev: 0, money: 0 },
       total: 0,
+      buildableMagicLevel: 0,
+      canMigrate: false,
     },
     size: { w: 5, h: 10 },
     buildings: [
@@ -376,8 +378,11 @@ export const emptyWorld = (): World => {
     total: 0,
     messages: [],
     maxMagic: 1,
-    powers: { money: 1e5, pDev: 100, bDev: 100 } // TODO: fix
-    // powers: { money: 1e68, pDev: 1e68, bDev: 1e68 } // TODO: fix
+    powers: { money: 1e5, pDev: 100, bDev: 100 }, // TODO: fix
+    // powers: { money: 1e68, pDev: 1e68, bDev: 1e68 }, // TODO: fix
+    // powers: { money: 1e68, pDev: 9e9, bDev: 9e9 }, // TODO: fix
+    buildableMagicLevel: 0,
+    canMigrate: false,
   }
 }
 
@@ -417,18 +422,18 @@ const progressB = (c: Cell): void => {
 }
 
 export const progress = (o: World, playSound: (_: string) => void): void => {
-  if (o.prev == null) {
-    o.prev = { duration: 0, powers: { money: 0, pDev: 0, bDev: 0 }, total: 0 }
-  }
   o.prev.duration = o.duration
   o.prev.total = o.total
   o.prev.powers = { ...o.powers }
-
+  o.prev.buildableMagicLevel = o.buildableMagicLevel
+  o.prev.canMigrate = o.canMigrate
   o.buildings.forEach(b => progressB(b))
   const i = incomeW(o)
   ++o.duration
   o.total += i.money ?? 0
   o.powers = powersAdd(o.powers, i)
+  o.buildableMagicLevel = CellKind.magic.buildableLevel(o)
+  o.canMigrate = canMigrate(o)
   const msgs = makeMsg(o)
   if (0 < (msgs?.length ?? 0)) {
     playSound("mail")
@@ -601,7 +606,10 @@ export type CondType = {
 }
 
 export const canMigrate = (w: World): boolean => {
-  return w.buildings.some(b => b.kind == FieldObjKind.magic && w.maxMagic <= b.q.level)
+  return w.buildings.some(b => (
+    b.kind == FieldObjKind.magic
+    && w.maxMagic <= b.q.level
+    && b.construction <= 0))
 }
 
 const actualPower = (power: number | undefined, nef: NeibourEffects): undefined | number => {

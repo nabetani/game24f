@@ -163,26 +163,29 @@ function AddBuildingUI(p: {
           <Mui.FormLabel id="q-selector">{
             param.toBiuld == World.FieldObjKind.magic ? "魔術" : "技術"
           }レベル {param?.level ?? "??"}</Mui.FormLabel>
-          <Mui.Button size="small" onClick={() => levelAdd(-1)} disabled={(param.level ?? 0) < 2}><Icon.ArrowBackIos fontSize="inherit" /></Mui.Button>
-          <Mui.Button size="small" onClick={() => levelAdd(1)} disabled={levelMax <= (param.level ?? levelMax)}><Icon.ArrowForwardIos fontSize="inherit" /></Mui.Button>
+          {1 < levelMax && <>
+            <Mui.Button size="small" onClick={() => levelAdd(-1)} disabled={(param.level ?? 0) < 2}><Icon.ArrowBackIos fontSize="inherit" /></Mui.Button>
+            <Mui.Button size="small" onClick={() => levelAdd(1)} disabled={levelMax <= (param.level ?? levelMax)}><Icon.ArrowForwardIos fontSize="inherit" /></Mui.Button>
+          </>}
         </Mui.Stack>
-        <Mui.Slider
-          aria-labelledby="q-selector"
-          defaultValue={1}
-          getAriaValueText={(v) => `${v}`}
-          valueLabelDisplay="auto"
-          value={param.level}
-          step={1}
-          onChange={(_, val) => {
-            if (typeof val === 'number') {
-              setParam({ ...param, level: val })
-            }
-          }}
-          marks
-          min={1}
-          max={levelMax}
-          disabled={levelMax == 1}
-        /></>
+        {1 < levelMax &&
+          <Mui.Slider
+            aria-labelledby="q-selector"
+            defaultValue={1}
+            getAriaValueText={(v) => `${v}`}
+            valueLabelDisplay="auto"
+            value={param.level}
+            step={1}
+            onChange={(_, val) => {
+              if (typeof val === 'number') {
+                setParam({ ...param, level: val })
+              }
+            }}
+            marks
+            min={1}
+            max={levelMax}
+            disabled={levelMax == 1}
+          />}</>
       }
       {param.toBiuld && 0 < (param.size ?? 0) && <>
         <Mui.Stack direction={"column"}>
