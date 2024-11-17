@@ -55,6 +55,7 @@ function ImproveUI(p: {
   cell: W.Cell,
   closer: () => void
 }): JSX.Element {
+  const theme = Mui.useTheme()
   return <>
     <Mui.Box>
       <Mui.FormControl size="small" >
@@ -64,6 +65,9 @@ function ImproveUI(p: {
             return <>
               <Mui.Stack direction="row" spacing={2}>
                 <Mui.Button variant="contained"
+                  sx={{
+                    minWidth: theme.typography.fontSize * 10
+                  }}
                   disabled={cost == null || p.world.powers.money < cost}
                   onClick={() => {
                     p.updateWorld((w: W.World) => {
@@ -71,7 +75,8 @@ function ImproveUI(p: {
                     })
                     p.closer()
                   }}
-                >強化 × {e}</Mui.Button>
+                >
+                  強化 × {e}</Mui.Button>
                 <Mui.Box sx={{ display: 'flex', alignItems: 'center' }}>
                   {cost == null
                     ? <></>
