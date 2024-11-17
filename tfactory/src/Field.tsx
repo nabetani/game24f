@@ -113,6 +113,7 @@ function AddBuildingUI(p: {
   const levelAdd = (x: number) => {
     setParam({ ...param, level: U.clamp((param.level ?? 0) + x, 1, levelMax) })
   }
+  const theme = Mui.useTheme()
   return <>
     <Mui.Box><Mui.FormControl size="small">
       <Mui.FormLabel id="btype-selector">建物の種類</Mui.FormLabel>
@@ -160,16 +161,22 @@ function AddBuildingUI(p: {
       </Mui.RadioGroup>
       {param.toBiuld && <>
         <Mui.Stack direction="row" gap={3} alignItems="baseline">
-          <Mui.FormLabel id="q-selector">{
-            param.toBiuld == World.FieldObjKind.magic ? "魔術" : "技術"
-          }レベル {param?.level ?? "??"}</Mui.FormLabel>
+          <Mui.FormLabel id="q-selector">
+            <Mui.Typography sx={{ minWidth: theme.typography.fontSize * 10 }}>
+              {
+                param.toBiuld == World.FieldObjKind.magic ? "魔術" : "技術"
+              }
+              レベル {param?.level ?? "??"}
+            </Mui.Typography>
+          </Mui.FormLabel>
           {1 < levelMax && <>
-            <Mui.Button size="small" onClick={() => levelAdd(-1)} disabled={(param.level ?? 0) < 2}><Icon.ArrowBackIos fontSize="inherit" /></Mui.Button>
-            <Mui.Button size="small" onClick={() => levelAdd(1)} disabled={levelMax <= (param.level ?? levelMax)}><Icon.ArrowForwardIos fontSize="inherit" /></Mui.Button>
+            <Mui.Button onClick={() => levelAdd(-1)} disabled={(param.level ?? 0) < 2}><Icon.ArrowBackIos fontSize="inherit" /></Mui.Button>
+            <Mui.Button onClick={() => levelAdd(1)} disabled={levelMax <= (param.level ?? levelMax)}><Icon.ArrowForwardIos fontSize="inherit" /></Mui.Button>
           </>}
         </Mui.Stack>
         {1 < levelMax &&
           <Mui.Slider
+            sx={{ my: 3 }}
             aria-labelledby="q-selector"
             defaultValue={1}
             getAriaValueText={(v) => `${v}`}
