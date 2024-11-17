@@ -16,7 +16,12 @@ import * as sound from "./sound"
 function SplashDialog(p: { onClose: () => void }): JSX.Element {
   const theme = Mui.useTheme()
   const w = theme.typography.fontSize * 25
-  return <Mui.Dialog open={true}>
+  const [open, setOpen] = React.useState<boolean>(true)
+  const onClose = () => {
+    setOpen(false);
+    p.onClose()
+  }
+  return <Mui.Dialog open={open} onClose={onClose}>
     <Mui.DialogContent>
       <Mui.Card>
         <Mui.CardMedia
@@ -39,7 +44,7 @@ function SplashDialog(p: { onClose: () => void }): JSX.Element {
                 right: theme.typography.fontSize * -1,
                 top: theme.typography.fontSize * -1,
               }}
-              onClick={() => p.onClose()}
+              onClick={onClose}
             ><Icon.Close /></Mui.IconButton>
           </Mui.Box>
         </Mui.CardContent>
@@ -154,10 +159,10 @@ function App() {
   }
 
   return <ThemeProvider theme={theme}>
-    {started ? <></> : <SplashDialog onClose={() => {
+    <SplashDialog onClose={() => {
       sound.play("bgm");
       setStarted(true);
-    }} />}
+    }} />
     <Mui.Stack direction="column"
       style={{
         display: 'flex', flexDirection: "column",
