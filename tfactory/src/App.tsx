@@ -28,14 +28,16 @@ function SplashDialog(p: { onClose: () => void }): JSX.Element {
         <Mui.CardContent>
           <Mui.Box
             sx={{ position: "relative" }}>
-            閉じるとスタートです。<br />
-            遊び方などについては<br />
-            左上のハンバーガボタンから確認できます。
+            <Mui.Typography variant='body1'>
+              閉じるとスタートです。<br />
+              遊び方などについては<br />
+              左上のハンバーガボタンから確認できます。
+            </Mui.Typography>
             <Mui.IconButton
               sx={{
                 position: 'absolute',
-                right: 0,
-                top: 0,
+                right: theme.typography.fontSize * -1,
+                top: theme.typography.fontSize * -1,
               }}
               onClick={() => p.onClose()}
             ><Icon.Close /></Mui.IconButton>
