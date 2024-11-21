@@ -5,7 +5,8 @@ var sounds: { [key: string]: ((start: boolean) => void) | null } = {}
 const audioContext = new (window.AudioContext)();
 
 export const play = (t: string) => {
-  if (!WS.soundOn.value) { return }
+  const on = t == "bgm" ? WS.bgmOn.value : WS.soundOn.value
+  if (!on) { return }
   const e = document.getElementById(`sound.${t}`) as HTMLAudioElement;
   const attrNum = (name: string, fallback: number): number => {
     const a = e.getAttribute(name)
