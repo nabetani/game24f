@@ -191,10 +191,15 @@ function UsageUI(p: {
         <TY>建物の能力や、建物に対してできる操作は種類によって異なります。詳細は隣の「建物」タブにあります。</TY>
         <TY><br /></TY>
         <TY>「魔王を倒す」のような明確なゴールはありませんので、辞め時がありません。ご注意ください。</TY>
+        <br />
+        <Mui.Divider />
+        <br />
+        <TY>補足</TY>
+        <TY>ゲームの状態はブラウザの localStorage という方法で保存されています。</TY>
+        <TY>サーバには保存されていません。</TY>
+        <TY>バックアップを取る手段や別のブラウザに移行する手段は用意してません。</TY>
       </MuiL.TabPanel>
       <MuiL.TabPanel value={mtab.buildings}>
-
-
         <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
           <Icon.Home /> <T>自宅 兼 工場</T></Mui.Stack>
         <Mui.Box sx={{ pl: 4 }}><T>
