@@ -16,12 +16,12 @@ export const play = (t: string) => {
     const a = e.getAttribute(name)
     return a ? a.toLowerCase() == "true" : fallback
   }
-  console.log({ e: e });
+  // console.log({ e: e });
   (async () => {
     const sound = sounds[t] ?? await (async (): Promise<((start: boolean) => void) | null> => {
       const res = await fetch(e.src);
       if (!res.ok) {
-        console.log({ "sound.play": res })
+        // console.log({ "sound.play": res })
         return null
       }
       const arrayBuffer = await res.arrayBuffer();

@@ -74,7 +74,7 @@ const tmsgs = (([
   [1.5e53 * kg, "出荷したタイツの総重量が観測可能な宇宙の全質量を超えた"],
 ]) as [number, string][]).sort((a: [number, string], b: [number, string]) => a[0] - b[0])
 
-console.log(tmsgs);
+// console.log(tmsgs);
 
 const tmsg = (wo: W.World): string[] => {
   const msgs: string[] = []
