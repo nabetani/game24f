@@ -29,13 +29,24 @@ function GeneralUI(p: {
   closer: () => void,
 }): JSX.Element {
   const [soundOn, setSoundOn] = React.useState(WS.soundOn.value)
+  const [bgmOn, setBGMOn] = React.useState(WS.bgmOn.value)
   return <>
     <Mui.Stack direction={"column"}>
       <Mui.Stack direction={"row"} alignItems={'baseline'}>
-        <Mui.Typography>サウンド</Mui.Typography>
+        <Mui.Typography>効果音</Mui.Typography>
         <Mui.Switch checked={soundOn} onChange={(_, checked: boolean) => {
           WS.soundOn.write(checked)
           setSoundOn(checked)
+          if (!checked) {
+            sound.stopExcept("bgm")
+          }
+        }} />
+      </Mui.Stack>
+      <Mui.Stack direction={"row"} alignItems={'baseline'}>
+        <Mui.Typography>音楽</Mui.Typography>
+        <Mui.Switch checked={bgmOn} onChange={(_, checked: boolean) => {
+          WS.bgmOn.write(checked)
+          setBGMOn(checked)
           if (checked) {
             sound.play("bgm")
           } else {

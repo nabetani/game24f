@@ -37,4 +37,5 @@ class WSItem<T> {
 
 export const messageIx = new WSItem<[number, number]>("messageIx", [0, 0])
 export const soundOn = new WSItem<boolean>("soundOn", false)
+export const bgmOn = new WSItem<boolean>("bgmOn", false)
 export const world = new WSItem<W.World>("world", G.emptyWorld())

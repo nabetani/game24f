@@ -55,3 +55,6 @@ export const play = (t: string) => {
 export const stopAll = () => {
   Object.entries(sounds).forEach(([_, v]) => v && v(false))
 }
+export const stopExcept = (s: string) => {
+  Object.entries(sounds).forEach(([name, v]) => name != s && v && v(false))
+}
