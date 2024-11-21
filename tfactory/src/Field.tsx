@@ -10,7 +10,7 @@ import { Updater } from 'use-immer';
 import * as Layout from "./layout"
 import * as Icon from '@mui/icons-material';
 import * as W from "./World"
-
+import * as sound from "./sound"
 
 type BuildAreaContextV = {
   buildArea?: W.Area,
@@ -37,7 +37,7 @@ function DestroyUI(p: {
             disabled={cost == null || p.world.powers.money < cost}
             onClick={() => {
               p.updateWorld((w: W.World) => {
-                G.destroy(w, p.cell)
+                G.destroy(w, p.cell, sound.play)
               })
               p.closer()
             }}
@@ -62,30 +62,29 @@ function ImproveUI(p: {
         <Mui.Stack direction="column" spacing={2}>
           {[1, 3, 10, 30].map(e => {
             const cost = G.improveCost(p.world, p.cell, e)
-            return <>
-              <Mui.Stack direction="row" spacing={2}>
-                <Mui.Button variant="contained"
-                  sx={{
-                    minWidth: theme.typography.fontSize * 10
-                  }}
-                  disabled={cost == null || p.world.powers.money < cost}
-                  onClick={() => {
-                    p.updateWorld((w: W.World) => {
-                      G.improve(w, p.cell, e)
-                    })
-                    p.closer()
-                  }}
-                >
-                  強化 × {e}</Mui.Button>
-                <Mui.Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {cost == null
-                    ? <></>
-                    : <Mui.Typography>
-                      コスト: {U.numText(cost)}
-                    </Mui.Typography>}
-                </Mui.Box>
-              </Mui.Stack>
-            </>
+            return <Mui.Stack key={e} direction="row" spacing={2}>
+              <Mui.Button variant="contained"
+                sx={{
+                  minWidth: theme.typography.fontSize * 10
+                }}
+                disabled={cost == null || p.world.powers.money < cost}
+                onClick={() => {
+                  p.updateWorld((w: W.World) => {
+                    G.improve(w, p.cell, e)
+                  })
+                  sound.play("improve")
+                  p.closer()
+                }}
+              >
+                強化 × {e}</Mui.Button>
+              <Mui.Box sx={{ display: 'flex', alignItems: 'center' }}>
+                {cost == null
+                  ? <></>
+                  : <Mui.Typography>
+                    コスト: {U.numText(cost)}
+                  </Mui.Typography>}
+              </Mui.Box>
+            </Mui.Stack>
           })}
         </Mui.Stack>
       </Mui.FormControl>

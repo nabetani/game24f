@@ -417,8 +417,11 @@ export const incomeW = (w: World): Powers => {
     }, powersZero())
 }
 
-const progressB = (c: Cell): void => {
+const progressB = (c: Cell): boolean => {
+  const prev = 0 < c.construction
   if (0 < c.construction) --c.construction
+  const cur = 0 < c.construction
+  return prev && !cur
 }
 
 export const progress = (o: World, playSound: (_: string) => void): void => {
@@ -427,7 +430,13 @@ export const progress = (o: World, playSound: (_: string) => void): void => {
   o.prev.powers = { ...o.powers }
   o.prev.buildableMagicLevel = o.buildableMagicLevel
   o.prev.canMigrate = o.canMigrate
-  o.buildings.forEach(b => progressB(b))
+  let complete = false
+  o.buildings.forEach(b => {
+    complete = progressB(b) || complete
+  })
+  if (complete) {
+    playSound("complete");
+  }
   const i = incomeW(o)
   ++o.duration
   o.total += i.money ?? 0
@@ -481,13 +490,14 @@ export const isDestroyable = (_w: World, c: Cell): boolean => {
   return k.destroyCostRatio != null
 }
 
-export const destroy = (w: World, c: Cell): void => {
+export const destroy = (w: World, c: Cell, playSound: (_: string) => void): void => {
   const p = c.area
   const k = CellKind.o[c.kind]
   const ratio = k.destroyCostRatio
   if (ratio == null) { return }
   const cost = k.buildCost(c.q.level, c.area.w as SizeType) * ratio
   w.powers.money -= cost
+  playSound("destroy");
   w.buildings = w.buildings.filter((b) => {
     const q = b.area
     return !(p.x == q.x && p.y == q.y)
