@@ -194,10 +194,13 @@ function UsageUI(p: {
         <br />
         <Mui.Divider />
         <br />
-        <TY>補足</TY>
+        <TB>補足1</TB>
         <TY>ゲームの状態はブラウザの localStorage という方法で保存されています。</TY>
         <TY>サーバには保存されていません。</TY>
         <TY>バックアップを取る手段や別のブラウザに移行する手段は用意してません。</TY>
+        <TB>補足2</TB>
+        <TY>放置ゲームなのに、放置するとブラウザが重くなることがありますすいません。</TY>
+        <TY>リロードすると解消するようです。</TY>
       </MuiL.TabPanel>
       <MuiL.TabPanel value={mtab.buildings}>
         <Mui.Stack gap={1} direction="row" display="flex" alignItems="center">
