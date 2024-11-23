@@ -24,7 +24,7 @@ const mtab = {
   info: "mtab-info",
 } as const
 
-function GeneralUI(p: {
+function GeneralUI(_: {
   op: (cmd: string) => void,
   closer: () => void,
 }): JSX.Element {
