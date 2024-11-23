@@ -27,7 +27,7 @@ function SplashDialog(p: { onClose: () => void }): JSX.Element {
         <Mui.CardMedia
           component="img"
           sx={{ width: w, }}
-          image="/title.webp"
+          image="./title.webp"
           alt="タイツ工場"
         />
         <Mui.CardContent>
